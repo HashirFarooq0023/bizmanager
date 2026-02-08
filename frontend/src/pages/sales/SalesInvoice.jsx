@@ -29,7 +29,17 @@ const SalesInvoice = () => {
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const itemsPerPage = isMobile ? 20 : 10;
+
+  // Detect window resize for responsive design
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     dispatch(getAllSalesInvoices());
@@ -92,37 +102,29 @@ const SalesInvoice = () => {
     <Layout>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-2">
+        <div className="mb-1 md:mb-8">
+          <h1 className="text-sm md:text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-0.5 md:mb-2">
             Sales Invoices
           </h1>
-          <p className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
+          <p className="text-[10px] md:text-base text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
             View and manage all sales invoices
           </p>
         </div>
 
         {/* Error Message */}
         {isError && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <div className="mb-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
             <p className="text-red-600 dark:text-red-400 text-sm">{message}</p>
           </div>
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 dark:text-[rgb(var(--color-text-secondary))] text-sm font-medium">
-                  Total Invoices
-                </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mt-2">
-                  {totalInvoices}
-                </p>
-              </div>
-              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+        <div className="grid grid-cols-3 md:grid-cols-3 gap-1 md:gap-4 mb-1 md:mb-6">
+          <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded md:rounded-lg shadow-sm dark:shadow-lg p-1 md:p-4 border dark:border-[rgb(var(--color-border))] transition-all duration-200 hover:shadow-lg overflow-hidden">
+            <div className="flex items-center space-x-1 md:space-x-4 overflow-hidden">
+              <div className="p-1 md:p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full flex-shrink-0">
                 <svg
-                  className="w-8 h-8 text-blue-600 dark:text-blue-400"
+                  className="w-3.5 h-3.5 md:w-6 md:h-6 text-blue-600 dark:text-blue-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -135,65 +137,19 @@ const SalesInvoice = () => {
                   />
                 </svg>
               </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs md:text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] truncate">{totalInvoices}</p>
+                <p className="text-[9px] md:text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide truncate">Total Invoices</p>
+              </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">
-                Customer Filter
-              </h2>
-            </div>
-            {selectedCustomer ? (
-              <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
-                      {selectedCustomer.name}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
-                      {selectedCustomer.phone}
-                    </p>
-                    {selectedCustomer.email && (
-                      <p className="text-sm text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
-                        {selectedCustomer.email}
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setSelectedCustomer(null)}
-                    className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-500 text-sm font-medium"
-                  >
-                    Clear Filter
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowCustomerModal(true)}
-                className="w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-[rgb(var(--color-border))] rounded-lg text-gray-600 dark:text-[rgb(var(--color-text-secondary))] hover:border-indigo-500 dark:hover:border-[rgb(var(--color-primary))] hover:text-indigo-600 dark:hover:text-[rgb(var(--color-primary))] transition flex flex-col items-center justify-center gap-2"
-              >
-                <span className="font-medium">Click to filter by customer</span>
-                <span className="text-sm text-gray-400 dark:text-[rgb(var(--color-text-muted))]">
-                  Show invoices for specific customer
-                </span>
-              </button>
-            )}
-          </div>
 
-          <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 dark:text-[rgb(var(--color-text-secondary))] text-sm font-medium">
-                  Amount Collected
-                </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mt-2">
-                  ₹{totalPaid.toFixed(0)}
-                </p>
-              </div>
-              <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+          <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded md:rounded-lg shadow-sm dark:shadow-lg p-1 md:p-4 border dark:border-[rgb(var(--color-border))] transition-all duration-200 hover:shadow-lg overflow-hidden">
+            <div className="flex items-center space-x-1 md:space-x-4 overflow-hidden">
+              <div className="p-1 md:p-3 bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 rounded-full flex-shrink-0">
                 <svg
-                  className="w-8 h-8 text-purple-600 dark:text-purple-400"
+                  className="w-3.5 h-3.5 md:w-6 md:h-6 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -206,22 +162,18 @@ const SalesInvoice = () => {
                   />
                 </svg>
               </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs md:text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] truncate">₹{totalPaid.toFixed(0)}</p>
+                <p className="text-[9px] md:text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide truncate">Amount Collected</p>
+              </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 dark:text-[rgb(var(--color-text-secondary))] text-sm font-medium">
-                  Outstanding Dues
-                </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mt-2">
-                  ₹{totalDue.toFixed(0)}
-                </p>
-              </div>
-              <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
+          <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded md:rounded-lg shadow-sm dark:shadow-lg p-1 md:p-4 border dark:border-[rgb(var(--color-border))] transition-all duration-200 hover:shadow-lg overflow-hidden">
+            <div className="flex items-center space-x-1 md:space-x-4 overflow-hidden">
+              <div className="p-1 md:p-3 bg-gradient-to-br from-red-500 to-red-600 dark:from-red-600 dark:to-red-700 rounded-full flex-shrink-0">
                 <svg
-                  className="w-8 h-8 text-red-600 dark:text-red-400"
+                  className="w-3.5 h-3.5 md:w-6 md:h-6 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -234,24 +186,28 @@ const SalesInvoice = () => {
                   />
                 </svg>
               </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs md:text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] truncate">₹{totalDue.toFixed(0)}</p>
+                <p className="text-[9px] md:text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide truncate">Outstanding Dues</p>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-4 mb-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-            <div className="w-full sm:w-96">
+        <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded md:rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-1 md:p-2 mb-1 md:mb-6">
+          <div className="flex flex-row justify-between items-center gap-1 md:gap-0 md:space-y-4">
+            <div className="flex-1 min-w-0">
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Search by invoice number or customer..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-[rgb(var(--color-border))] bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] placeholder:text-gray-400 dark:placeholder:text-[rgb(var(--color-placeholder))] rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[rgb(var(--color-primary))] focus:border-transparent"
+                  className="w-full pl-8 md:pl-10 pr-4 py-0.5 md:py-1 text-xs md:text-base border border-gray-300 dark:border-[rgb(var(--color-border))] bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] placeholder:text-gray-400 dark:placeholder:text-[rgb(var(--color-placeholder))] rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[rgb(var(--color-primary))] focus:border-transparent"
                 />
                 <svg
-                  className="absolute left-3 top-2.5 w-5 h-5 text-gray-400 dark:text-[rgb(var(--color-text-muted))]"
+                  className="absolute left-2 md:left-3 top-1.5 md:top-2.5 w-3 h-3 md:w-4 md:h-4 text-gray-400 dark:text-[rgb(var(--color-text-muted))]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -266,11 +222,11 @@ const SalesInvoice = () => {
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center flex-shrink-0">
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 dark:border-[rgb(var(--color-border))] bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[rgb(var(--color-primary))] focus:border-transparent"
+                className="px-1 md:px-2 py-0.5 md:py-1 text-xs md:text-base border border-gray-300 dark:border-[rgb(var(--color-border))] bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[rgb(var(--color-primary))] focus:border-transparent"
               >
                 <option value="all">All Status</option>
                 <option value="paid">Paid</option>
@@ -282,15 +238,15 @@ const SalesInvoice = () => {
         </div>
 
         {/* Invoices Table */}
-        <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] overflow-hidden">
+        <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded md:rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] overflow-hidden">
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-[rgb(var(--color-primary))]"></div>
             </div>
           ) : filteredInvoices.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="text-center py-4 md:py-12">
               <svg
-                className="w-16 h-16 text-gray-400 dark:text-[rgb(var(--color-text-muted))] mx-auto mb-4"
+                className="w-8 h-8 md:w-16 md:h-16 text-gray-400 dark:text-[rgb(var(--color-text-muted))] mx-auto mb-2 md:mb-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -302,41 +258,101 @@ const SalesInvoice = () => {
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              <p className="text-gray-500 dark:text-[rgb(var(--color-text-secondary))] text-lg">
+              <p className="text-xs md:text-lg text-gray-500 dark:text-[rgb(var(--color-text-secondary))]">
                 No sales invoices found
               </p>
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
+              {/* Mobile Card View - Ultra Compact 2-Line Layout */}
+              <div className="block md:hidden">
+                {paginatedInvoices.map((invoice) => (
+                  <div
+                    key={invoice._id}
+                    className="px-1 py-0.5 border-b border-gray-200 dark:border-[rgb(var(--color-border))] last:border-b-0"
+                  >
+                    {/* Line 1: Invoice# | Customer | Status | Amount */}
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="flex items-center gap-1 flex-1 min-w-0">
+                        <span className="text-[10px] font-bold text-indigo-600 dark:text-[rgb(var(--color-primary))] truncate">
+                          {invoice.invoiceNo}
+                        </span>
+                        <span className="text-[10px] text-gray-900 dark:text-[rgb(var(--color-text))] truncate">
+                          {invoice.customer?.name || "Walk-in"}
+                        </span>
+                      </div>
+                      <span
+                        className={`px-1 py-0 text-[7px] leading-tight font-semibold rounded flex-shrink-0 ${getStatusColor(
+                          invoice.paymentStatus
+                        )}`}
+                      >
+                        {invoice.paymentStatus}
+                      </span>
+                      <span className="text-[10px] font-bold text-gray-900 dark:text-[rgb(var(--color-text))] flex-shrink-0">
+                        ₹{invoice.totalAmount.toFixed(0)}
+                      </span>
+                    </div>
+
+                    {/* Line 2: Date | Items | Payment | Paid | Actions */}
+                    <div className="flex items-center justify-between gap-1 text-[8px]">
+                      <div className="flex items-center gap-1 text-gray-500 dark:text-[rgb(var(--color-text-secondary))] flex-1 min-w-0">
+                        <span className="truncate">{new Date(invoice.createdAt).toLocaleDateString("en-IN")}</span>
+                        <span>•</span>
+                        <span>{invoice.items.length}i</span>
+                        <span>•</span>
+                        <span className="truncate">{invoice.paymentMethod}</span>
+                        <span>•</span>
+                        <span className="truncate">P:₹{invoice.paidAmount.toFixed(0)}</span>
+                      </div>
+                      <div className="flex gap-1 flex-shrink-0">
+                        <button
+                          onClick={() => navigate(`/sales/invoice/${invoice._id}`)}
+                          className="text-[9px] text-indigo-600 dark:text-[rgb(var(--color-primary))] hover:underline"
+                        >
+                          View
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm(invoice._id)}
+                          className="text-[9px] text-red-600 dark:text-red-400 hover:underline"
+                        >
+                          Del
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="overflow-x-auto hidden md:block">
                 <table className="w-full">
                   <thead className="bg-gray-50 dark:bg-[rgb(var(--color-table-header))] border-b border-gray-200 dark:border-[rgb(var(--color-border))]">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                         Invoice No
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                         Date
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                         Customer
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                         Items
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                         Total
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                         Paid
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
                         Payment
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase">
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
@@ -348,12 +364,12 @@ const SalesInvoice = () => {
                         className="hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-table-row-hover))]"
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-indigo-600 dark:text-[rgb(var(--color-primary))]">
+                          <div className="text-xs font-medium text-indigo-600 dark:text-[rgb(var(--color-primary))]">
                             {invoice.invoiceNo}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">
+                          <div className="text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">
                             {new Date(invoice.createdAt).toLocaleDateString(
                               "en-IN"
                             )}
@@ -363,7 +379,7 @@ const SalesInvoice = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">
+                          <div className="text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">
                             {invoice.customer?.name || "Walk-in"}
                           </div>
                           {invoice.customer?.phone && (
@@ -373,17 +389,17 @@ const SalesInvoice = () => {
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">
+                          <div className="text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">
                             {invoice.items.length} items
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
+                          <div className="text-xs font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
                             ₹{invoice.totalAmount.toFixed(2)}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">
+                          <div className="text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">
                             ₹{invoice.paidAmount.toFixed(2)}
                           </div>
                         </td>
@@ -397,11 +413,11 @@ const SalesInvoice = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="text-sm text-gray-900 dark:text-[rgb(var(--color-text))] capitalize">
+                          <span className="text-xs text-gray-900 dark:text-[rgb(var(--color-text))] capitalize">
                             {invoice.paymentMethod}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
                           <button
                             onClick={() =>
                               navigate(`/sales/invoice/${invoice._id}`)
@@ -425,19 +441,19 @@ const SalesInvoice = () => {
 
               {/* Pagination Controls */}
               {totalPages > 1 && (
-                <div className="px-6 py-4 border-t border-gray-200 dark:border-[rgb(var(--color-border))] flex items-center justify-between">
-                  <div className="text-sm text-gray-700 dark:text-[rgb(var(--color-text-secondary))]">
+                <div className="px-1 md:px-3 py-1 md:py-2 border-t border-gray-200 dark:border-[rgb(var(--color-border))] flex items-center justify-between">
+                  <div className="text-[9px] md:text-xs text-gray-700 dark:text-[rgb(var(--color-text-secondary))]">
                     Showing {startIndex + 1} to{" "}
                     {Math.min(endIndex, filteredInvoices.length)} of{" "}
                     {filteredInvoices.length} results
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 md:gap-2">
                     <button
                       onClick={() =>
                         setCurrentPage((prev) => Math.max(1, prev - 1))
                       }
                       disabled={currentPage === 1}
-                      className="px-3 py-1 border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))] text-gray-700 dark:text-[rgb(var(--color-text))]"
+                      className="px-2 py-0.5 md:px-3 md:py-1 border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-md text-[10px] md:text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))] text-gray-700 dark:text-[rgb(var(--color-text))]"
                     >
                       Previous
                     </button>
@@ -452,7 +468,7 @@ const SalesInvoice = () => {
                             <button
                               key={page}
                               onClick={() => setCurrentPage(page)}
-                              className={`px-3 py-1 border rounded-md text-sm ${currentPage === page
+                              className={`px-2 py-0.5 md:px-3 md:py-1 border rounded-md text-[10px] md:text-sm ${currentPage === page
                                 ? "bg-indigo-600 text-white border-indigo-600"
                                 : "border-gray-300 dark:border-[rgb(var(--color-border))] hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))] text-gray-700 dark:text-[rgb(var(--color-text))]"
                                 }`}
@@ -478,7 +494,7 @@ const SalesInvoice = () => {
                         setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                       }
                       disabled={currentPage === totalPages}
-                      className="px-3 py-1 border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))] text-gray-700 dark:text-[rgb(var(--color-text))]"
+                      className="px-2 py-0.5 md:px-3 md:py-1 border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-md text-[10px] md:text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))] text-gray-700 dark:text-[rgb(var(--color-text))]"
                     >
                       Next
                     </button>
@@ -492,24 +508,24 @@ const SalesInvoice = () => {
         {/* Delete Confirmation Modal */}
         {deleteConfirm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl p-6 max-w-md w-full mx-4 border dark:border-[rgb(var(--color-border))]">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-4">
+            <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded md:rounded-xl p-1 md:p-6 max-w-xs md:max-w-md w-full mx-4 border dark:border-[rgb(var(--color-border))]">
+              <h3 className="text-xs md:text-lg font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-1 md:mb-4">
                 Confirm Delete
               </h3>
-              <p className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-6">
+              <p className="text-[10px] md:text-base text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-2 md:mb-6">
                 Are you sure you want to delete this invoice? This action cannot
                 be undone.
               </p>
-              <div className="flex space-x-4">
+              <div className="flex space-x-2 md:space-x-4">
                 <button
                   onClick={() => setDeleteConfirm(null)}
-                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-[rgb(var(--color-border))] text-gray-700 dark:text-[rgb(var(--color-text))] bg-white dark:bg-[rgb(var(--color-card))] rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]"
+                  className="flex-1 px-2 py-1 md:px-4 md:py-2 text-xs md:text-base border border-gray-300 dark:border-[rgb(var(--color-border))] text-gray-700 dark:text-[rgb(var(--color-text))] bg-white dark:bg-[rgb(var(--color-card))] rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleDelete(deleteConfirm)}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  className="flex-1 px-2 py-1 md:px-4 md:py-2 text-xs md:text-base bg-red-600 text-white rounded-lg hover:bg-red-700"
                 >
                   Delete
                 </button>

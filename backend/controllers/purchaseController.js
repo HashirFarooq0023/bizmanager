@@ -43,20 +43,20 @@ export const createPurchase = async (req, res) => {
 
         // Validation
         if (!supplierId) {
-            return res.status(400).json({ message: "Supplier is required" });
+            return res.status(400).json({ success: false, message: "Supplier is required" });
         }
 
         if (!supplierInvoiceNo) {
-            return res.status(400).json({ message: "Supplier invoice number is required" });
+            return res.status(400).json({ success: false, message: "Supplier invoice number is required" });
         }
 
         if (!items || items.length === 0) {
-            return res.status(400).json({ message: "At least one item is required" });
+            return res.status(400).json({ success: false, message: "At least one item is required" });
         }
 
         // Validate supplier ownership
         if (!mongoose.Types.ObjectId.isValid(supplierId)) {
-            return res.status(400).json({ message: "Invalid supplier ID format" });
+            return res.status(400).json({ success: false, message: "Invalid supplier ID format" });
         }
 
         const supplier = await Supplier.findOne({
@@ -65,7 +65,7 @@ export const createPurchase = async (req, res) => {
         });
 
         if (!supplier) {
-            return res.status(404).json({ message: "Supplier not found or unauthorized" });
+            return res.status(404).json({ success: false, message: "Supplier not found or unauthorized" });
         }
 
         // Get business state from user's GST number
@@ -84,7 +84,7 @@ export const createPurchase = async (req, res) => {
         for (const itemData of items) {
             // Validate item ownership
             if (!mongoose.Types.ObjectId.isValid(itemData.item)) {
-                return res.status(400).json({ message: `Invalid item ID format: ${itemData.item}` });
+                return res.status(400).json({ success: false, message: `Invalid item ID format: ${itemData.item}` });
             }
 
             const item = await Item.findOne({
@@ -93,20 +93,23 @@ export const createPurchase = async (req, res) => {
             });
 
             if (!item) {
-                return res.status(404).json({
-                    message: `Item not found or unauthorized: ${itemData.item}`,
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid item ID or item not found: ${itemData.item}`,
                 });
             }
 
             // Validate quantities
             if (itemData.quantity <= 0) {
                 return res.status(400).json({
+                    success: false,
                     message: `Invalid quantity for item ${item.name}`,
                 });
             }
 
             if (itemData.purchaseRate < 0) {
                 return res.status(400).json({
+                    success: false,
                     message: `Invalid purchase rate for item ${item.name}`,
                 });
             }
@@ -208,34 +211,40 @@ export const createPurchase = async (req, res) => {
             for (const itemData of processedItems) {
                 const item = await Item.findById(itemData.item);
 
-                // Capture previous state
+                // Capture previous state for stock movement logging
                 const previousState = {
                     stockQty: item.stockQty,
                     reservedStock: item.reservedStock || 0,
                     inTransitStock: item.inTransitStock || 0,
                 };
 
-                // Increase stock
-                item.stockQty += itemData.quantity;
+                // Atomic stock increase using $inc for concurrency safety
+                const updatedItem = await Item.findByIdAndUpdate(
+                    itemData.item,
+                    {
+                        $inc: { stockQty: itemData.quantity }
+                    },
+                    { new: true }
+                );
 
-                // Update cost price (weighted average)
+                // Update cost price (weighted average) and other fields
                 const totalCost = item.costPrice * previousState.stockQty + itemData.purchaseRate * itemData.quantity;
                 const totalQty = previousState.stockQty + itemData.quantity;
-                item.costPrice = totalQty > 0 ? totalCost / totalQty : itemData.purchaseRate;
+                updatedItem.costPrice = totalQty > 0 ? totalCost / totalQty : itemData.purchaseRate;
 
                 // Update selling price if provided
                 if (itemData.sellingPrice > 0) {
-                    item.sellingPrice = itemData.sellingPrice;
+                    updatedItem.sellingPrice = itemData.sellingPrice;
                 }
 
                 // Update barcode if provided
                 if (itemData.barcode) {
-                    item.barcode = itemData.barcode;
+                    updatedItem.barcode = itemData.barcode;
                 }
 
                 // Handle batch tracking
-                if (item.trackBatch && itemData.batchNo) {
-                    item.batches.push({
+                if (updatedItem.trackBatch && itemData.batchNo) {
+                    updatedItem.batches.push({
                         batchNo: itemData.batchNo,
                         quantity: itemData.quantity,
                         expiryDate: itemData.expiryDate || null,
@@ -245,20 +254,21 @@ export const createPurchase = async (req, res) => {
                 }
 
                 // Validate stock levels
-                validateStockLevels(item);
+                validateStockLevels(updatedItem);
 
-                await item.save({});
+                // Save other field updates (cost price, selling price, barcode, batches)
+                await updatedItem.save({});
 
                 // Capture new state
                 const newState = {
-                    stockQty: item.stockQty,
-                    reservedStock: item.reservedStock || 0,
-                    inTransitStock: item.inTransitStock || 0,
+                    stockQty: updatedItem.stockQty,
+                    reservedStock: updatedItem.reservedStock || 0,
+                    inTransitStock: updatedItem.inTransitStock || 0,
                 };
 
                 // Log stock movement
                 await logStockMovement(
-                    item,
+                    updatedItem,
                     "PURCHASE",
                     itemData.quantity,
                     purchase[0]._id,
@@ -351,10 +361,7 @@ export const createPurchase = async (req, res) => {
             .populate("items.item", "name sku")
             .populate({ path: "createdBy", select: "shopName name gstNumber" });
 
-        res.status(201).json({
-            message: "Purchase created successfully",
-            purchase: populatedPurchase,
-        });
+        res.status(201).json({ success: true, message: "Purchase created successfully", purchase: populatedPurchase });
     } catch (err) {
         error(`Purchase creation failed: ${err.message}`);
         res.status(500).json({ message: "Server Error", error: err.message });
@@ -389,7 +396,7 @@ export const getAllPurchases = async (req, res) => {
             .populate("supplier", "businessName contactPersonName contactNo")
             .sort({ purchaseDate: -1, createdAt: -1 });
 
-        res.status(200).json(purchases);
+        res.status(200).json({ success: true, purchases });
     } catch (err) {
         error(`Get purchases failed: ${err.message}`);
         res.status(500).json({ message: "Server Error", error: err.message });
@@ -514,7 +521,7 @@ export const updatePurchase = async (req, res) => {
                 });
 
                 if (!item) {
-                    return res.status(404).json({ message: `Item not found: ${itemData.item}` });
+                    return res.status(400).json({ message: `Invalid item ID or item not found: ${itemData.item}` });
                 }
 
                 const calculation = calculatePurchaseItemTotal(
@@ -792,32 +799,73 @@ export const finalizePurchase = async (req, res) => {
                 item.sellingPrice = itemData.sellingPrice;
             }
 
-            // Update barcode if provided
-            if (itemData.barcode) {
-                item.barcode = itemData.barcode;
-            }
-
-            if (item.trackBatch && itemData.batchNo) {
-                item.batches.push({
-                    batchNo: itemData.batchNo,
-                    quantity: itemData.quantity,
-                    expiryDate: itemData.expiryDate || null,
-                    purchaseRate: itemData.purchaseRate,
-                    purchaseDate: purchase.purchaseDate,
+            const foundItem = await Item.findById(itemData.item);
+            if (!foundItem) {
+                return res.status(404).json({
+                    success: false,
+                    message: `Item not found: ${itemData.item}`,
                 });
             }
 
-            validateStockLevels(item);
-            await item.save({});
+            // Atomic stock deduction with oversell protection
+            // NOTE: The provided instruction's code snippet was for stock DEDUCTION.
+            // For purchase finalization, stock should INCREASE.
+            // Assuming the intent was to make the stock update atomic,
+            // but for an increase, the $gte condition for deduction is not applicable.
+            // I will apply the atomic update for addition, and keep other updates on the 'item' object.
+            const updateResult = await Item.updateOne(
+                {
+                    _id: itemData.item,
+                },
+                {
+                    $inc: { stockQty: itemData.quantity }, // Stock increases for a purchase
+                    $set: {
+                        costPrice: item.costPrice, // Update cost price calculated above
+                        sellingPrice: item.sellingPrice, // Update selling price calculated above
+                        barcode: itemData.barcode || item.barcode, // Update barcode if provided
+                    },
+                    ...(item.trackBatch && itemData.batchNo && {
+                        $push: {
+                            batches: {
+                                batchNo: itemData.batchNo,
+                                quantity: itemData.quantity,
+                                expiryDate: itemData.expiryDate || null,
+                                purchaseRate: itemData.purchaseRate,
+                                purchaseDate: purchase.purchaseDate,
+                            }
+                        }
+                    })
+                }
+            );
+
+            // Check if update succeeded (item existed)
+            if (updateResult.modifiedCount === 0) {
+                // This case should ideally not happen if item was found initially
+                return res.status(400).json({
+                    success: false,
+                    message: `Failed to update stock for item ${foundItem.name}. Item might have been removed.`,
+                });
+            }
+
+            // Get updated item for logging and further validation
+            const updatedItem = await Item.findById(itemData.item);
+            if (!updatedItem) {
+                return res.status(404).json({
+                    success: false,
+                    message: `Item not found after update: ${itemData.item}`,
+                });
+            }
+
+            validateStockLevels(updatedItem); // Validate with the newly updated item state
 
             const newState = {
-                stockQty: item.stockQty,
-                reservedStock: item.reservedStock || 0,
-                inTransitStock: item.inTransitStock || 0,
+                stockQty: updatedItem.stockQty, // Use updated stockQty
+                reservedStock: updatedItem.reservedStock || 0,
+                inTransitStock: updatedItem.inTransitStock || 0,
             };
 
             await logStockMovement(
-                item,
+                updatedItem, // Log with the updated item
                 "PURCHASE",
                 itemData.quantity,
                 purchase._id,
@@ -956,6 +1004,12 @@ export const cancelPurchase = async (req, res) => {
         // Reverse inventory changes
         for (const itemData of purchase.items) {
             const item = await Item.findById(itemData.item);
+            if (!item) {
+                return res.status(404).json({
+                    success: false,
+                    message: `Item not found: ${itemData.item}`,
+                });
+            }
 
             const previousState = {
                 stockQty: item.stockQty,
@@ -963,40 +1017,59 @@ export const cancelPurchase = async (req, res) => {
                 inTransitStock: item.inTransitStock || 0,
             };
 
-            // Decrease stock
-            item.stockQty -= itemData.quantity;
+            // Atomic stock deduction with oversell protection
+            const updateResult = await Item.updateOne(
+                {
+                    _id: itemData.item,
+                    stockQty: { $gte: itemData.quantity }
+                },
+                {
+                    $inc: { stockQty: -itemData.quantity }
+                }
+            );
 
-            // If stock goes negative, set to 0 (stock was already sold)
-            if (item.stockQty < 0) {
-                item.stockQty = 0;
+            // Check if update succeeded (stock was sufficient)
+            if (updateResult.modifiedCount === 0) {
+                // Stock insufficient - allow cancellation but set to 0
+                await Item.updateOne(
+                    { _id: itemData.item },
+                    { $set: { stockQty: 0 } }
+                );
+                info(`Stock went negative during cancel, set to 0 for item ${item.name}`);
             }
 
             // Remove batch if tracked
             if (item.trackBatch && itemData.batchNo) {
-                const batchIndex = item.batches.findIndex((b) => b.batchNo === itemData.batchNo);
-                if (batchIndex !== -1) {
-                    item.batches.splice(batchIndex, 1);
-                }
+                await Item.updateOne(
+                    { _id: itemData.item },
+                    { $pull: { batches: { batchNo: itemData.batchNo } } }
+                );
             }
 
-            validateStockLevels(item);
-            await item.save({});
+            // Get updated item for logging
+            const updatedItem = await Item.findById(itemData.item);
+            if (!updatedItem) {
+                error(`Item not found after update during purchase cancellation: ${itemData.item}`);
+                continue;
+            }
 
             const newState = {
-                stockQty: item.stockQty,
-                reservedStock: item.reservedStock || 0,
-                inTransitStock: item.inTransitStock || 0,
+                stockQty: updatedItem.stockQty,
+                reservedStock: updatedItem.reservedStock || 0,
+                inTransitStock: updatedItem.inTransitStock || 0,
             };
 
+            // Log stock movement
             await logStockMovement(
-                item,
+                updatedItem,
                 "PURCHASE_CANCEL",
-                itemData.quantity,
+                -itemData.quantity,
                 purchase._id,
                 "Purchase",
                 req.user._id,
                 previousState,
-                newState);
+                newState
+            );
         }
 
         // Reverse supplier balance
@@ -1067,6 +1140,8 @@ export const cancelPurchase = async (req, res) => {
         res.status(500).json({ message: "Server Error", error: err.message });
     }
 };
+
+
 
 
 

@@ -23,7 +23,20 @@ jobs:
     - name: Install Dependencies
       run: npm install --prefer-offline --no-audit
     - name: Test
-      run: npm test
+      run: npm run test:coverage
+      env:
+        CI: true
+        NODE_ENV: test
+        JWT_SECRET: test-jwt-secret-key-for-ci-pipeline-minimum-32-characters-required
+        JWT_REFRESH_SECRET: test-jwt-refresh-secret-key-for-ci-pipeline-minimum-32-characters
+        COOKIE_SECRET: test-cookie-secret-key-for-ci-pipeline-minimum-32-characters-required
+        MONGO_URI: mongodb://localhost:27017/bizzai-test
+    - name: Upload Coverage
+      uses: codecov/codecov-action@v3
+      with:
+        files: backend/coverage/lcov.info
+        flags: backend
+        fail_ci_if_error: false
 
   frontend-check:
     runs-on: ubuntu-latest

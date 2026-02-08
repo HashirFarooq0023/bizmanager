@@ -75,7 +75,7 @@ const auditLogSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.Mixed,
             default: {},
         },
-        // ENTERPRISE: Integrity protection
+        // ENTERPRISE: Hash chaining for tamper detection
         previousHash: {
             type: String,
             default: null,
@@ -83,7 +83,7 @@ const auditLogSchema = new mongoose.Schema(
         },
         currentHash: {
             type: String,
-            required: true,
+            required: false, // Calculated by pre-save hook
             index: true,
         },
         // ENTERPRISE: Retention
@@ -128,6 +128,11 @@ auditLogSchema.pre('findOneAndDelete', function (next) {
 // ENTERPRISE: Hash chaining for integrity
 auditLogSchema.pre('save', async function (next) {
     if (this.isNew) {
+        // Ensure createdAt is defined for hashing (set explicitly if not yet set by Mongoose)
+        if (!this.createdAt) {
+            this.createdAt = new Date();
+        }
+
         // Get previous log entry
         const previousLog = await this.constructor.findOne().sort({ createdAt: -1 });
         this.previousHash = previousLog ? previousLog.currentHash : null;
@@ -138,11 +143,37 @@ auditLogSchema.pre('save', async function (next) {
             action: this.action,
             entityType: this.entityType,
             entityId: this.entityId,
-            timestamp: this.createdAt || new Date(),
+            timestamp: this.createdAt,
             previousHash: this.previousHash,
         });
 
         this.currentHash = crypto.createHash('sha256').update(dataToHash).digest('hex');
+    }
+    next();
+});
+
+// ENTERPRISE: Handle insertMany (when using AuditLog.create([...]))
+auditLogSchema.pre('insertMany', async function (next, docs) {
+    if (Array.isArray(docs)) {
+        for (const doc of docs) {
+            if (!doc.createdAt) {
+                doc.createdAt = new Date();
+            }
+
+            const previousLog = await this.findOne().sort({ createdAt: -1 });
+            doc.previousHash = previousLog ? previousLog.currentHash : null;
+
+            const dataToHash = JSON.stringify({
+                userId: doc.userId,
+                action: doc.action,
+                entityType: doc.entityType,
+                entityId: doc.entityId,
+                timestamp: doc.createdAt,
+                previousHash: doc.previousHash,
+            });
+
+            doc.currentHash = crypto.createHash('sha256').update(dataToHash).digest('hex');
+        }
     }
     next();
 });
@@ -153,58 +184,62 @@ auditLogSchema.pre('save', async function (next) {
  */
 auditLogSchema.statics.verifyIntegrity = async function () {
     const logs = await this.find().sort({ createdAt: 1 });
-    const errors = [];
 
-    for (let i = 1; i < logs.length; i++) {
-        const current = logs[i];
-        const previous = logs[i - 1];
+    if (logs.length === 0) {
+        return { valid: true, message: 'No logs to verify' };
+    }
 
-        if (current.previousHash !== previous.currentHash) {
-            errors.push({
-                logId: current._id,
-                expected: previous.currentHash,
-                actual: current.previousHash,
-                message: 'Hash chain broken - possible tampering',
-            });
+    for (let i = 0; i < logs.length; i++) {
+        const log = logs[i];
+
+        // Verify hash
+        const dataToHash = JSON.stringify({
+            userId: log.userId,
+            action: log.action,
+            entityType: log.entityType,
+            entityId: log.entityId,
+            timestamp: log.createdAt,
+            previousHash: log.previousHash,
+        });
+
+        const calculatedHash = crypto.createHash('sha256').update(dataToHash).digest('hex');
+
+        if (calculatedHash !== log.currentHash) {
+            return {
+                valid: false,
+                message: `Hash mismatch at log ${log._id}`,
+                logId: log._id
+            };
+        }
+
+        // Verify chain
+        if (i > 0) {
+            const previousLog = logs[i - 1];
+            if (log.previousHash !== previousLog.currentHash) {
+                return {
+                    valid: false,
+                    message: `Chain broken at log ${log._id}`,
+                    logId: log._id
+                };
+            }
         }
     }
 
-    return {
-        verified: errors.length === 0,
-        totalLogs: logs.length,
-        errors,
-    };
+    return { valid: true, message: 'Audit log chain is valid' };
 };
 
 /**
- * Export audit logs (read-only)
- * @param {Object} filter - MongoDB filter
- * @param {Object} options - Export options
- * @returns {Promise<Array>} Audit logs
+ * Create audit log with proper hash calculation
+ * @param {Object} data - Audit log data
+ * @returns {Promise<AuditLog>} Created audit log
  */
-auditLogSchema.statics.exportLogs = async function (filter = {}, options = {}) {
-    const {
-        startDate,
-        endDate,
-        userId,
-        action,
-        entityType,
-        limit = 10000,
-    } = options;
-
-    const query = { ...filter };
-
-    if (startDate) query.createdAt = { $gte: new Date(startDate) };
-    if (endDate) query.createdAt = { ...query.createdAt, $lte: new Date(endDate) };
-    if (userId) query.userId = userId;
-    if (action) query.action = action;
-    if (entityType) query.entityType = entityType;
-
-    return await this.find(query)
-        .sort({ createdAt: -1 })
-        .limit(limit)
-        .lean();
+auditLogSchema.statics.createAuditLog = async function (data) {
+    const doc = new this(data);
+    // Pre-save hook will calculate currentHash
+    await doc.save();
+    return doc;
 };
 
-const AuditLog = mongoose.model("AuditLog", auditLogSchema);
+const AuditLog = mongoose.model('AuditLog', auditLogSchema);
+
 export default AuditLog;

@@ -540,6 +540,12 @@ export const convertToDeliveryChallan = async (req, res) => {
 
             // ERP-GRADE: Update stock with in-transit tracking
             const item = await Item.findById(dcItem.item);
+            if (!item) {
+                return res.status(404).json({
+                    success: false,
+                    message: `Item not found: ${dcItem.item}`,
+                });
+            }
 
             const previousState = {
                 stockQty: item.stockQty,
@@ -547,37 +553,59 @@ export const convertToDeliveryChallan = async (req, res) => {
                 inTransitStock: item.inTransitStock || 0,
             };
 
-            item.stockQty -= dcItem.quantity;
-            item.inTransitStock = (item.inTransitStock || 0) + dcItem.quantity;
+            // Atomic stock deduction with oversell protection
+            const updateResult = await Item.updateOne(
+                {
+                    _id: dcItem.item,
+                    stockQty: { $gte: dcItem.quantity }
+                },
+                {
+                    $inc: { stockQty: -dcItem.quantity }
+                }
+            );
 
-            validateStockLevels(item);
-            await item.save();
+            // Check if update succeeded (stock was sufficient)
+            if (updateResult.modifiedCount === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Insufficient stock for item ${item.name}. Available: ${item.stockQty}, Required: ${dcItem.quantity}`,
+                });
+            }
+
+            // Update in-transit stock separately
+            await Item.updateOne(
+                { _id: dcItem.item },
+                { $inc: { inTransitStock: dcItem.quantity } }
+            );
+
+            // Get updated item for logging
+            const updatedItem = await Item.findById(dcItem.item);
 
             const newState = {
-                stockQty: item.stockQty,
-                reservedStock: item.reservedStock,
-                inTransitStock: item.inTransitStock,
+                stockQty: updatedItem.stockQty,
+                reservedStock: updatedItem.reservedStock,
+                inTransitStock: updatedItem.inTransitStock,
             };
 
             await logStockMovement(
-                item,
+                updatedItem,
                 "DELIVER",
                 dcItem.quantity,
                 salesOrder._id,
                 "SalesOrder",
                 req.user._id,
                 previousState,
-                { ...previousState, stockQty: item.stockQty }
+                { ...previousState, stockQty: updatedItem.stockQty }
             );
 
             await logStockMovement(
-                item,
+                updatedItem,
                 "IN_TRANSIT",
                 dcItem.quantity,
                 salesOrder._id,
                 "SalesOrder",
                 req.user._id,
-                { ...previousState, stockQty: item.stockQty },
+                { ...previousState, stockQty: updatedItem.stockQty },
                 newState
             );
         }
@@ -755,19 +783,8 @@ export const convertToInvoice = async (req, res) => {
         // Determine payment status - USE CENTRALIZED FUNCTION
         const paymentStatus = calculatePaymentStatus(totalAmount, paidAmount, 0);
 
-        // Generate unique invoice number
-        const lastInvoice = await Invoice.findOne({ createdBy: req.user._id })
-            .sort({ createdAt: -1 })
-            .select("invoiceNo");
-
-        let invoiceNumber = 1;
-        if (lastInvoice && lastInvoice.invoiceNo) {
-            const match = lastInvoice.invoiceNo.match(/INV-(\d+)/);
-            if (match) {
-                invoiceNumber = parseInt(match[1]) + 1;
-            }
-        }
-
+        // Generate unique invoice number using atomic counter
+        const invoiceNumber = await Counter.getNextSequence("invoice", req.user._id);
         const invoiceNo = `INV-${String(invoiceNumber).padStart(5, "0")}`;
 
         // Create invoice

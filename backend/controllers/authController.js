@@ -30,11 +30,11 @@ export const registerUser = async (req, res) => {
 
     // Validate inputs
     if (!name || !email || !password || !phone) {
-      return res.status(400).json({ message: "Please fill all required fields" });
+      return res.status(400).json({ success: false, message: "Please fill all required fields" });
     }
 
     if (!isValidPhone(phone)) {
-      return res.status(400).json({ message: "Phone number must be exactly 10 digits" });
+      return res.status(400).json({ success: false, message: "Phone number must be exactly 10 digits" });
     }
 
     if (!isStrongPassword(password)) {
@@ -47,7 +47,7 @@ export const registerUser = async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({ success: false, message: "User already exists" });
     }
 
     // Create new user
@@ -102,6 +102,15 @@ export const registerUser = async (req, res) => {
       const accessToken = generateToken(user._id);
       const refreshToken = generateRandomToken();
 
+      // Validate tokens were generated successfully
+      if (!accessToken || !refreshToken) {
+        console.error("Token generation failed during registration", { userId: user._id });
+        return res.status(500).json({
+          success: false,
+          message: "Failed to generate authentication tokens"
+        });
+      }
+
       // Store refresh token with device metadata
       await RefreshToken.create({
         token: refreshToken,
@@ -126,16 +135,19 @@ export const registerUser = async (req, res) => {
       });
 
       res.status(201).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        shopName: user.shopName,
-        phone: user.phone,
+        success: true,
         token: accessToken,
         refreshToken: refreshToken,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          shopName: user.shopName,
+          phone: user.phone
+        }
       });
     } else {
-      res.status(400).json({ message: "Invalid user data" });
+      res.status(400).json({ success: false, message: "Invalid user data" });
     }
   } catch (error) {
     console.error("Register Error:", error);
@@ -157,19 +169,20 @@ export const loginUser = async (req, res) => {
     // Validate input
     if (!email || !password) {
       await handleLoginAttempt(req, false);
-      return res.status(400).json({ message: "Please enter email and password" });
+      return res.status(400).json({ success: false, message: "Please enter email and password" });
     }
 
     // Find user
     const user = await User.findOne({ email });
     if (!user) {
       await handleLoginAttempt(req, false);
-      return res.status(404).json({ message: "User not found" });
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
 
     // Check if account is locked
     if (user.isLocked()) {
       return res.status(423).json({
+        success: false,
         message: "Account locked due to too many failed attempts. Try again later.",
         lockedUntil: user.accountLockedUntil,
       });
@@ -178,6 +191,7 @@ export const loginUser = async (req, res) => {
     // Check if account is suspended
     if (user.status === "suspended") {
       return res.status(403).json({
+        success: false,
         message: "Account suspended. Please contact support.",
       });
     }
@@ -205,7 +219,7 @@ export const loginUser = async (req, res) => {
         metadata: { reason: "invalid_password" },
       });
 
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
 
     // Get deviceId from signed cookie (if exists)
@@ -232,6 +246,7 @@ export const loginUser = async (req, res) => {
       });
 
       return res.status(409).json({
+        success: false,
         message: "This account is currently active on another device.",
         deviceConflict: true,
       });
@@ -293,6 +308,15 @@ export const loginUser = async (req, res) => {
     const accessToken = generateToken(user._id);
     const refreshToken = generateRandomToken();
 
+    // Validate tokens were generated successfully
+    if (!accessToken || !refreshToken) {
+      console.error("Token generation failed during login", { userId: user._id });
+      return res.status(500).json({
+        success: false,
+        message: "Failed to generate authentication tokens"
+      });
+    }
+
     // Store refresh token with device metadata
     await RefreshToken.create({
       token: refreshToken,
@@ -333,15 +357,18 @@ export const loginUser = async (req, res) => {
 
     // Send response
     res.status(200).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      shopName: user.shopName,
-      gstNumber: user.gstNumber,
-      shopAddress: user.shopAddress,
-      phone: user.phone,
+      success: true,
       token: accessToken,
       refreshToken: refreshToken,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        shopName: user.shopName,
+        gstNumber: user.gstNumber,
+        shopAddress: user.shopAddress,
+        phone: user.phone
+      }
     });
   } catch (error) {
     console.error("Login Error:", error);
@@ -357,11 +384,22 @@ export const getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select("-password");
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
-    res.status(200).json(user);
+    res.status(200).json({
+      success: true,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        shopName: user.shopName,
+        gstNumber: user.gstNumber,
+        shopAddress: user.shopAddress,
+        phone: user.phone
+      }
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    res.status(500).json({ success: false, message: "Server Error", error: error.message });
   }
 };
 
@@ -372,7 +410,7 @@ export const getProfile = async (req, res) => {
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ message: "Email is required" });
+    if (!email) return res.status(400).json({ success: false, message: "Email is required" });
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -431,19 +469,19 @@ export const forceLogout = async (req, res) => {
     const genericError = "Invalid credentials";
 
     if (!email || !password) {
-      return res.status(400).json({ message: genericError });
+      return res.status(400).json({ success: false, message: genericError });
     }
 
     // Find and verify user
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: genericError });
+      return res.status(401).json({ success: false, message: genericError });
     }
 
     // Verify password
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
-      return res.status(401).json({ message: genericError });
+      return res.status(401).json({ success: false, message: genericError });
     }
 
     // Audit logging (CRITICAL for security monitoring)
@@ -496,7 +534,7 @@ export const resetPassword = async (req, res) => {
   try {
     const { token, email, password } = req.body;
     if (!token || !email || !password) {
-      return res.status(400).json({ message: "Token, email and new password are required" });
+      return res.status(400).json({ success: false, message: "Token, email and new password are required" });
     }
 
     if (!isStrongPassword(password)) {
@@ -514,7 +552,7 @@ export const resetPassword = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid or expired reset token" });
+      return res.status(400).json({ success: false, message: "Invalid or expired reset token" });
     }
 
     user.password = password;
@@ -528,3 +566,4 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
+
