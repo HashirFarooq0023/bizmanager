@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
 
@@ -98,7 +98,7 @@ const PurchaseSelectionModal = ({ sourceType, onSelect, onClose }) => {
                                         </div>
                                         <div className="text-right">
                                             <p className="font-semibold text-gray-900">
-                                                ₹{purchase.totalAmount?.toFixed(2)}
+                                                Rs. {purchase.totalAmount?.toFixed(2)}
                                             </p>
                                             <p className="text-xs text-gray-500 mt-1">
                                                 {purchase.items?.length} items

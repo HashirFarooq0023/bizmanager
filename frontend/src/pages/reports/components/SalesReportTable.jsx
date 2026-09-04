@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 
 const SalesReportTable = ({ data, pagination, isLoading, onPageChange }) => {
     const [visibleColumns, setVisibleColumns] = useState({
@@ -206,7 +206,7 @@ const SalesReportTable = ({ data, pagination, isLoading, onPageChange }) => {
                             <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
                                 {visibleColumns.invoiceDate && (
                                     <td className="px-4 py-3 text-sm text-main whitespace-nowrap">
-                                        {new Date(row.invoiceDate).toLocaleDateString('en-IN')}
+                                        {new Date(row.invoiceDate).toLocaleDateString('en-PK')}
                                     </td>
                                 )}
                                 {visibleColumns.invoiceNo && (
@@ -225,42 +225,42 @@ const SalesReportTable = ({ data, pagination, isLoading, onPageChange }) => {
                                 )}
                                 {visibleColumns.grossAmount && (
                                     <td className="px-4 py-3 text-sm text-main text-right">
-                                        ₹{row.grossAmount.toLocaleString('en-IN')}
+                                        Rs. {row.grossAmount.toLocaleString('en-PK')}
                                     </td>
                                 )}
                                 {visibleColumns.discount && (
                                     <td className="px-4 py-3 text-sm text-orange-600 dark:text-orange-400 text-right">
-                                        ₹{row.discount.toLocaleString('en-IN')}
+                                        Rs. {row.discount.toLocaleString('en-PK')}
                                     </td>
                                 )}
                                 {visibleColumns.taxableAmount && (
                                     <td className="px-4 py-3 text-sm text-main text-right">
-                                        ₹{row.taxableAmount.toLocaleString('en-IN')}
+                                        Rs. {row.taxableAmount.toLocaleString('en-PK')}
                                     </td>
                                 )}
                                 {visibleColumns.cgst && (
                                     <td className="px-4 py-3 text-sm text-main text-right">
-                                        ₹{row.cgst.toLocaleString('en-IN')}
+                                        Rs. {row.cgst.toLocaleString('en-PK')}
                                     </td>
                                 )}
                                 {visibleColumns.sgst && (
                                     <td className="px-4 py-3 text-sm text-main text-right">
-                                        ₹{row.sgst.toLocaleString('en-IN')}
+                                        Rs. {row.sgst.toLocaleString('en-PK')}
                                     </td>
                                 )}
                                 {visibleColumns.igst && (
                                     <td className="px-4 py-3 text-sm text-main text-right">
-                                        ₹{row.igst.toLocaleString('en-IN')}
+                                        Rs. {row.igst.toLocaleString('en-PK')}
                                     </td>
                                 )}
                                 {visibleColumns.totalTax && (
                                     <td className="px-4 py-3 text-sm text-purple-600 dark:text-purple-400 text-right">
-                                        ₹{row.totalTax.toLocaleString('en-IN')}
+                                        Rs. {row.totalTax.toLocaleString('en-PK')}
                                     </td>
                                 )}
                                 {visibleColumns.netAmount && (
                                     <td className="px-4 py-3 text-sm font-bold text-green-600 dark:text-green-400 text-right">
-                                        ₹{row.netAmount.toLocaleString('en-IN')}
+                                        Rs. {row.netAmount.toLocaleString('en-PK')}
                                     </td>
                                 )}
                                 {visibleColumns.paymentStatus && (

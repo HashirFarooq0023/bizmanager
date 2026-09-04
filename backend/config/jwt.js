@@ -76,7 +76,7 @@ export const generateToken = (userId, sessionContext = {}) => {
         }
       },
       process.env.JWT_SECRET,
-      { expiresIn: "15m" } // 15 minutes - production security
+      { expiresIn: process.env.JWT_EXPIRE || "7d" } // 7 days session lifetime (configurable via JWT_EXPIRE)
     );
 
     // Validate token was generated

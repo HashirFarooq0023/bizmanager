@@ -32,7 +32,7 @@ async function seedDefaultOrganizationAndRoles() {
                     }
                 },
                 settings: {
-                    currency: 'INR',
+                    currency: 'PKR',
                     timezone: 'Asia/Kolkata',
                     gstEnabled: true
                 },

@@ -1,4 +1,4 @@
-import { jsPDF } from 'jspdf';
+﻿import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 
 export const generatePurchaseReturnPDF = (returnData) => {
@@ -48,13 +48,13 @@ export const generatePurchaseReturnPDF = (returnData) => {
         doc.setLineWidth(0.5);
 
         // Left Column - Company Info
-        addText('BizzAI', 15, yPos, { fontSize: 14, fontStyle: 'bold' });
+        addText('BizManager', 15, yPos, { fontSize: 14, fontStyle: 'bold' });
         yPos += 6;
-        addText('Inventory Management System', 15, yPos, { fontSize: 9 });
+        addText('Inventory Management System (by MegaTrix)', 15, yPos, { fontSize: 9 });
         yPos += 5;
-        addText('Email: support@bizzai.com', 15, yPos, { fontSize: 9 });
+        addText('Email: admin.megatrix@gmail.com', 15, yPos, { fontSize: 9 });
         yPos += 5;
-        addText('Phone: +91 1234567890', 15, yPos, { fontSize: 9 });
+        addText('Phone: 0325-4567318 | www.megatrixai.com', 15, yPos, { fontSize: 9 });
 
         // Right Column - Return Info
         let rightYPos = 45;
@@ -118,9 +118,9 @@ export const generatePurchaseReturnPDF = (returnData) => {
             item.sku || 'N/A',
             item.batchNo || 'N/A',
             (item.returnQty || item.quantity || 0).toString(),
-            `₹${(item.rate || 0).toFixed(2)}`,
+            `Rs. ${(item.rate || 0).toFixed(2)}`,
             `${item.taxRate || 0}%`,
-            `₹${(item.total || 0).toFixed(2)}`,
+            `Rs. ${(item.total || 0).toFixed(2)}`,
             item.condition || 'N/A',
             item.disposition || 'N/A'
         ]);
@@ -200,10 +200,10 @@ export const generatePurchaseReturnPDF = (returnData) => {
             yPos += 5;
         };
 
-        addSummaryLine('Subtotal:', `₹${(returnData.subtotal || 0).toFixed(2)}`);
-        addSummaryLine('Item Discount:', `- ₹${(returnData.itemDiscount || 0).toFixed(2)}`);
-        addSummaryLine('Bill Discount:', `- ₹${(returnData.billDiscount || 0).toFixed(2)}`);
-        addSummaryLine('Tax Amount:', `₹${(returnData.taxAmount || 0).toFixed(2)}`);
+        addSummaryLine('Subtotal:', `Rs. ${(returnData.subtotal || 0).toFixed(2)}`);
+        addSummaryLine('Item Discount:', `- Rs. ${(returnData.itemDiscount || 0).toFixed(2)}`);
+        addSummaryLine('Bill Discount:', `- Rs. ${(returnData.billDiscount || 0).toFixed(2)}`);
+        addSummaryLine('Tax Amount:', `Rs. ${(returnData.taxAmount || 0).toFixed(2)}`);
 
         // Total Line
         yPos += 2;
@@ -219,7 +219,7 @@ export const generatePurchaseReturnPDF = (returnData) => {
             fontStyle: 'bold',
             color: [255, 255, 255]
         });
-        addText(`₹${(returnData.totalAmount || 0).toFixed(2)}`, summaryX + summaryWidth - 5, yPos + 2, {
+        addText(`Rs. ${(returnData.totalAmount || 0).toFixed(2)}`, summaryX + summaryWidth - 5, yPos + 2, {
             align: 'right',
             fontSize: 11,
             fontStyle: 'bold',

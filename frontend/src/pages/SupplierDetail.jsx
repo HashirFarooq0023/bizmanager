@@ -163,7 +163,7 @@ const SupplierDetail = () => {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto">
+      <div className="space-y-6">
         {/* Header */}
         <div className="mb-8">
           <button
@@ -213,7 +213,7 @@ const SupplierDetail = () => {
                 </svg>
               </div>
               <div className="flex items-baseline space-x-2">
-                <p className="text-3xl font-bold">₹{Math.abs(supplier.outstandingBalance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                <p className="text-3xl font-bold">Rs. {Math.abs(supplier.outstandingBalance || 0).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
               <div className="mt-2">
                 {supplier.outstandingBalance > 0 ? (
@@ -250,7 +250,7 @@ const SupplierDetail = () => {
                 </svg>
               </div>
               <div className="flex items-baseline space-x-2">
-                <p className="text-3xl font-bold">₹{(supplier.totalPurchases || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                <p className="text-3xl font-bold">Rs. {(supplier.totalPurchases || 0).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
               <p className="text-sm text-white/70 mt-2">Lifetime value</p>
             </div>
@@ -320,7 +320,7 @@ const SupplierDetail = () => {
               </div>
               <div>
                 <label className="block text-sm text-muted mb-1">Opening Balance</label>
-                <p className="text-base font-medium text-main">₹{supplier.openingBalance?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</p>
+                <p className="text-base font-medium text-main">Rs. {supplier.openingBalance?.toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</p>
               </div>
               <div>
                 <label className="block text-sm text-muted mb-1">Balance Type</label>
@@ -328,7 +328,7 @@ const SupplierDetail = () => {
               </div>
               <div>
                 <label className="block text-sm text-muted mb-1">Total Purchases</label>
-                <p className="text-base font-medium text-green-600 dark:text-green-400">₹{(supplier.totalPurchases || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                <p className="text-base font-medium text-green-600 dark:text-green-400">Rs. {(supplier.totalPurchases || 0).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
             </div>
           </div>
@@ -400,10 +400,10 @@ const SupplierDetail = () => {
                         {item.totalQuantity}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary">
-                        ₹{item.avgPurchaseRate.toFixed(2)}
+                        Rs. {item.avgPurchaseRate.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-main">
-                        ₹{item.lastPurchaseRate.toFixed(2)}
+                        Rs. {item.lastPurchaseRate.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary">
                         <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded text-xs font-medium">
@@ -411,10 +411,10 @@ const SupplierDetail = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-600 dark:text-orange-400">
-                        ₹{item.totalGST.toFixed(2)}
+                        Rs. {item.totalGST.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
-                        ₹{item.totalValue.toFixed(2)}
+                        Rs. {item.totalValue.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary">
                         {new Date(item.firstPurchaseDate).toLocaleDateString()}
@@ -435,10 +435,10 @@ const SupplierDetail = () => {
                     </td>
                     <td className="px-6 py-4" colSpan="3"></td>
                     <td className="px-6 py-4 font-bold text-orange-600 dark:text-orange-400">
-                      ₹{itemsSummary.reduce((sum, item) => sum + item.totalGST, 0).toFixed(2)}
+                      Rs. {itemsSummary.reduce((sum, item) => sum + item.totalGST, 0).toFixed(2)}
                     </td>
                     <td className="px-6 py-4 font-bold text-green-600">
-                      ₹{itemsSummary.reduce((sum, item) => sum + item.totalValue, 0).toFixed(2)}
+                      Rs. {itemsSummary.reduce((sum, item) => sum + item.totalValue, 0).toFixed(2)}
                     </td>
                     <td className="px-6 py-4" colSpan="2"></td>
                   </tr>

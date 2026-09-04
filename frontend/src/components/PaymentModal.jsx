@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import api from '../services/api';
 import Modal from './Modal';
 
@@ -84,15 +84,15 @@ const PaymentModal = ({ isOpen, onClose, onSubmit, documentType, totalAmount, pa
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
                     <div className="flex justify-between mb-2">
                         <span className="text-gray-700 font-medium">Total Amount:</span>
-                        <span className="font-bold text-gray-900">₹{totalAmount.toFixed(2)}</span>
+                        <span className="font-bold text-gray-900">Rs. {totalAmount.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between mb-2">
                         <span className="text-gray-700 font-medium">Already Paid:</span>
-                        <span className="font-bold text-green-600">₹{paidAmount.toFixed(2)}</span>
+                        <span className="font-bold text-green-600">Rs. {paidAmount.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between border-t border-blue-200 pt-2 mt-2">
                         <span className="text-gray-800 font-semibold">Remaining:</span>
-                        <span className="font-bold text-red-600 text-lg">₹{remainingAmount.toFixed(2)}</span>
+                        <span className="font-bold text-red-600 text-lg">Rs. {remainingAmount.toFixed(2)}</span>
                     </div>
                 </div>
 
@@ -111,7 +111,7 @@ const PaymentModal = ({ isOpen, onClose, onSubmit, documentType, totalAmount, pa
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         required
                     />
-                    <p className="text-xs text-gray-500 mt-1">Maximum: ₹{remainingAmount.toFixed(2)}</p>
+                    <p className="text-xs text-gray-500 mt-1">Maximum: Rs. {remainingAmount.toFixed(2)}</p>
                 </div>
 
                 {/* Payment Method */}
@@ -174,7 +174,7 @@ const PaymentModal = ({ isOpen, onClose, onSubmit, documentType, totalAmount, pa
                             {bankAccounts.map(acc => (
                                 <option key={acc._id} value={acc._id}>
                                     {acc.bankName} - ****{acc.accountNumber.slice(-4)}
-                                    {' '}(Balance: ₹{acc.currentBalance.toFixed(2)})
+                                    {' '}(Balance: Rs. {acc.currentBalance.toFixed(2)})
                                 </option>
                             ))}
                         </select>
@@ -188,8 +188,8 @@ const PaymentModal = ({ isOpen, onClose, onSubmit, documentType, totalAmount, pa
                                 <div>
                                     <p className="text-red-800 font-medium text-sm">Insufficient Balance!</p>
                                     <p className="text-red-700 text-sm">
-                                        Available: ₹{selectedAccount.currentBalance.toFixed(2)} |
-                                        Required: ₹{formData.amount.toFixed(2)}
+                                        Available: Rs. {selectedAccount.currentBalance.toFixed(2)} |
+                                        Required: Rs. {formData.amount.toFixed(2)}
                                     </p>
                                 </div>
                             </div>

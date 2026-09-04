@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import Layout from '../../components/Layout';
@@ -58,9 +58,9 @@ const Transfers = () => {
     const accountOptions = [
         ...accounts.map(acc => ({
             value: acc._id,
-            label: `${acc.bankName} - ${acc.accountType} (₹${acc.currentBalance.toLocaleString()})`
+            label: `${acc.bankName} - ${acc.accountType} (Rs. ${acc.currentBalance.toLocaleString()})`
         })),
-        { value: 'cash', label: `Cash in Hand (₹${position?.cashInHand?.toLocaleString() || 0})` }
+        { value: 'cash', label: `Cash in Hand (Rs. ${position?.cashInHand?.toLocaleString() || 0})` }
     ];
 
     const selectedTo = accountOptions.find(opt => opt.value === formData.toAccount);
@@ -109,7 +109,7 @@ const Transfers = () => {
                                         <div className="flex items-center">
                                             <span className={`text-sm font-medium ${insufficientBalance ? 'text-red-700' : 'text-gray-700'}`}>Available Balance:</span>
                                         </div>
-                                        <p className={`text-lg font-bold ${insufficientBalance ? 'text-red-600' : 'text-green-600'}`}>₹{fromBalance.toLocaleString()}</p>
+                                        <p className={`text-lg font-bold ${insufficientBalance ? 'text-red-600' : 'text-green-600'}`}>Rs. {fromBalance.toLocaleString()}</p>
                                         {insufficientBalance && (
                                             <p className="text-xs text-red-500 mt-1 font-medium">Insufficient funds for this transfer</p>
                                         )}
@@ -150,7 +150,7 @@ const Transfers = () => {
                                 {selectedTo && (
                                     <div className="mt-3 p-3 bg-gray-50 rounded-lg transform transition-all duration-300 animate-fade-in">
                                         <span className="text-sm font-medium text-gray-700">Current Balance:</span>
-                                        <p className="text-lg font-bold text-blue-600">₹{
+                                        <p className="text-lg font-bold text-blue-600">Rs. {
                                             formData.toAccount === 'cash'
                                                 ? (position?.cashInHand || 0).toLocaleString()
                                                 : (accounts.find(acc => acc._id === formData.toAccount)?.currentBalance || 0).toLocaleString()
@@ -166,7 +166,7 @@ const Transfers = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-3 text-center">Transfer Amount</label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span className="text-gray-500 sm:text-sm">₹</span>
+                                        <span className="text-gray-500 sm:text-sm">Rs. </span>
                                     </div>
                                     <input
                                         type="number"

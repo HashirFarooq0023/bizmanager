@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from '../../services/api';
 import { toast } from "react-toastify";
@@ -395,7 +395,7 @@ const Return = () => {
                       ).toLocaleDateString()}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
-                      Amount: ₹{formData.selectedInvoice.totalAmount.toFixed(2)}
+                      Amount: Rs. {formData.selectedInvoice.totalAmount.toFixed(2)}
                     </p>
                   </div>
                   <button
@@ -455,7 +455,7 @@ const Return = () => {
                       </span>
                     </div>
                     <span className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">
-                      ₹{Math.abs(formData.customer.dues).toFixed(2)}
+                      Rs. {Math.abs(formData.customer.dues).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -473,7 +473,7 @@ const Return = () => {
                       </span>
                     </div>
                     <span className="text-sm font-bold text-red-600 dark:text-red-400">
-                      ₹{formData.customer.dues.toFixed(2)}
+                      Rs. {formData.customer.dues.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -550,7 +550,7 @@ const Return = () => {
                           />
                         </td>
                         <td className="px-3 py-2 text-gray-900 dark:text-[rgb(var(--color-text))]">
-                          ₹{item.rate.toFixed(2)}
+                          Rs. {item.rate.toFixed(2)}
                         </td>
                         <td className="px-3 py-2">
                           <select
@@ -714,13 +714,13 @@ const Return = () => {
               <div className="flex justify-between text-xs">
                 <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Subtotal:</span>
                 <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
-                  ₹{calculateSubtotal().toFixed(2)}
+                  Rs. {calculateSubtotal().toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Tax:</span>
                 <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
-                  ₹{calculateTax().toFixed(2)}
+                  Rs. {calculateTax().toFixed(2)}
                 </span>
               </div>
             </div>
@@ -728,7 +728,7 @@ const Return = () => {
               <div className="flex justify-between items-center">
                 <span className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">Refund Amount:</span>
                 <span className="text-xl font-bold text-red-600 dark:text-red-400">
-                  ₹{calculateTotal().toFixed(2)}
+                  Rs. {calculateTotal().toFixed(2)}
                 </span>
               </div>
             </div>
@@ -808,13 +808,13 @@ const Return = () => {
                           </p>
                           <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))]">
                             {new Date(invoice.createdAt).toLocaleDateString(
-                              "en-IN"
+                              "en-PK"
                             )}
                           </p>
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-gray-900 dark:text-[rgb(var(--color-text))] text-sm">
-                            ₹{invoice.totalAmount.toFixed(2)}
+                            Rs. {invoice.totalAmount.toFixed(2)}
                           </p>
                           <span
                             className={`inline-block px-2 py-1 rounded text-xs font-medium ${invoice.paymentStatus === "paid"

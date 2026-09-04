@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
@@ -181,7 +181,7 @@ const PaymentOut = () => {
 
         // Allocation validation
         if (totals.unallocated < 0) {
-            toast.error(`Total allocation (₹${(totals.totalAllocatedToBills + totals.advanceAmount).toFixed(2)}) exceeds payment amount (₹${totals.totalAmount.toFixed(2)})`);
+            toast.error(`Total allocation (Rs. ${(totals.totalAllocatedToBills + totals.advanceAmount).toFixed(2)}) exceeds payment amount (Rs. ${totals.totalAmount.toFixed(2)})`);
             return false;
         }
 
@@ -243,11 +243,11 @@ const PaymentOut = () => {
                 if (paymentMethod !== 'cash') {
                     message += `Account: ${bankAccountName}\n`;
                 }
-                message += `Available: ₹${available.toFixed(2)}\n`;
-                message += `Requested: ₹${requested.toFixed(2)}\n`;
-                message += `Shortfall: ₹${shortfall.toFixed(2)}\n\n`;
+                message += `Available: Rs. ${available.toFixed(2)}\n`;
+                message += `Requested: Rs. ${requested.toFixed(2)}\n`;
+                message += `Shortfall: Rs. ${shortfall.toFixed(2)}\n\n`;
                 message += `Suggestions:\n`;
-                message += `• Pay partial amount of ₹${available.toFixed(2)}\n`;
+                message += `• Pay partial amount of Rs. ${available.toFixed(2)}\n`;
                 message += `• Change payment method\n`;
                 message += `• Split payment across multiple methods`;
 
@@ -349,11 +349,11 @@ const PaymentOut = () => {
                                             {supplierInfo && (
                                                 <div className="mt-2 space-y-1">
                                                     <p className="text-xs">
-                                                        <span className="font-medium">Outstanding:</span> ₹{supplierInfo.outstandingBalance.toFixed(2)}
+                                                        <span className="font-medium">Outstanding:</span> Rs. {supplierInfo.outstandingBalance.toFixed(2)}
                                                     </p>
                                                     {supplierInfo.advanceBalance > 0 && (
                                                         <p className="text-xs text-green-600 dark:text-green-400">
-                                                            <span className="font-medium">Advance Available:</span> ₹{supplierInfo.advanceBalance.toFixed(2)}
+                                                            <span className="font-medium">Advance Available:</span> Rs. {supplierInfo.advanceBalance.toFixed(2)}
                                                         </p>
                                                     )}
                                                 </div>
@@ -417,9 +417,9 @@ const PaymentOut = () => {
                                                     <td className="px-3 py-2 text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
                                                         {new Date(bill.billDate).toLocaleDateString()}
                                                     </td>
-                                                    <td className="px-3 py-2 text-xs text-right">₹{bill.totalAmount.toFixed(2)}</td>
-                                                    <td className="px-3 py-2 text-xs text-right">₹{bill.paidAmount.toFixed(2)}</td>
-                                                    <td className="px-3 py-2 text-xs text-right font-medium">₹{bill.outstandingAmount.toFixed(2)}</td>
+                                                    <td className="px-3 py-2 text-xs text-right">Rs. {bill.totalAmount.toFixed(2)}</td>
+                                                    <td className="px-3 py-2 text-xs text-right">Rs. {bill.paidAmount.toFixed(2)}</td>
+                                                    <td className="px-3 py-2 text-xs text-right font-medium">Rs. {bill.outstandingAmount.toFixed(2)}</td>
                                                     <td className="px-3 py-2 text-right">
                                                         <input
                                                             type="number"
@@ -457,7 +457,7 @@ const PaymentOut = () => {
                                         <div className="flex items-center p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                                             <div>
                                                 <p className="text-xs font-medium text-green-800 dark:text-green-300">Available Advance</p>
-                                                <p className="text-sm font-bold text-green-600 dark:text-green-400">₹{supplierInfo.advanceBalance.toFixed(2)}</p>
+                                                <p className="text-sm font-bold text-green-600 dark:text-green-400">Rs. {supplierInfo.advanceBalance.toFixed(2)}</p>
                                             </div>
                                         </div>
                                     )}
@@ -501,7 +501,7 @@ const PaymentOut = () => {
                                             <option value="">Select bank account</option>
                                             {bankAccounts.map((account) => (
                                                 <option key={account._id} value={account._id}>
-                                                    {account.bankName} - ****{account.accountNumber.slice(-4)} (₹{account.currentBalance.toFixed(2)})
+                                                    {account.bankName} - ****{account.accountNumber.slice(-4)} (Rs. {account.currentBalance.toFixed(2)})
                                                 </option>
                                             ))}
                                         </select>
@@ -573,28 +573,28 @@ const PaymentOut = () => {
                                 <p className="text-xs font-medium text-blue-800 dark:text-blue-300">
                                     {formData.paymentMethod === 'cash' ? 'Cash Balance' : 'Bank Balance'}
                                 </p>
-                                <p className="text-xl font-bold text-blue-600 dark:text-blue-400">₹{availableBalance.toFixed(2)}</p>
+                                <p className="text-xl font-bold text-blue-600 dark:text-blue-400">Rs. {availableBalance.toFixed(2)}</p>
                             </div>
 
                             {/* Summary */}
                             <div className="space-y-2 mb-4">
                                 <div className="flex justify-between text-xs">
                                     <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Total Payment</span>
-                                    <span className="font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{totals.totalAmount.toFixed(2)}</span>
+                                    <span className="font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {totals.totalAmount.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-xs">
                                     <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Allocated to Bills</span>
-                                    <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">₹{totals.totalAllocatedToBills.toFixed(2)}</span>
+                                    <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {totals.totalAllocatedToBills.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-xs">
                                     <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Advance Amount</span>
-                                    <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">₹{totals.advanceAmount.toFixed(2)}</span>
+                                    <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {totals.advanceAmount.toFixed(2)}</span>
                                 </div>
                                 <div className="pt-2 border-t border-gray-200 dark:border-[rgb(var(--color-border))]">
                                     <div className="flex justify-between text-xs">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Unallocated</span>
                                         <span className={`font-bold ${totals.unallocated < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
-                                            ₹{totals.unallocated.toFixed(2)}
+                                            Rs. {totals.unallocated.toFixed(2)}
                                         </span>
                                     </div>
                                 </div>

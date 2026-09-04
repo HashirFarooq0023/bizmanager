@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import useDraftSave from '../hooks/useDraftSave';
@@ -172,7 +172,7 @@ const AddItem = () => {
                     htmlFor="costPrice"
                     className="block text-sm font-medium text-secondary mb-2"
                   >
-                    Cost Price (₹) <span className="text-red-500">*</span>
+                    Cost Price (Rs. ) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -195,7 +195,7 @@ const AddItem = () => {
                     htmlFor="sellingPrice"
                     className="block text-sm font-medium text-secondary mb-2"
                   >
-                    Selling Price (₹) <span className="text-red-500">*</span>
+                    Selling Price (Rs. ) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -220,7 +220,7 @@ const AddItem = () => {
                       <span className="text-green-600 font-bold">
                         {((sellingPrice - costPrice) / costPrice * 100).toFixed(1)}%
                       </span>
-                      {' '}(₹{(sellingPrice - costPrice).toFixed(2)} profit per unit)
+                      {' '}(Rs. {(sellingPrice - costPrice).toFixed(2)} profit per unit)
                     </p>
                   </div>
                 )}

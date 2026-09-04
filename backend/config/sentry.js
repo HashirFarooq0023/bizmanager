@@ -1,6 +1,14 @@
 import * as Sentry from "@sentry/node";
-import profilingPkg from "@sentry/profiling-node";
-const { nodeProfilingIntegration } = profilingPkg;
+
+let nodeProfilingIntegration = null;
+try {
+    const profilingPkg = await import("@sentry/profiling-node").catch(() => null);
+    if (profilingPkg) {
+        nodeProfilingIntegration = profilingPkg.nodeProfilingIntegration || profilingPkg.default?.nodeProfilingIntegration;
+    }
+} catch {
+    // Native profiling module may not be available on all Node versions
+}
 
 /**
  * Initialize Sentry for error tracking and performance monitoring
@@ -14,17 +22,25 @@ export const initSentry = (app) => {
         return;
     }
 
+    const integrations = [
+        // Enable HTTP calls tracing
+        new Sentry.Integrations.Http({ tracing: true }),
+        // Enable Express.js middleware tracing
+        new Sentry.Integrations.Express({ app }),
+    ];
+
+    if (typeof nodeProfilingIntegration === "function") {
+        try {
+            integrations.push(nodeProfilingIntegration());
+        } catch {
+            // Profiling integration skipped if native binary missing
+        }
+    }
+
     Sentry.init({
         dsn: sentryDsn,
         environment: process.env.NODE_ENV || "development",
-        integrations: [
-            // Enable HTTP calls tracing
-            new Sentry.Integrations.Http({ tracing: true }),
-            // Enable Express.js middleware tracing
-            new Sentry.Integrations.Express({ app }),
-            // Enable profiling
-            nodeProfilingIntegration(),
-        ],
+        integrations,
         // Performance Monitoring
         tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0, // 10% in prod, 100% in dev
         // Profiling

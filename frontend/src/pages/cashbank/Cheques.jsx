@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import Layout from '../../components/Layout';
 import PageHeader from '../../components/PageHeader';
 import FormInput from '../../components/FormInput';
@@ -70,7 +70,7 @@ const Cheques = () => {
             key: 'amount',
             label: 'Amount',
             sortable: true,
-            render: (val) => <span className="font-bold text-main">₹{val.toLocaleString()}</span>
+            render: (val) => <span className="font-bold text-main">Rs. {val.toLocaleString()}</span>
         },
         { key: 'date', label: 'Date', sortable: true },
         { key: 'bankName', label: 'Bank', sortable: true },
@@ -280,7 +280,7 @@ const Cheques = () => {
                         </div>
                         <div>
                             <p className="text-sm text-muted">Amount</p>
-                            <p className="text-2xl font-bold text-indigo-600">₹{selectedCheque.amount.toLocaleString()}</p>
+                            <p className="text-2xl font-bold text-indigo-600">Rs. {selectedCheque.amount.toLocaleString()}</p>
                         </div>
                         <div>
                             <p className="text-sm text-muted">Bank</p>

@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import EmptyState from './EmptyState';
+import { TableSkeleton } from './LoadingSkeleton';
 
 const DataTable = ({
     columns,
-    data,
+    data = [],
     onRowClick = null,
     emptyMessage = 'No data available',
     isLoading = false
@@ -31,45 +33,30 @@ const DataTable = ({
     });
 
     if (isLoading) {
-        return (
-            <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg overflow-hidden border dark:border-[rgb(var(--color-border))]">
-                <div className="flex justify-center items-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-[rgb(var(--color-primary))]"></div>
-                </div>
-            </div>
-        );
+        return <TableSkeleton rows={5} cols={columns.length || 4} />;
     }
 
-    if (data.length === 0) {
-        return (
-            <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg overflow-hidden border dark:border-[rgb(var(--color-border))]">
-                <div className="text-center py-12">
-                    <svg className="w-16 h-16 text-gray-400 dark:text-[rgb(var(--color-text-muted))] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                    </svg>
-                    <p className="text-gray-500 dark:text-[rgb(var(--color-text-secondary))] text-lg">{emptyMessage}</p>
-                </div>
-            </div>
-        );
+    if (!data || data.length === 0) {
+        return <EmptyState title={emptyMessage} description="There are no records to display at this time." />;
     }
 
     return (
-        <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg overflow-hidden border dark:border-[rgb(var(--color-border))]">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xs overflow-hidden border border-gray-200/80 dark:border-gray-800">
             <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead className="bg-gray-50 dark:bg-[rgb(var(--color-table-header))] border-b border-gray-200 dark:border-[rgb(var(--color-border))]">
+                <table className="w-full text-left border-collapse">
+                    <thead className="bg-gray-50/80 dark:bg-gray-800/60 border-b border-gray-200/80 dark:border-gray-800">
                         <tr>
                             {columns.map((column) => (
                                 <th
                                     key={column.key}
                                     onClick={() => column.sortable && handleSort(column.key)}
-                                    className={`px-1 md:px-4 py-1 md:py-2 text-left text-[8px] md:text-xs font-medium text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase ${column.sortable ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-[rgb(var(--color-input))]' : ''
+                                    className={`px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 dark:text-gray-400 uppercase select-none ${column.sortable ? 'cursor-pointer hover:bg-gray-100/70 dark:hover:bg-gray-800' : ''
                                         }`}
                                 >
-                                    <div className="flex items-center space-x-0.5 md:space-x-1">
+                                    <div className="flex items-center space-x-1">
                                         <span>{column.label}</span>
                                         {column.sortable && sortColumn === column.key && (
-                                            <svg className="w-2 h-2 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
@@ -83,15 +70,15 @@ const DataTable = ({
                             ))}
                         </tr>
                     </thead>
-                    <tbody className="bg-white dark:bg-[rgb(var(--color-table-row))] divide-y divide-gray-200 dark:divide-[rgb(var(--color-border))]">
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800/80 bg-white dark:bg-gray-900">
                         {sortedData.map((row, rowIndex) => (
                             <tr
                                 key={rowIndex}
                                 onClick={() => onRowClick && onRowClick(row)}
-                                className={`${onRowClick ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]' : ''} text-gray-900 dark:text-[rgb(var(--color-text))]`}
+                                className={`transition-colors duration-100 ${onRowClick ? 'cursor-pointer hover:bg-slate-50/80 dark:hover:bg-gray-800/50' : 'hover:bg-slate-50/40 dark:hover:bg-gray-800/30'}`}
                             >
                                 {columns.map((column) => (
-                                    <td key={column.key} className="px-1 md:px-4 py-1 md:py-3 text-[9px] md:text-xs whitespace-nowrap">
+                                    <td key={column.key} className="px-4 py-3 text-xs sm:text-sm text-gray-800 dark:text-gray-200 whitespace-nowrap">
                                         {column.render ? column.render(row[column.key], row) : row[column.key]}
                                     </td>
                                 ))}

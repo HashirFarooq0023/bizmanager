@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
 import PageHeader from '../../components/PageHeader';
@@ -91,13 +91,13 @@ const PurchaseReturnAnalytics = () => {
                         <div className="bg-white rounded-lg shadow p-6">
                             <p className="text-sm text-gray-600 mb-1">Total Value</p>
                             <p className="text-3xl font-bold text-blue-600">
-                                ₹{(analytics.totalValue || 0).toFixed(2)}
+                                Rs. {(analytics.totalValue || 0).toFixed(2)}
                             </p>
                         </div>
                         <div className="bg-white rounded-lg shadow p-6">
                             <p className="text-sm text-gray-600 mb-1">Avg Return Value</p>
                             <p className="text-3xl font-bold text-green-600">
-                                ₹{(analytics.avgReturnValue || 0).toFixed(2)}
+                                Rs. {(analytics.avgReturnValue || 0).toFixed(2)}
                             </p>
                         </div>
                         <div className="bg-white rounded-lg shadow p-6">
@@ -129,7 +129,7 @@ const PurchaseReturnAnalytics = () => {
                                             </td>
                                             <td className="px-4 py-3 text-sm text-gray-900">{supplier.returnCount}</td>
                                             <td className="px-4 py-3 text-sm font-semibold text-gray-900">
-                                                ₹{supplier.totalValue.toFixed(2)}
+                                                Rs. {supplier.totalValue.toFixed(2)}
                                             </td>
                                             <td className="px-4 py-3 text-sm">
                                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${supplier.returnRate > 10 ? 'bg-red-100 text-red-800' :
@@ -213,19 +213,19 @@ const PurchaseReturnAnalytics = () => {
                             <div className="bg-gray-50 p-4 rounded-lg">
                                 <p className="text-sm text-gray-600 mb-1">Total Refunded</p>
                                 <p className="text-2xl font-bold text-red-600">
-                                    ₹{(analytics.totalRefunded || 0).toFixed(2)}
+                                    Rs. {(analytics.totalRefunded || 0).toFixed(2)}
                                 </p>
                             </div>
                             <div className="bg-gray-50 p-4 rounded-lg">
                                 <p className="text-sm text-gray-600 mb-1">Payable Adjusted</p>
                                 <p className="text-2xl font-bold text-blue-600">
-                                    ₹{(analytics.payableAdjusted || 0).toFixed(2)}
+                                    Rs. {(analytics.payableAdjusted || 0).toFixed(2)}
                                 </p>
                             </div>
                             <div className="bg-gray-50 p-4 rounded-lg">
                                 <p className="text-sm text-gray-600 mb-1">Credit Notes Issued</p>
                                 <p className="text-2xl font-bold text-green-600">
-                                    ₹{(analytics.creditNotesIssued || 0).toFixed(2)}
+                                    Rs. {(analytics.creditNotesIssued || 0).toFixed(2)}
                                 </p>
                             </div>
                         </div>

@@ -418,7 +418,7 @@ const PurchaseEntry = () => {
 
     return (
         <Layout>
-            <div className="max-w-7xl mx-auto">
+            <div className="space-y-6">
                 {/* Header */}
                 <div className="mb-6">
                     <div className="flex items-center justify-between">
@@ -553,7 +553,7 @@ const PurchaseEntry = () => {
                                                         <div className="flex items-center justify-between">
                                                             <span className="text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Previous Outstanding:</span>
                                                             <span className={`text-xs font-bold ${formData.supplier.outstandingBalance > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
-                                                                ₹{Math.abs(formData.supplier.outstandingBalance).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                                Rs. {Math.abs(formData.supplier.outstandingBalance).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                                 {formData.supplier.outstandingBalance > 0 ? ' (You Owe)' : ' (They Owe)'}
                                                             </span>
                                                         </div>
@@ -709,7 +709,7 @@ const PurchaseEntry = () => {
                                                                 step="0.01"
                                                             />
                                                         </td>
-                                                        <td className="px-2 py-2 font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">₹{calc.total.toFixed(2)}</td>
+                                                        <td className="px-2 py-2 font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {calc.total.toFixed(2)}</td>
                                                         <td className="px-2 py-2">
                                                             <button
                                                                 onClick={() => removeItemRow(index)}
@@ -750,11 +750,11 @@ const PurchaseEntry = () => {
                                 <div className="space-y-2 mb-3">
                                     <div className="flex justify-between text-xs">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Subtotal:</span>
-                                        <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">₹{totals.subtotal.toFixed(2)}</span>
+                                        <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {totals.subtotal.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-xs">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Item Discount:</span>
-                                        <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">-₹{totals.itemDiscount.toFixed(2)}</span>
+                                        <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">-Rs. {totals.itemDiscount.toFixed(2)}</span>
                                     </div>
 
                                     {/* Bill Discount */}
@@ -789,17 +789,17 @@ const PurchaseEntry = () => {
                                         {isInterState() ? (
                                             <div className="flex justify-between text-xs">
                                                 <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">IGST:</span>
-                                                <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">₹{totals.totalIGST.toFixed(2)}</span>
+                                                <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {totals.totalIGST.toFixed(2)}</span>
                                             </div>
                                         ) : (
                                             <>
                                                 <div className="flex justify-between text-xs">
                                                     <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">CGST:</span>
-                                                    <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">₹{totals.totalCGST.toFixed(2)}</span>
+                                                    <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {totals.totalCGST.toFixed(2)}</span>
                                                 </div>
                                                 <div className="flex justify-between text-xs">
                                                     <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">SGST:</span>
-                                                    <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">₹{totals.totalSGST.toFixed(2)}</span>
+                                                    <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {totals.totalSGST.toFixed(2)}</span>
                                                 </div>
                                             </>
                                         )}
@@ -807,7 +807,7 @@ const PurchaseEntry = () => {
 
                                     <div className="flex justify-between text-xs">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Round Off:</span>
-                                        <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">₹{totals.roundOff.toFixed(2)}</span>
+                                        <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {totals.roundOff.toFixed(2)}</span>
                                     </div>
                                 </div>
 
@@ -815,7 +815,7 @@ const PurchaseEntry = () => {
                                 <div className="border-t border-gray-200 dark:border-[rgb(var(--color-border))] pt-3 mb-3">
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">Total:</span>
-                                        <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">₹{totals.totalAmount.toFixed(2)}</span>
+                                        <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">Rs. {totals.totalAmount.toFixed(2)}</span>
                                     </div>
                                 </div>
 
@@ -872,14 +872,14 @@ const PurchaseEntry = () => {
                                         <div className="flex justify-between text-xs pb-2 mb-2 border-b border-gray-200 dark:border-[rgb(var(--color-border))]">
                                             <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Supplier Previous Dues:</span>
                                             <span className={`font-bold ${formData.supplier.outstandingBalance > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
-                                                ₹{Math.abs(formData.supplier.outstandingBalance).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                Rs. {Math.abs(formData.supplier.outstandingBalance).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                             </span>
                                         </div>
                                     )}
 
                                     <div className="flex justify-between text-xs">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">This Purchase Outstanding:</span>
-                                        <span className="font-medium text-red-600 dark:text-red-400">₹{totals.outstandingAmount.toFixed(2)}</span>
+                                        <span className="font-medium text-red-600 dark:text-red-400">Rs. {totals.outstandingAmount.toFixed(2)}</span>
                                     </div>
                                 </div>
 

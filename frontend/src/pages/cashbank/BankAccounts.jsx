@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/Layout';
@@ -91,7 +91,7 @@ const BankAccounts = () => {
         { key: 'accountType', label: 'Type', sortable: true },
         { key: 'branch', label: 'Branch' },
         { key: 'ifsc', label: 'IFSC Code', render: (val) => <span className="font-mono text-sm">{val}</span> },
-        { key: 'currentBalance', label: 'Balance', sortable: true, render: (val) => <span className="font-bold text-green-600">₹{val.toLocaleString()}</span> },
+        { key: 'currentBalance', label: 'Balance', sortable: true, render: (val) => <span className="font-bold text-green-600">Rs. {val.toLocaleString()}</span> },
         {
             key: 'actions',
             label: 'Actions',
@@ -154,7 +154,7 @@ const BankAccounts = () => {
             ]} />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <StatsCard title="Total Balance" value={`₹${totalBalance.toLocaleString()}`} icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} iconBgColor="bg-green-100" iconColor="text-green-600" />
+                <StatsCard title="Total Balance" value={`Rs. ${totalBalance.toLocaleString()}`} icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} iconBgColor="bg-green-100" iconColor="text-green-600" />
                 <StatsCard title="Active Accounts" value={accounts.length} icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>} iconBgColor="bg-blue-100" iconColor="text-blue-600" />
                 <StatsCard title="This Month Transactions" value="156" icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>} iconBgColor="bg-purple-100" iconColor="text-purple-600" />
             </div>

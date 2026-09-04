@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 import Invoice from "../models/Invoice.js";
 import Customer from "../models/Customer.js";
 import CashbankTransaction from "../models/CashbankTransaction.js";
@@ -188,7 +188,7 @@ export const markSalesInvoiceAsPaid = async (req, res) => {
 
       if (bankAcc.currentBalance < amount) {
         return res.status(400).json({
-          message: `Insufficient balance. Available: ₹${bankAcc.currentBalance}`
+          message: `Insufficient balance. Available: Rs. ${bankAcc.currentBalance}`
         });
       }
     }
@@ -222,7 +222,7 @@ export const markSalesInvoiceAsPaid = async (req, res) => {
         customer.dues = Math.max(0, customer.dues - amount);
         await customer.save();
 
-        info(`Customer ledger updated: ${customer.name} dues reduced by ₹${amount}, new balance: ₹${customer.dues}`);
+        info(`Customer ledger updated: ${customer.name} dues reduced by Rs. ${amount}, new balance: Rs. ${customer.dues}`);
       }
     }
 
@@ -248,10 +248,10 @@ export const markSalesInvoiceAsPaid = async (req, res) => {
         }
       );
 
-      info(`Bank payment recorded for sales invoice ${invoice.invoiceNo}: +₹${amount} to account ${bankAccount}`);
+      info(`Bank payment recorded for sales invoice ${invoice.invoiceNo}: +Rs. ${amount} to account ${bankAccount}`);
     }
 
-    info(`Sales invoice ${invoice.invoiceNo} marked as ${newPaymentStatus} by ${req.user.name}: +₹${amount}`);
+    info(`Sales invoice ${invoice.invoiceNo} marked as ${newPaymentStatus} by ${req.user.name}: +Rs. ${amount}`);
 
     res.status(200).json({
       message: `Invoice marked as ${newPaymentStatus}`,

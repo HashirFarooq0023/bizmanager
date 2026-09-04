@@ -1,4 +1,6 @@
-# 🧾 BizzAI - Smart Billing & Inventory Management System
+# 🧾 BizManager - Smart Billing & Inventory Management System
+
+**Developed by MegaTrix**
 
 A modern, full-stack Point of Sale (POS) and inventory management system designed for retail businesses, grocery stores, and small to medium enterprises. Built with the MERN stack (MongoDB, Express.js, React, Node.js) and featuring a beautiful, responsive UI with TailwindCSS.
 
@@ -420,9 +422,14 @@ This project is licensed under the Apache License - see the [LICENSE](LICENSE) f
 - TailwindCSS for the utility-first CSS framework
 - All contributors who help improve this project
 
-## 📞 Support
+## 📞 Support & Developer Contact
 
-For support, email shingadekartik1@gmail.com or open an issue in the repository.
+Developed and maintained by **MegaTrix**.
+
+- **Email**: `admin.megatrix@gmail.com`
+- **Phone / WhatsApp**: `0325-4567318` (`+92 325-4567318`)
+- **Website**: [www.megatrixai.com](https://www.megatrixai.com)
+- **Location**: Lahore, Punjab, Pakistan
 
 ## 🗺️ Roadmap
 

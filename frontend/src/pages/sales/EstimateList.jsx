@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/Layout';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
+import PageHeader from '../../components/PageHeader';
+import Card from '../../components/Card';
+import StatusBadge from '../../components/StatusBadge';
+import Button from '../../components/Button';
+import EmptyState from '../../components/EmptyState';
+import LoadingSkeleton from '../../components/LoadingSkeleton';
 
 const EstimateList = () => {
     const navigate = useNavigate();
@@ -49,188 +55,126 @@ const EstimateList = () => {
         }
     };
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'draft':
-                return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200';
-            case 'sent':
-                return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400';
-            case 'accepted':
-                return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400';
-            case 'rejected':
-                return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400';
-            default:
-                return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200';
-        }
-    };
-
     const filteredEstimates = estimates.filter((est) =>
         est.estimateNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
         est.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (isLoading) {
-        return (
-            <Layout>
-                <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-[rgb(var(--color-primary))]"></div>
-                </div>
-            </Layout>
-        );
-    }
-
     return (
         <Layout>
-            <div className="max-w-7xl mx-auto">
-                {/* Header */}
-                <div className="mb-1 md:mb-8">
-                    <button
-                        onClick={() => navigate('/sales/estimate')}
-                        className="flex items-center text-gray-600 dark:text-[rgb(var(--color-text-secondary))] hover:text-gray-900 dark:hover:text-[rgb(var(--color-text))] mb-1 md:mb-4"
-                    >
-                        <svg className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                        <span className="text-[10px] md:text-base">Back to Create Estimate</span>
-                    </button>
-                    <div className="flex items-center gap-2 md:gap-4 mb-2 md:mb-4">
-                        <div className="flex-1">
-                            <h1 className="text-sm md:text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-0.5 md:mb-2">
-                                Estimates / Proforma
-                            </h1>
-                            <p className="text-[10px] md:text-base text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
-                                View and manage all estimates
-                            </p>
-                        </div>
-                        <button
+            <div className="space-y-6">
+                <PageHeader
+                    title="Estimates / Proforma"
+                    subtitle="Create and manage customer quotes and estimates"
+                    backPath="/sales/estimate"
+                    action={
+                        <Button
+                            variant="primary"
                             onClick={() => navigate('/sales/estimate')}
-                            className="px-2 py-1 md:px-4 md:py-2 text-[10px] md:text-sm bg-indigo-600 dark:bg-[rgb(var(--color-primary))] text-white rounded md:rounded-lg hover:bg-indigo-700 dark:hover:bg-[rgb(var(--color-primary-hover))] font-medium transition-colors flex items-center gap-1 md:gap-2"
+                            icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>}
                         >
-                            <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            <span className="hidden md:inline">Create New</span>
-                            <span className="md:hidden">New</span>
-                        </button>
-                    </div>
-                </div>
+                            Create Estimate
+                        </Button>
+                    }
+                />
 
-                {/* Search */}
-                <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded md:rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-1 md:p-2 mb-1 md:mb-6">
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Search by estimate number or customer..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-6 md:pl-10 pr-2 md:pr-4 py-0.5 md:py-1 text-[10px] md:text-base border border-gray-300 dark:border-[rgb(var(--color-border))] bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] placeholder:text-gray-400 dark:placeholder:text-[rgb(var(--color-placeholder))] rounded md:rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[rgb(var(--color-primary))] focus:border-transparent"
-                        />
-                        <svg
-                            className="absolute left-1.5 md:left-3 top-1.5 md:top-2.5 w-3 h-3 md:w-4 md:h-4 text-gray-400 dark:text-[rgb(var(--color-text-muted))]"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                <Card noPadding>
+                    <div className="p-4 border-b border-gray-100 dark:border-gray-800">
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder="Search by estimate number or customer..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-xl focus:ring-2 focus:ring-violet-500/20 focus:outline-none"
                             />
-                        </svg>
+                            <svg
+                                className="absolute left-3 top-2.5 w-4 h-4 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                />
+                            </svg>
+                        </div>
                     </div>
-                </div>
 
-                {/* Estimates Table */}
-                <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded md:rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-gray-50 dark:bg-[rgb(var(--color-table-header))] border-b border-gray-200 dark:border-[rgb(var(--color-border))]">
-                                <tr>
-                                    <th className="px-2 md:px-6 py-1 md:py-3 text-left text-[9px] md:text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">
-                                        <span className="md:hidden">Estimate</span>
-                                        <span className="hidden md:inline">Estimate #</span>
-                                    </th>
-                                    <th className="px-2 md:px-6 py-1 md:py-3 text-left text-[9px] md:text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Customer</th>
-                                    <th className="px-2 md:px-6 py-1 md:py-3 text-left text-[9px] md:text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Date</th>
-                                    <th className="px-2 md:px-6 py-1 md:py-3 text-left text-[9px] md:text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Amount</th>
-                                    <th className="px-2 md:px-6 py-1 md:py-3 text-left text-[9px] md:text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Status</th>
-                                    <th className="px-2 md:px-6 py-1 md:py-3 text-right text-[9px] md:text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white dark:bg-[rgb(var(--color-table-row))] divide-y divide-gray-200 dark:divide-[rgb(var(--color-border))]">
-                                {filteredEstimates.length === 0 ? (
+                    {isLoading ? (
+                        <div className="p-6">
+                            <LoadingSkeleton count={5} />
+                        </div>
+                    ) : filteredEstimates.length === 0 ? (
+                        <div className="p-8">
+                            <EmptyState
+                                title="No estimates found"
+                                description="Create your first proforma estimate to send quotes to customers."
+                                actionText="Create Estimate"
+                                onAction={() => navigate('/sales/estimate')}
+                            />
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-xs text-left">
+                                <thead className="bg-gray-50/70 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                     <tr>
-                                        <td colSpan="6" className="text-center py-4 md:py-12">
-                                            <svg
-                                                className="w-8 h-8 md:w-16 md:h-16 text-gray-400 dark:text-[rgb(var(--color-text-muted))] mx-auto mb-2 md:mb-4"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth={2}
-                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                />
-                                            </svg>
-                                            <p className="text-[10px] md:text-lg text-gray-500 dark:text-[rgb(var(--color-text-secondary))]">
-                                                No estimates found
-                                            </p>
-                                        </td>
+                                        <th className="px-4 py-3">Estimate #</th>
+                                        <th className="px-4 py-3">Customer</th>
+                                        <th className="px-4 py-3">Date</th>
+                                        <th className="px-4 py-3">Amount</th>
+                                        <th className="px-4 py-3">Status</th>
+                                        <th className="px-4 py-3 text-right">Actions</th>
                                     </tr>
-                                ) : (
-                                    filteredEstimates.map((estimate) => (
-                                        <tr key={estimate._id} className="hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-table-row-hover))]">
-                                            <td className="px-2 md:px-6 py-1 md:py-4 whitespace-nowrap">
-                                                <div className="text-[10px] md:text-xs font-medium text-indigo-600 dark:text-[rgb(var(--color-primary))]">
-                                                    {estimate.estimateNo}
-                                                </div>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
+                                    {filteredEstimates.map((estimate) => (
+                                        <tr key={estimate._id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
+                                            <td className="px-4 py-3 font-semibold text-violet-700 dark:text-violet-400">
+                                                {estimate.estimateNo}
                                             </td>
-                                            <td className="px-2 md:px-6 py-1 md:py-4 whitespace-nowrap">
-                                                <div className="text-[10px] md:text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">
-                                                    {estimate.customer?.name || 'Walk-in Customer'}
-                                                </div>
+                                            <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">
+                                                {estimate.customer?.name || 'Walk-in Customer'}
                                             </td>
-                                            <td className="px-2 md:px-6 py-1 md:py-4 whitespace-nowrap">
-                                                <div className="text-[10px] md:text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">
-                                                    {new Date(estimate.createdAt).toLocaleDateString('en-IN')}
-                                                </div>
-                                                <div className="text-[8px] md:text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))]">
-                                                    {new Date(estimate.createdAt).toLocaleTimeString()}
-                                                </div>
+                                            <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                                {new Date(estimate.createdAt).toLocaleDateString('en-PK')}
                                             </td>
-                                            <td className="px-2 md:px-6 py-1 md:py-4 whitespace-nowrap">
-                                                <div className="text-[10px] md:text-xs font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
-                                                    ₹{estimate.totalAmount.toFixed(2)}
-                                                </div>
+                                            <td className="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">
+                                                Rs. {estimate.totalAmount.toFixed(2)}
                                             </td>
-                                            <td className="px-2 md:px-6 py-1 md:py-4 whitespace-nowrap">
-                                                <span className={`px-1.5 md:px-3 py-0.5 md:py-1 inline-flex text-[8px] md:text-xs leading-5 font-semibold rounded-full ${getStatusColor(estimate.status)}`}>
-                                                    {estimate.status}
-                                                </span>
+                                            <td className="px-4 py-3">
+                                                <StatusBadge status={estimate.status} />
                                             </td>
-                                            <td className="px-2 md:px-6 py-1 md:py-4 whitespace-nowrap text-right text-[9px] md:text-xs font-medium">
-                                                <button
+                                            <td className="px-4 py-3 text-right space-x-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
                                                     onClick={() => navigate(`/sales/estimate/${estimate._id}`)}
-                                                    className="text-indigo-600 dark:text-[rgb(var(--color-primary))] hover:text-indigo-900 dark:hover:text-[rgb(var(--color-primary-hover))] mr-2 md:mr-4">
+                                                >
                                                     View
-                                                </button>
-                                                <button
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                                                     onClick={() => handleDelete(estimate._id)}
-                                                    className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-500">
+                                                >
                                                     Delete
-                                                </button>
+                                                </Button>
                                             </td>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </Card>
             </div>
         </Layout>
     );
 };
 
 export default EstimateList;
+

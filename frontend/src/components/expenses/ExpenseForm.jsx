@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { FiX, FiAlertCircle, FiUpload, FiTrash2 } from 'react-icons/fi';
@@ -265,7 +265,7 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Amount (₹) <span className="text-red-500">*</span>
+                                Amount (Rs. ) <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="number"
@@ -317,7 +317,7 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
                                     <option value="">Select Bank Account</option>
                                     {accounts?.map((acc) => (
                                         <option key={acc._id} value={acc._id}>
-                                            {acc.bankName} - {acc.accountType} (₹{acc.currentBalance.toFixed(2)})
+                                            {acc.bankName} - {acc.accountType} (Rs. {acc.currentBalance.toFixed(2)})
                                         </option>
                                     ))}
                                 </select>

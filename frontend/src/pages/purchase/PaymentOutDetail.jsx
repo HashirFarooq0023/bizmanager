@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
@@ -189,7 +189,7 @@ const PaymentOutDetail = () => {
                             </div>
                             <div>
                                 <p className="text-sm text-muted">Total Amount</p>
-                                <p className="text-2xl font-bold text-indigo-600">₹{payment.totalAmount.toFixed(2)}</p>
+                                <p className="text-2xl font-bold text-indigo-600">Rs. {payment.totalAmount.toFixed(2)}</p>
                             </div>
                             {payment.reference && (
                                 <div>
@@ -320,10 +320,10 @@ const PaymentOutDetail = () => {
                                                     {allocation.billNo}
                                                 </td>
                                                 <td className="px-4 py-2 text-sm text-right font-bold text-indigo-600">
-                                                    ₹{allocation.allocatedAmount.toFixed(2)}
+                                                    Rs. {allocation.allocatedAmount.toFixed(2)}
                                                 </td>
                                                 <td className="px-4 py-2 text-sm text-right">
-                                                    ₹{allocation.billBalanceBefore.toFixed(2)}
+                                                    Rs. {allocation.billBalanceBefore.toFixed(2)}
                                                 </td>
                                             </tr>
                                         ))}
@@ -332,7 +332,7 @@ const PaymentOutDetail = () => {
                                         <tr>
                                             <td className="px-4 py-2 text-sm font-bold text-main">Total</td>
                                             <td className="px-4 py-2 text-sm text-right font-bold text-indigo-600">
-                                                ₹{payment.totalAllocatedToBills.toFixed(2)}
+                                                Rs. {payment.totalAllocatedToBills.toFixed(2)}
                                             </td>
                                             <td></td>
                                         </tr>
@@ -380,19 +380,19 @@ const PaymentOutDetail = () => {
                         <div className="space-y-3">
                             <div className="flex justify-between">
                                 <span className="text-muted">Total Payment</span>
-                                <span className="font-bold text-main">₹{payment.totalAmount.toFixed(2)}</span>
+                                <span className="font-bold text-main">Rs. {payment.totalAmount.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-muted">Allocated to Bills</span>
                                 <span className="font-medium text-main">
-                                    ₹{payment.totalAllocatedToBills.toFixed(2)}
+                                    Rs. {payment.totalAllocatedToBills.toFixed(2)}
                                 </span>
                             </div>
                             {payment.advanceAmount > 0 && (
                                 <div className="flex justify-between">
                                     <span className="text-muted">Advance Amount</span>
                                     <span className="font-medium text-green-600">
-                                        ₹{payment.advanceAmount.toFixed(2)}
+                                        Rs. {payment.advanceAmount.toFixed(2)}
                                     </span>
                                 </div>
                             )}
@@ -400,7 +400,7 @@ const PaymentOutDetail = () => {
                                 <div className="flex justify-between">
                                     <span className="text-muted">Unallocated</span>
                                     <span className="font-bold text-main">
-                                        ₹{payment.unallocatedAmount?.toFixed(2) || '0.00'}
+                                        Rs. {payment.unallocatedAmount?.toFixed(2) || '0.00'}
                                     </span>
                                 </div>
                             </div>

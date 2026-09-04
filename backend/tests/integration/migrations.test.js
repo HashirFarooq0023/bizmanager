@@ -28,7 +28,7 @@ describe.skip('Migration Tests', () => {
             subdomain: 'migration-test',
             settings: {
                 fiscalYearStart: 4,
-                currency: 'INR',
+                currency: 'PKR',
                 timezone: 'Asia/Kolkata'
             }
         });
@@ -211,7 +211,7 @@ describe.skip('Migration Tests', () => {
                 await Organization.create({
                     name: 'Default Organization',
                     subdomain: 'default',
-                    settings: { currency: 'INR', timezone: 'Asia/Kolkata' }
+                    settings: { currency: 'PKR', timezone: 'Asia/Kolkata' }
                 });
 
             // Create item without organizationId

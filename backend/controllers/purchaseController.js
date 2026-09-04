@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 import Purchase from "../models/Purchase.js";
 import Item from "../models/Item.js";
 import Supplier from "../models/Supplier.js";
@@ -321,7 +321,7 @@ export const createPurchase = async (req, res) => {
                         {}
                     );
 
-                    info(`Bank payment recorded for purchase ${purchaseNo}: -₹${paidAmount}`);
+                    info(`Bank payment recorded for purchase ${purchaseNo}: -Rs. ${paidAmount}`);
                 } else if (paymentMethod === "cash") {
                     // Record cash payment transaction (money OUT)
                     await CashbankTransaction.create(
@@ -338,7 +338,7 @@ export const createPurchase = async (req, res) => {
                         {}
                     );
 
-                    info(`Cash payment recorded for purchase ${purchaseNo}: -₹${paidAmount}`);
+                    info(`Cash payment recorded for purchase ${purchaseNo}: -Rs. ${paidAmount}`);
                 }
             }
         }

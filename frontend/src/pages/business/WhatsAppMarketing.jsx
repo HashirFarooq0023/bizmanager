@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import Layout from '../../components/Layout';
 import PageHeader from '../../components/PageHeader';
 import FormInput from '../../components/FormInput';
@@ -21,7 +21,7 @@ const WhatsAppMarketing = () => {
     const templates = [
         { id: 1, name: 'Welcome Message', content: 'Welcome to {business_name}! We\'re excited to serve you.' },
         { id: 2, name: 'Order Confirmation', content: 'Your order #{order_id} has been confirmed. Thank you!' },
-        { id: 3, name: 'Payment Reminder', content: 'Reminder: Your payment of ₹{amount} is due on {date}.' },
+        { id: 3, name: 'Payment Reminder', content: 'Reminder: Your payment of Rs. {amount} is due on {date}.' },
         { id: 4, name: 'Promotional Offer', content: 'Special offer! Get {discount}% off on your next purchase.' }
     ];
 
@@ -254,7 +254,7 @@ const WhatsAppMarketing = () => {
                                     : 0} customers
                             </p>
                             <p>
-                                <strong>Estimated Cost:</strong> ₹{(selectedGroups.length > 0
+                                <strong>Estimated Cost:</strong> Rs. {(selectedGroups.length > 0
                                     ? customerGroups.filter(g => selectedGroups.includes(g.id)).reduce((sum, g) => sum + g.count, 0) * 0.25
                                     : 0).toFixed(2)}
                             </p>

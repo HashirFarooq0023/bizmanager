@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -234,19 +234,19 @@ const BillDetail = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-blue-50 p-4 rounded-lg">
                         <p className="text-xs text-gray-600 mb-1">Total Amount</p>
-                        <p className="text-2xl font-bold text-blue-600">₹{bill.totalAmount.toFixed(2)}</p>
+                        <p className="text-2xl font-bold text-blue-600">Rs. {bill.totalAmount.toFixed(2)}</p>
                     </div>
                     <div className="bg-green-50 p-4 rounded-lg">
                         <p className="text-xs text-gray-600 mb-1">Paid Amount</p>
-                        <p className="text-2xl font-bold text-green-600">₹{bill.paidAmount.toFixed(2)}</p>
+                        <p className="text-2xl font-bold text-green-600">Rs. {bill.paidAmount.toFixed(2)}</p>
                     </div>
                     <div className="bg-purple-50 p-4 rounded-lg">
                         <p className="text-xs text-gray-600 mb-1">Credit Applied</p>
-                        <p className="text-2xl font-bold text-purple-600">₹{(bill.totalCreditApplied || 0).toFixed(2)}</p>
+                        <p className="text-2xl font-bold text-purple-600">Rs. {(bill.totalCreditApplied || 0).toFixed(2)}</p>
                     </div>
                     <div className="bg-red-50 p-4 rounded-lg">
                         <p className="text-xs text-gray-600 mb-1">Outstanding</p>
-                        <p className="text-2xl font-bold text-red-600">₹{bill.outstandingAmount.toFixed(2)}</p>
+                        <p className="text-2xl font-bold text-red-600">Rs. {bill.outstandingAmount.toFixed(2)}</p>
                     </div>
                 </div>
             </div>
@@ -271,14 +271,14 @@ const BillDetail = () => {
                                 <tr key={index}>
                                     <td className="px-4 py-3 text-sm">{item.itemName}</td>
                                     <td className="px-4 py-3 text-sm text-right">{item.quantity}</td>
-                                    <td className="px-4 py-3 text-sm text-right">₹{item.purchaseRate.toFixed(2)}</td>
-                                    <td className="px-4 py-3 text-sm text-right">₹{(item.discount || 0).toFixed(2)}</td>
+                                    <td className="px-4 py-3 text-sm text-right">Rs. {item.purchaseRate.toFixed(2)}</td>
+                                    <td className="px-4 py-3 text-sm text-right">Rs. {(item.discount || 0).toFixed(2)}</td>
                                     <td className="px-4 py-3 text-sm text-right">
-                                        {item.cgst > 0 && <div>CGST: ₹{item.cgst.toFixed(2)}</div>}
-                                        {item.sgst > 0 && <div>SGST: ₹{item.sgst.toFixed(2)}</div>}
-                                        {item.igst > 0 && <div>IGST: ₹{item.igst.toFixed(2)}</div>}
+                                        {item.cgst > 0 && <div>CGST: Rs. {item.cgst.toFixed(2)}</div>}
+                                        {item.sgst > 0 && <div>SGST: Rs. {item.sgst.toFixed(2)}</div>}
+                                        {item.igst > 0 && <div>IGST: Rs. {item.igst.toFixed(2)}</div>}
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-right font-semibold">₹{item.total.toFixed(2)}</td>
+                                    <td className="px-4 py-3 text-sm text-right font-semibold">Rs. {item.total.toFixed(2)}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -291,41 +291,41 @@ const BillDetail = () => {
                         <div className="w-64 space-y-2">
                             <div className="flex justify-between text-sm">
                                 <span>Subtotal:</span>
-                                <span>₹{bill.subtotal.toFixed(2)}</span>
+                                <span>Rs. {bill.subtotal.toFixed(2)}</span>
                             </div>
                             {bill.billDiscount > 0 && (
                                 <div className="flex justify-between text-sm text-red-600">
                                     <span>Bill Discount:</span>
-                                    <span>-₹{bill.billDiscount.toFixed(2)}</span>
+                                    <span>-Rs. {bill.billDiscount.toFixed(2)}</span>
                                 </div>
                             )}
                             {bill.shippingCharges > 0 && (
                                 <div className="flex justify-between text-sm">
                                     <span>Shipping:</span>
-                                    <span>₹{bill.shippingCharges.toFixed(2)}</span>
+                                    <span>Rs. {bill.shippingCharges.toFixed(2)}</span>
                                 </div>
                             )}
                             {bill.totalCGST > 0 && (
                                 <div className="flex justify-between text-sm">
                                     <span>CGST:</span>
-                                    <span>₹{bill.totalCGST.toFixed(2)}</span>
+                                    <span>Rs. {bill.totalCGST.toFixed(2)}</span>
                                 </div>
                             )}
                             {bill.totalSGST > 0 && (
                                 <div className="flex justify-between text-sm">
                                     <span>SGST:</span>
-                                    <span>₹{bill.totalSGST.toFixed(2)}</span>
+                                    <span>Rs. {bill.totalSGST.toFixed(2)}</span>
                                 </div>
                             )}
                             {bill.totalIGST > 0 && (
                                 <div className="flex justify-between text-sm">
                                     <span>IGST:</span>
-                                    <span>₹{bill.totalIGST.toFixed(2)}</span>
+                                    <span>Rs. {bill.totalIGST.toFixed(2)}</span>
                                 </div>
                             )}
                             <div className="flex justify-between text-lg font-bold border-t pt-2">
                                 <span>Total:</span>
-                                <span>₹{bill.totalAmount.toFixed(2)}</span>
+                                <span>Rs. {bill.totalAmount.toFixed(2)}</span>
                             </div>
                         </div>
                     </div>
@@ -352,7 +352,7 @@ const BillDetail = () => {
                                     <tr key={index}>
                                         <td className="px-4 py-3 text-sm">{new Date(payment.paymentDate).toLocaleDateString()}</td>
                                         <td className="px-4 py-3 text-sm capitalize">{payment.paymentMethod}</td>
-                                        <td className="px-4 py-3 text-sm text-right font-semibold text-green-600">₹{payment.amount.toFixed(2)}</td>
+                                        <td className="px-4 py-3 text-sm text-right font-semibold text-green-600">Rs. {payment.amount.toFixed(2)}</td>
                                         <td className="px-4 py-3 text-sm">{payment.reference || '-'}</td>
                                         <td className="px-4 py-3 text-sm">{payment.notes || '-'}</td>
                                     </tr>
@@ -381,7 +381,7 @@ const BillDetail = () => {
                                     <tr key={index}>
                                         <td className="px-4 py-3 text-sm">{credit.creditNoteNo}</td>
                                         <td className="px-4 py-3 text-sm">{new Date(credit.appliedDate).toLocaleDateString()}</td>
-                                        <td className="px-4 py-3 text-sm text-right font-semibold text-purple-600">₹{credit.appliedAmount.toFixed(2)}</td>
+                                        <td className="px-4 py-3 text-sm text-right font-semibold text-purple-600">Rs. {credit.appliedAmount.toFixed(2)}</td>
                                     </tr>
                                 ))}
                             </tbody>

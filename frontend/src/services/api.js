@@ -38,20 +38,22 @@ api.interceptors.response.use(
             localStorage.removeItem('user');
             localStorage.removeItem('returnDraft');
 
-            // Show professional notification
-            toast.error('Your session has expired. Please log in again to continue.', {
-                position: 'top-center',
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
+            if (window.location.pathname !== '/login') {
+                // Show professional notification
+                toast.error('Your session has expired. Please log in again to continue.', {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                });
 
-            // Redirect to login page after a brief delay
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 1000);
+                // Redirect to login page after a brief delay
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1000);
+            }
         }
 
         // Return the error for other cases

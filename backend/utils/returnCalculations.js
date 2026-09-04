@@ -1,4 +1,4 @@
-import { error as logError } from "./logger.js";
+﻿import { error as logError } from "./logger.js";
 
 /**
  * Calculate item-level totals for a purchase return item
@@ -171,7 +171,7 @@ export const validateGSTReversal = (originalPurchase, returnItems) => {
             const rateDifference = Math.abs(originalItem.purchaseRate - returnItem.rate);
             if (rateDifference > 0.01) {
                 throw new Error(
-                    `Rate mismatch for ${returnItem.itemName}: Original ₹${originalItem.purchaseRate}, Return ₹${returnItem.rate}`
+                    `Rate mismatch for ${returnItem.itemName}: Original Rs. ${originalItem.purchaseRate}, Return Rs. ${returnItem.rate}`
                 );
             }
         }

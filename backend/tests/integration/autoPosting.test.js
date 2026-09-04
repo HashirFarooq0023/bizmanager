@@ -26,7 +26,7 @@ describe.skip('Auto-Posting Service Integration Tests', () => {
         organization = await Organization.create({
             name: 'Test Org',
             subdomain: 'test-autopost',
-            settings: { currency: 'INR', timezone: 'Asia/Kolkata', fiscalYearStart: 4 }
+            settings: { currency: 'PKR', timezone: 'Asia/Kolkata', fiscalYearStart: 4 }
         });
 
         // Create user

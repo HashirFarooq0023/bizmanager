@@ -1,4 +1,4 @@
-/**
+﻿/**
  * BullMQ Reporting Worker
  * 
  * Processes background report generation jobs
@@ -114,12 +114,12 @@ async function generatePDFReport(data, type) {
 
     if (type === 'financial') {
         doc.fontSize(12).text(`Period: ${data.startDate.toDateString()} - ${data.endDate.toDateString()}`);
-        doc.text(`Total Debits: ₹${data.totalDebits.toFixed(2)}`);
-        doc.text(`Total Credits: ₹${data.totalCredits.toFixed(2)}`);
-        doc.text(`Balance: ₹${data.balance.toFixed(2)}`);
+        doc.text(`Total Debits: Rs. ${data.totalDebits.toFixed(2)}`);
+        doc.text(`Total Credits: Rs. ${data.totalCredits.toFixed(2)}`);
+        doc.text(`Balance: Rs. ${data.balance.toFixed(2)}`);
     } else if (type === 'inventory') {
         doc.fontSize(12).text(`Total Items: ${data.totalItems}`);
-        doc.text(`Total Value: ₹${data.totalValue.toFixed(2)}`);
+        doc.text(`Total Value: Rs. ${data.totalValue.toFixed(2)}`);
         doc.text(`Low Stock Items: ${data.lowStockItems.length}`);
     }
 

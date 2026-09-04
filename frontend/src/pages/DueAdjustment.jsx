@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -69,7 +69,7 @@ const DueAdjustment = () => {
             customer &&
             parseFloat(formData.adjustmentAmount) > parseFloat(customer.dues)
         ) {
-            newErrors.adjustmentAmount = `Adjustment amount cannot exceed outstanding due of ₹${customer.dues.toFixed(2)}`;
+            newErrors.adjustmentAmount = `Adjustment amount cannot exceed outstanding due of Rs. ${customer.dues.toFixed(2)}`;
         }
 
         if (!formData.adjustmentMethod) {
@@ -188,7 +188,7 @@ const DueAdjustment = () => {
                                 Outstanding Due
                             </p>
                             <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                                ₹{customer.dues.toFixed(2)}
+                                Rs. {customer.dues.toFixed(2)}
                             </p>
                         </div>
                     </div>
@@ -207,7 +207,7 @@ const DueAdjustment = () => {
                             </label>
                             <div className="relative">
                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-[rgb(var(--color-text-secondary))]">
-                                    ₹
+                                    Rs. 
                                 </span>
                                 <input
                                     type="number"
@@ -231,7 +231,7 @@ const DueAdjustment = () => {
                                 </p>
                             )}
                             <p className="mt-1 text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))]">
-                                Maximum: ₹{customer.dues.toFixed(2)}
+                                Maximum: Rs. {customer.dues.toFixed(2)}
                             </p>
                         </div>
 

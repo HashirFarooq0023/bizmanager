@@ -11,7 +11,7 @@ const BusinessSetup = () => {
         phone: '',
         address: '',
         businessCategory: 'retail',
-        currency: 'INR',
+        currency: 'PKR',
         financialYear: '2024-2025',
         gstEnabled: true,
         taxMode: 'inclusive',
@@ -88,7 +88,7 @@ const BusinessSetup = () => {
                         </div>
                         <div>
                             <p className="text-indigo-200">Currency</p>
-                            <p className="font-medium">₹ {formData.currency}</p>
+                            <p className="font-medium">Rs.  {formData.currency}</p>
                         </div>
                     </div>
                 </div>
@@ -251,7 +251,7 @@ const BusinessSetup = () => {
                                     onChange={onChange}
                                     required
                                     className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                    placeholder="+91 9876543210"
+                                    placeholder="0325-4567318"
                                 />
                             </div>
 
@@ -283,7 +283,7 @@ const BusinessSetup = () => {
                                     onChange={onChange}
                                     className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                                 >
-                                    <option value="INR">₹ INR - Indian Rupee</option>
+                                    <option value="PKR">Rs. PKR - Pakistani Rupee</option>
                                     <option value="USD">$ USD - US Dollar</option>
                                     <option value="EUR">€ EUR - Euro</option>
                                     <option value="GBP">£ GBP - British Pound</option>

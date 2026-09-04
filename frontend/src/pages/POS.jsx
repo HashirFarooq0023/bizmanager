@@ -486,10 +486,10 @@ const POS = () => {
           ${activeTab.cart.map(item => `
             <tr>
               <td>${item.name}</td>
-              <td class="right">${item.quantity} x ₹${item.price}</td>
+              <td class="right">${item.quantity} x Rs. ${item.price}</td>
             </tr>
             <tr>
-              <td colspan="2" class="right">₹${item.total.toFixed(2)}</td>
+              <td colspan="2" class="right">Rs. ${item.total.toFixed(2)}</td>
             </tr>
           `).join('')}
         </table>
@@ -497,47 +497,47 @@ const POS = () => {
         <table>
           <tr>
             <td>Subtotal:</td>
-            <td class="right">₹${subtotal.toFixed(2)}</td>
+            <td class="right">Rs. ${subtotal.toFixed(2)}</td>
           </tr>
           <tr>
             <td>Discount:</td>
-            <td class="right">-₹${activeTab.discount.toFixed(2)}</td>
+            <td class="right">-Rs. ${activeTab.discount.toFixed(2)}</td>
           </tr>
           ${activeTab.previousDueApplied > 0 ? `
             <tr>
               <td>Previous Due Added:</td>
-              <td class="right">+₹${(parseFloat(activeTab.previousDueApplied) || 0).toFixed(2)}</td>
+              <td class="right">+Rs. ${(parseFloat(activeTab.previousDueApplied) || 0).toFixed(2)}</td>
             </tr>
           ` : ''}
           <tr class="bold">
             <td>Total:</td>
-            <td class="right">₹${total.toFixed(2)}</td>
+            <td class="right">Rs. ${total.toFixed(2)}</td>
           </tr>
           ${getCreditApplied() > 0 ? `
             <tr>
               <td>Credit Applied:</td>
-              <td class="right">-₹${getCreditApplied().toFixed(2)}</td>
+              <td class="right">-Rs. ${getCreditApplied().toFixed(2)}</td>
             </tr>
           ` : ''}
           <tr>
             <td>Amount Paid:</td>
-            <td class="right">₹${(parseFloat(activeTab.paidAmount) || 0).toFixed(2)}</td>
+            <td class="right">Rs. ${(parseFloat(activeTab.paidAmount) || 0).toFixed(2)}</td>
           </tr>
           ${balance > 0 ? `
             <tr>
               <td>Change Returned:</td>
-              <td class="right">₹${(parseFloat(activeTab.changeReturned) || 0).toFixed(2)}</td>
+              <td class="right">Rs. ${(parseFloat(activeTab.changeReturned) || 0).toFixed(2)}</td>
             </tr>
             ${parseFloat(activeTab.changeReturned) < balance ? `
               <tr>
                 <td>Balance Due:</td>
-                <td class="right bold">₹${(balance - parseFloat(activeTab.changeReturned || 0)).toFixed(2)}</td>
+                <td class="right bold">Rs. ${(balance - parseFloat(activeTab.changeReturned || 0)).toFixed(2)}</td>
               </tr>
             ` : ''}
           ` : `
             <tr>
               <td>Balance Due:</td>
-              <td class="right bold">₹${Math.max(0, balance).toFixed(2)}</td>
+              <td class="right bold">Rs. ${Math.max(0, balance).toFixed(2)}</td>
             </tr>
           `}
         </table>
@@ -660,33 +660,33 @@ const POS = () => {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto">
+      <div className="space-y-5">
         {/* Header */}
-        <div className="mb-6 flex justify-between items-center">
+        <div className="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-main mb-2">Point of Sale</h1>
-            <p className="text-secondary">Multi-tab billing system with advanced features</p>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Point of Sale</h1>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">Fast multi-tab checkout system with inventory & credit integration</p>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setShowHoldOrders(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 relative"
+              className="flex items-center gap-2 px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold shadow-xs transition duration-150 relative cursor-pointer"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
               </svg>
               <span>Hold Orders</span>
               {holdOrders.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
+                <span className="absolute -top-1.5 -right-1.5 bg-rose-600 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white">
                   {holdOrders.length}
                 </span>
               )}
             </button>
             <button
               onClick={() => navigate('/pos/invoices')}
-              className="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+              className="flex items-center gap-2 px-3.5 py-2 bg-white hover:bg-gray-50 border border-gray-300/80 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg text-xs font-semibold shadow-xs transition duration-150 cursor-pointer"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <span>View Invoices</span>
@@ -784,7 +784,7 @@ const POS = () => {
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                           <span className="text-sm font-medium text-green-600">
-                            Available Credit: ₹{getAvailableCredit().toFixed(2)}
+                            Available Credit: Rs. {getAvailableCredit().toFixed(2)}
                           </span>
                         </div>
                       )}
@@ -819,7 +819,7 @@ const POS = () => {
                         </svg>
                         <span className="text-sm font-medium text-green-800 dark:text-green-300">Available Credit</span>
                       </div>
-                      <span className="text-lg font-bold text-green-600 dark:text-green-400">₹{activeTab.availableCredit.toFixed(2)}</span>
+                      <span className="text-lg font-bold text-green-600 dark:text-green-400">Rs. {activeTab.availableCredit.toFixed(2)}</span>
                     </div>
                   </div>
                 )
@@ -836,7 +836,7 @@ const POS = () => {
                         </svg>
                         <span className="text-sm font-medium text-red-800 dark:text-red-300">Pending Dues</span>
                       </div>
-                      <span className="text-lg font-bold text-red-600 dark:text-red-400">₹{activeTab.customer.dues.toFixed(2)}</span>
+                      <span className="text-lg font-bold text-red-600 dark:text-red-400">Rs. {activeTab.customer.dues.toFixed(2)}</span>
                     </div>
                   </div>
                 )
@@ -886,7 +886,7 @@ const POS = () => {
                       }`}
                   >
                     <div className="font-medium text-main mb-1 truncate">{item.name}</div>
-                    <div className="text-lg font-bold text-primary">₹{item.sellingPrice}</div>
+                    <div className="text-lg font-bold text-primary">Rs. {item.sellingPrice}</div>
                     <div className="text-xs text-muted mt-1">Stock: {item.stockQty} {item.unit}</div>
                     {item.sku && <div className="text-xs text-muted mt-1">SKU: {item.sku}</div>}
                   </button>
@@ -909,7 +909,7 @@ const POS = () => {
                     <div key={item.item} className="flex items-center justify-between p-3 bg-surface rounded-lg">
                       <div className="flex-1">
                         <div className="font-medium text-main text-sm">{item.name}</div>
-                        <div className="text-xs text-secondary">₹{item.price} each</div>
+                        <div className="text-xs text-secondary">Rs. {item.price} each</div>
                       </div>
                       <div className="flex items-center space-x-2">
                         <button
@@ -934,7 +934,7 @@ const POS = () => {
                           </svg>
                         </button>
                       </div>
-                      <div className="ml-3 font-bold text-main w-20 text-right">₹{item.total.toFixed(2)}</div>
+                      <div className="ml-3 font-bold text-main w-20 text-right">Rs. {item.total.toFixed(2)}</div>
                     </div>
                   ))
                 )}
@@ -942,7 +942,7 @@ const POS = () => {
 
               {/* Discount */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-secondary mb-2">Discount (₹)</label>
+                <label className="block text-sm font-medium text-secondary mb-2">Discount (Rs. )</label>
                 <input
                   type="number"
                   value={activeTab.discount === 0 ? '' : activeTab.discount}
@@ -965,12 +965,12 @@ const POS = () => {
                       className="w-4 h-4 text-green-600 border-default rounded focus:ring-green-500"
                     />
                     <span className="text-sm font-medium text-secondary">
-                      Apply Customer Credit (₹{getAvailableCredit().toFixed(2)} available)
+                      Apply Customer Credit (Rs. {getAvailableCredit().toFixed(2)} available)
                     </span>
                   </label>
                   {activeTab.applyCreditEnabled && (
                     <div className="mt-2 p-2 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/50 rounded text-sm text-green-800 dark:text-green-300">
-                      ✓ Credit of ₹{getCreditApplied().toFixed(2)} will be applied
+                      ✓ Credit of Rs. {getCreditApplied().toFixed(2)} will be applied
                     </div>
                   )}
                 </div>
@@ -980,11 +980,11 @@ const POS = () => {
               <div className="border-t border-default pt-4 mb-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-secondary">Subtotal:</span>
-                  <span className="font-medium">₹{subtotal.toFixed(2)}</span>
+                  <span className="font-medium">Rs. {subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-secondary">Discount:</span>
-                  <span className="font-medium">-₹{activeTab.discount.toFixed(2)}</span>
+                  <span className="font-medium">-Rs. {activeTab.discount.toFixed(2)}</span>
                 </div>
 
                 {/* Previous Due Handling */}
@@ -993,12 +993,12 @@ const POS = () => {
                     {activeTab.previousDueApplied > 0 ? (
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Previous Due Added:</span>
-                        <span className="font-medium text-amber-600">+₹{activeTab.previousDueApplied.toFixed(2)}</span>
+                        <span className="font-medium text-amber-600">+Rs. {activeTab.previousDueApplied.toFixed(2)}</span>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600">Outstanding Previous Due:</span>
-                        <span className="font-medium">₹{(activeTab.customer.dues || 0).toFixed(2)}</span>
+                        <span className="font-medium">Rs. {(activeTab.customer.dues || 0).toFixed(2)}</span>
                       </div>
                     )}
 
@@ -1022,18 +1022,18 @@ const POS = () => {
 
                 <div className="flex justify-between text-lg font-bold border-t pt-2">
                   <span>Total:</span>
-                  <span className="text-indigo-600">₹{(subtotal - activeTab.discount + (parseFloat(activeTab.previousDueApplied) || 0)).toFixed(2)}</span>
+                  <span className="text-indigo-600">Rs. {(subtotal - activeTab.discount + (parseFloat(activeTab.previousDueApplied) || 0)).toFixed(2)}</span>
                 </div>
                 {activeTab.applyCreditEnabled && getCreditApplied() > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-secondary">Credit Applied:</span>
-                    <span className="font-medium text-green-600">-₹{getCreditApplied().toFixed(2)}</span>
+                    <span className="font-medium text-green-600">-Rs. {getCreditApplied().toFixed(2)}</span>
                   </div>
                 )}
                 {activeTab.applyCreditEnabled && getCreditApplied() > 0 && (
                   <div className="flex justify-between text-lg font-bold text-indigo-600 border-t pt-2">
                     <span>Amount to Pay:</span>
-                    <span>₹{total.toFixed(2)}</span>
+                    <span>Rs. {total.toFixed(2)}</span>
                   </div>
                 )}
 
@@ -1044,12 +1044,12 @@ const POS = () => {
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
                         <span className="text-purple-700">Customer Credit:</span>
-                        <span className="font-medium text-purple-900">₹{getCreditApplied().toFixed(2)}</span>
+                        <span className="font-medium text-purple-900">Rs. {getCreditApplied().toFixed(2)}</span>
                       </div>
                       {paid > 0 && (
                         <div className="flex justify-between">
                           <span className="text-purple-700">{activeTab.paymentMethod.charAt(0).toUpperCase() + activeTab.paymentMethod.slice(1)}:</span>
-                          <span className="font-medium text-purple-900">₹{paid.toFixed(2)}</span>
+                          <span className="font-medium text-purple-900">Rs. {paid.toFixed(2)}</span>
                         </div>
                       )}
                     </div>
@@ -1075,7 +1075,7 @@ const POS = () => {
 
               {/* Paid Amount */}
               < div className="mb-4" >
-                <label className="block text-sm font-medium text-secondary mb-2">Amount Paid (₹)</label>
+                <label className="block text-sm font-medium text-secondary mb-2">Amount Paid (Rs. )</label>
                 <input
                   type="number"
                   value={activeTab.paidAmount}
@@ -1096,7 +1096,7 @@ const POS = () => {
                         {balance >= 0 ? 'Change to Return:' : 'Balance Due:'}
                       </span>
                       <span className={`text-xl font-bold ${balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        ₹{Math.abs(balance).toFixed(2)}
+                        Rs. {Math.abs(balance).toFixed(2)}
                       </span>
                     </div>
                   </div>
@@ -1116,7 +1116,7 @@ const POS = () => {
                     <option value="">Choose account</option>
                     {accounts.map(account => (
                       <option key={account._id} value={account._id}>
-                        {account.bankName} - {account.accountType} (₹{account.currentBalance})
+                        {account.bankName} - {account.accountType} (Rs. {account.currentBalance})
                       </option>
                     ))}
                   </select>
@@ -1148,7 +1148,7 @@ const POS = () => {
                           {activeTab.customer ? 'Credit Due to Customer:' : 'Remaining Change (unpaid):'}
                         </span>
                         <span className="font-bold text-yellow-900">
-                          ₹{(balance - parseFloat(activeTab.changeReturned || 0)).toFixed(2)}
+                          Rs. {(balance - parseFloat(activeTab.changeReturned || 0)).toFixed(2)}
                         </span>
                       </div>
                       {activeTab.customer && (
@@ -1332,7 +1332,7 @@ const POS = () => {
                         <div className="font-medium text-main">{customer.name}</div>
                         <div className="text-sm text-secondary">{customer.phone}</div>
                         {customer.dues > 0 && (
-                          <div className="text-sm text-red-600 dark:text-red-400 mt-1">Outstanding: ₹{customer.dues.toFixed(2)}</div>
+                          <div className="text-sm text-red-600 dark:text-red-400 mt-1">Outstanding: Rs. {customer.dues.toFixed(2)}</div>
                         )}
                       </button>
                     ))
@@ -1377,7 +1377,7 @@ const POS = () => {
                           <div className="text-right">
                             <div className="text-sm text-secondary">{order.cart.length} items</div>
                             <div className="font-bold text-indigo-600">
-                              ₹{(order.cart.reduce((sum, item) => sum + item.total, 0) - order.discount).toFixed(2)}
+                              Rs. {(order.cart.reduce((sum, item) => sum + item.total, 0) - order.discount).toFixed(2)}
                             </div>
                           </div>
                         </div>
@@ -1420,7 +1420,7 @@ const POS = () => {
                 <div className="mb-4 p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg">
                   <div className="flex justify-between text-sm">
                     <span className="text-secondary">Total Amount:</span>
-                    <span className="font-bold text-primary">₹{total.toFixed(2)}</span>
+                    <span className="font-bold text-primary">Rs. {total.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -1466,13 +1466,13 @@ const POS = () => {
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-secondary">Total Paid:</span>
                     <span className={`font-bold ${calculateSplitTotal() >= total ? 'text-green-600' : 'text-red-600'}`}>
-                      ₹{calculateSplitTotal().toFixed(2)}
+                      Rs. {calculateSplitTotal().toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-secondary">Balance:</span>
                     <span className={`font-bold ${calculateSplitTotal() >= total ? 'text-green-600' : 'text-red-600'}`}>
-                      ₹{(total - calculateSplitTotal()).toFixed(2)}
+                      Rs. {(total - calculateSplitTotal()).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -1486,7 +1486,7 @@ const POS = () => {
                         payment.amount && (
                           <div key={index} className="flex justify-between text-sm">
                             <span className="text-purple-700 dark:text-purple-300">{payment.method.charAt(0).toUpperCase() + payment.method.slice(1)}:</span>
-                            <span className="font-medium text-purple-900 dark:text-purple-200">₹{parseFloat(payment.amount || 0).toFixed(2)}</span>
+                            <span className="font-medium text-purple-900 dark:text-purple-200">Rs. {parseFloat(payment.amount || 0).toFixed(2)}</span>
                           </div>
                         )
                       ))}
@@ -1542,21 +1542,21 @@ const POS = () => {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-secondary">Total Amount:</span>
-                      <span className="font-bold text-main">₹{total.toFixed(2)}</span>
+                      <span className="font-bold text-main">Rs. {total.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-secondary">Paid Amount:</span>
-                      <span className="text-main">₹{paid.toFixed(2)}</span>
+                      <span className="text-main">Rs. {paid.toFixed(2)}</span>
                     </div>
                     <div className="border-t pt-2 flex justify-between">
                       <span className="font-medium text-red-600">Balance Due:</span>
-                      <span className="font-bold text-red-600 text-lg">₹{(total - paid).toFixed(2)}</span>
+                      <span className="font-bold text-red-600 text-lg">Rs. {(total - paid).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
 
                 <p className="text-sm text-secondary mb-6">
-                  The customer will be responsible for paying the outstanding balance of ₹{(total - paid).toFixed(2)}.
+                  The customer will be responsible for paying the outstanding balance of Rs. {(total - paid).toFixed(2)}.
                 </p>
 
                 <div className="flex space-x-3">
@@ -1603,23 +1603,23 @@ const POS = () => {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-secondary">Total Amount:</span>
-                      <span className="font-bold text-main">₹{total.toFixed(2)}</span>
+                      <span className="font-bold text-main">Rs. {total.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-secondary">Amount Paid:</span>
-                      <span className="text-main">₹{paid.toFixed(2)}</span>
+                      <span className="text-main">Rs. {paid.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-secondary">Change Required:</span>
-                      <span className="font-bold text-indigo-600">₹{(paid - total).toFixed(2)}</span>
+                      <span className="font-bold text-indigo-600">Rs. {(paid - total).toFixed(2)}</span>
                     </div>
                     <div className="border-t pt-2 flex justify-between">
                       <span className="text-secondary">Change Returned:</span>
-                      <span className="font-bold text-main">₹{(parseFloat(activeTab.changeReturned) || 0).toFixed(2)}</span>
+                      <span className="font-bold text-main">Rs. {(parseFloat(activeTab.changeReturned) || 0).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm bg-yellow-100 p-2 rounded border border-yellow-300">
                       <span className="font-medium text-yellow-800">Remaining Credit:</span>
-                      <span className="font-bold text-yellow-900">₹{((paid - total) - (parseFloat(activeTab.changeReturned) || 0)).toFixed(2)}</span>
+                      <span className="font-bold text-yellow-900">Rs. {((paid - total) - (parseFloat(activeTab.changeReturned) || 0)).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -1627,7 +1627,7 @@ const POS = () => {
                 <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/50 rounded-lg">
                   <p className="text-sm text-green-800 dark:text-green-300 font-medium mb-1">💡 What happens next:</p>
                   <p className="text-sm text-green-700 dark:text-green-400">
-                    The remaining amount of ₹{((paid - total) - (parseFloat(activeTab.changeReturned) || 0)).toFixed(2)} will be saved as credit to the customer's account. They can use this for future purchases.
+                    The remaining amount of Rs. {((paid - total) - (parseFloat(activeTab.changeReturned) || 0)).toFixed(2)} will be saved as credit to the customer's account. They can use this for future purchases.
                   </p>
                 </div>
 
@@ -1678,23 +1678,23 @@ const POS = () => {
                   <div className="bg-yellow-50 dark:bg-yellow-950/30 p-4 rounded-lg space-y-2 border border-yellow-200 dark:border-yellow-800/50">
                     <div className="flex justify-between text-sm">
                       <span className="text-secondary">Total Amount:</span>
-                      <span className="font-bold text-main">₹{total.toFixed(2)}</span>
+                      <span className="font-bold text-main">Rs. {total.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-secondary">Amount Paid:</span>
-                      <span className="text-main">₹{paid.toFixed(2)}</span>
+                      <span className="text-main">Rs. {paid.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-secondary">Change Required:</span>
-                      <span className="font-bold text-indigo-600">₹{(paid - total).toFixed(2)}</span>
+                      <span className="font-bold text-indigo-600">Rs. {(paid - total).toFixed(2)}</span>
                     </div>
                     <div className="border-t pt-2 flex justify-between">
                       <span className="text-secondary">Change Returned:</span>
-                      <span className="font-bold text-main">₹{(parseFloat(activeTab.changeReturned) || 0).toFixed(2)}</span>
+                      <span className="font-bold text-main">Rs. {(parseFloat(activeTab.changeReturned) || 0).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm bg-yellow-100 p-2 rounded border border-yellow-300">
                       <span className="font-medium text-yellow-800">Remaining Change to Return:</span>
-                      <span className="font-bold text-yellow-900">₹{((paid - total) - (parseFloat(activeTab.changeReturned) || 0)).toFixed(2)}</span>
+                      <span className="font-bold text-yellow-900">Rs. {((paid - total) - (parseFloat(activeTab.changeReturned) || 0)).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>

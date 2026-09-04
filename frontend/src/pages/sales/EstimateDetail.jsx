@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../../components/Layout";
 import api from '../../services/api';
@@ -130,14 +130,14 @@ const EstimateDetail = () => {
               <div className="text-right">
                 <div className="text-[9px] md:text-sm text-gray-500 dark:text-[rgb(var(--color-text-secondary))] mb-0.5 md:mb-1">Estimate Date</div>
                 <div className="text-[10px] md:text-base font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
-                  {new Date(estimate.createdAt).toLocaleDateString('en-IN', {
+                  {new Date(estimate.createdAt).toLocaleDateString('en-PK', {
                     day: '2-digit',
                     month: 'short',
                     year: 'numeric',
                   })}
                 </div>
                 <div className="text-[8px] md:text-sm text-gray-400 dark:text-[rgb(var(--color-text-muted))] mt-0.5 md:mt-1">
-                  {new Date(estimate.createdAt).toLocaleTimeString('en-IN', {
+                  {new Date(estimate.createdAt).toLocaleTimeString('en-PK', {
                     hour: '2-digit',
                     minute: '2-digit',
                   })}
@@ -193,9 +193,9 @@ const EstimateDetail = () => {
                     <td className="py-1.5 px-2 text-sm text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{index + 1}</td>
                     <td className="py-1.5 px-2 text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">{item.name || 'Item'}</td>
                     <td className="py-1.5 px-2 text-right text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">{item.quantity}</td>
-                    <td className="py-1.5 px-2 text-right text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">₹{item.price.toFixed(2)}</td>
+                    <td className="py-1.5 px-2 text-right text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {item.price.toFixed(2)}</td>
                     <td className="py-1.5 px-2 text-right text-sm font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
-                      ₹{item.total.toFixed(2)}
+                      Rs. {item.total.toFixed(2)}
                     </td>
                   </tr>
                 ))}
@@ -212,8 +212,8 @@ const EstimateDetail = () => {
                       <span className="text-[10px] font-medium text-gray-900 dark:text-[rgb(var(--color-text))] truncate">{item.name || 'Item'}</span>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <div className="text-[10px] font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{item.total.toFixed(0)}</div>
-                      <div className="text-[8px] text-gray-500 dark:text-[rgb(var(--color-text-secondary))]">{item.quantity} × ₹{item.price.toFixed(0)}</div>
+                      <div className="text-[10px] font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {item.total.toFixed(0)}</div>
+                      <div className="text-[8px] text-gray-500 dark:text-[rgb(var(--color-text-secondary))]">{item.quantity} × Rs. {item.price.toFixed(0)}</div>
                     </div>
                   </div>
                 </div>
@@ -226,18 +226,18 @@ const EstimateDetail = () => {
             <div className="w-full md:w-64">
               <div className="flex justify-between py-0.5 md:py-1 border-b border-gray-200 dark:border-[rgb(var(--color-border))]">
                 <span className="text-[9px] md:text-sm text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Subtotal:</span>
-                <span className="text-[10px] md:text-base font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">₹{estimate.subtotal.toFixed(2)}</span>
+                <span className="text-[10px] md:text-base font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {estimate.subtotal.toFixed(2)}</span>
               </div>
               {estimate.discount > 0 && (
                 <div className="flex justify-between py-0.5 md:py-1 border-b border-gray-200 dark:border-[rgb(var(--color-border))]">
                   <span className="text-[9px] md:text-sm text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Discount:</span>
-                  <span className="text-[10px] md:text-base font-medium text-red-600">-₹{estimate.discount.toFixed(2)}</span>
+                  <span className="text-[10px] md:text-base font-medium text-red-600">-Rs. {estimate.discount.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between py-0.5 md:py-1.5 border-b-2 border-gray-300 dark:border-[rgb(var(--color-border))]">
                 <span className="text-xs md:text-lg font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">Total Amount:</span>
                 <span className="text-xs md:text-lg font-bold text-indigo-600 dark:text-[rgb(var(--color-primary))]">
-                  ₹{estimate.totalAmount.toFixed(2)}
+                  Rs. {estimate.totalAmount.toFixed(2)}
                 </span>
               </div>
             </div>
@@ -267,7 +267,7 @@ const EstimateDetail = () => {
             <div className="flex-1 min-w-0">
               <h4 className="text-blue-900 dark:text-blue-300 font-medium text-[10px] md:text-base mb-0.5 md:mb-1">Estimate Information</h4>
               <p className="text-blue-800 dark:text-blue-400 text-[9px] md:text-sm truncate">
-                Created on {new Date(estimate.createdAt).toLocaleString('en-IN')}
+                Created on {new Date(estimate.createdAt).toLocaleString('en-PK')}
               </p>
               {estimate.customer && (
                 <p className="text-blue-800 dark:text-blue-400 text-[9px] md:text-sm mt-0.5 md:mt-1 truncate">

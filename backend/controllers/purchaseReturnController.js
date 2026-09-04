@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 import PurchaseReturn from "../models/PurchaseReturn.js";
 import Purchase from "../models/Purchase.js";
 import GoodsReceivedNote from "../models/GoodsReceivedNote.js";
@@ -645,7 +645,7 @@ const processRefund = async (purchaseReturn, session) => {
                     { session }
                 );
 
-                info(`Cash refund processed: +₹${refundAmount}`);
+                info(`Cash refund processed: +Rs. ${refundAmount}`);
                 break;
 
             case "bank_transfer":
@@ -701,7 +701,7 @@ const processRefund = async (purchaseReturn, session) => {
                     { session }
                 );
 
-                info(`Bank refund processed: +₹${refundAmount} to ${bankAcc.bankName}`);
+                info(`Bank refund processed: +Rs. ${refundAmount} to ${bankAcc.bankName}`);
                 break;
 
             case "credit_note":
@@ -747,7 +747,7 @@ const processRefund = async (purchaseReturn, session) => {
 
                 purchaseReturn.creditNote = creditNote[0]._id;
 
-                info(`Credit note created: ${creditNoteNo} - ₹${refundAmount}`);
+                info(`Credit note created: ${creditNoteNo} - Rs. ${refundAmount}`);
                 break;
 
             case "adjust_payable":
@@ -768,7 +768,7 @@ const processRefund = async (purchaseReturn, session) => {
                     { session }
                 );
 
-                info(`Payable adjusted: -₹${refundAmount} from supplier dues`);
+                info(`Payable adjusted: -Rs. ${refundAmount} from supplier dues`);
                 break;
         }
 

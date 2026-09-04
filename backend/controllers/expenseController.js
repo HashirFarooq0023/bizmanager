@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 import Expense from "../models/Expense.js";
 import ExpenseCategory from "../models/ExpenseCategory.js";
 import CashbankTransaction from "../models/CashbankTransaction.js";
@@ -192,7 +192,7 @@ export const createExpense = async (req, res) => {
 
       if (bankAcc.currentBalance < amount) {
         return res.status(400).json({
-          message: `Insufficient balance. Available: ₹${bankAcc.currentBalance.toFixed(2)}, Required: ₹${amount.toFixed(2)}, Shortfall: ₹${(amount - bankAcc.currentBalance).toFixed(2)}`
+          message: `Insufficient balance. Available: Rs. ${bankAcc.currentBalance.toFixed(2)}, Required: Rs. ${amount.toFixed(2)}, Shortfall: Rs. ${(amount - bankAcc.currentBalance).toFixed(2)}`
         });
       }
     }
@@ -258,7 +258,7 @@ export const createExpense = async (req, res) => {
             userId: req.user._id,
           });
 
-          info(`Cash payment for expense ${expenseNo}: -₹${amount}`);
+          info(`Cash payment for expense ${expenseNo}: -Rs. ${amount}`);
         } else {
           // Bank payment (UPI, Card, Cheque, Bank Transfer)
           cashbankTxn = await CashbankTransaction.create({
@@ -281,7 +281,7 @@ export const createExpense = async (req, res) => {
             }
           );
 
-          info(`Bank payment for expense ${expenseNo}: -₹${amount} from account ${bankAccount}`);
+          info(`Bank payment for expense ${expenseNo}: -Rs. ${amount} from account ${bankAccount}`);
         }
       } catch (txnError) {
         // Rollback: delete the expense if transaction creation fails
@@ -294,7 +294,7 @@ export const createExpense = async (req, res) => {
       }
     }
 
-    info(`Expense created successfully: ${expenseNo} - ₹${amount}`);
+    info(`Expense created successfully: ${expenseNo} - Rs. ${amount}`);
 
     res.status(201).json({
       expense,
@@ -629,7 +629,7 @@ export const restoreExpense = async (req, res) => {
         if (bankAcc.currentBalance < expense.amount) {
           await session.abortTransaction();
           return res.status(400).json({
-            message: `Cannot restore: Insufficient bank balance. Available: ₹${bankAcc.currentBalance.toFixed(2)}`
+            message: `Cannot restore: Insufficient bank balance. Available: Rs. ${bankAcc.currentBalance.toFixed(2)}`
           });
         }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/Layout';
@@ -123,7 +123,7 @@ const CashInHand = () => {
                 const isIn = row.type === 'in' || (row.type === 'transfer' && row.toAccount === 'cash');
                 return (
                     <span className={`font-bold ${isIn ? 'text-green-600' : 'text-red-600'}`}>
-                        {isIn ? '+' : '-'}₹{val.toLocaleString()}
+                        {isIn ? '+' : '-'}Rs. {val.toLocaleString()}
                     </span>
                 );
             }
@@ -191,7 +191,7 @@ const CashInHand = () => {
                             </svg>
                             Total Physical Cash in Hand
                         </p>
-                        <h2 className="text-5xl font-bold mb-4 tracking-tight">₹{position?.cashInHand?.toLocaleString() || 0}</h2>
+                        <h2 className="text-5xl font-bold mb-4 tracking-tight">Rs. {position?.cashInHand?.toLocaleString() || 0}</h2>
                         <div className="flex items-center space-x-6 text-sm">
                             <div className="px-3 py-1 bg-white/20 rounded-full flex items-center">
                                 <span className={`w-2 h-2 rounded-full mr-2 ${position?.cashInHand > 0 ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`}></span>
@@ -211,21 +211,21 @@ const CashInHand = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <StatsCard
                     title="Total Cash In"
-                    value={`₹${filteredTransactions.filter(t => t.type === 'in' || (t.type === 'transfer' && t.toAccount === 'cash')).reduce((sum, t) => sum + t.amount, 0).toLocaleString()}`}
+                    value={`Rs. ${filteredTransactions.filter(t => t.type === 'in' || (t.type === 'transfer' && t.toAccount === 'cash')).reduce((sum, t) => sum + t.amount, 0).toLocaleString()}`}
                     icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>}
                     iconBgColor="bg-green-100"
                     iconColor="text-green-600"
                 />
                 <StatsCard
                     title="Total Cash Out"
-                    value={`₹${filteredTransactions.filter(t => t.type === 'out' || (t.type === 'transfer' && t.fromAccount === 'cash')).reduce((sum, t) => sum + t.amount, 0).toLocaleString()}`}
+                    value={`Rs. ${filteredTransactions.filter(t => t.type === 'out' || (t.type === 'transfer' && t.fromAccount === 'cash')).reduce((sum, t) => sum + t.amount, 0).toLocaleString()}`}
                     icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg>}
                     iconBgColor="bg-red-100"
                     iconColor="text-red-600"
                 />
                 <StatsCard
                     title="Available for Disposal"
-                    value={`₹${position?.cashInHand?.toLocaleString() || 0}`}
+                    value={`Rs. ${position?.cashInHand?.toLocaleString() || 0}`}
                     icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
                     iconBgColor="bg-indigo-100"
                     iconColor="text-indigo-600"
@@ -295,7 +295,7 @@ const CashInHand = () => {
                                 required
                             />
                             <FormInput
-                                label="Amount (₹)"
+                                label="Amount (Rs. )"
                                 type="number"
                                 value={formData.amount}
                                 onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
@@ -351,12 +351,12 @@ const CashInHand = () => {
                                     <div className="text-sm text-indigo-800">
                                         {formData.type === 'in' ? (
                                             <>
-                                                Depositing <strong>₹{formData.amount.toLocaleString()}</strong> into <strong>Cash</strong>
+                                                Depositing <strong>Rs. {formData.amount.toLocaleString()}</strong> into <strong>Cash</strong>
                                                 {accounts.find(a => a._id === formData.otherAccount) && ` from ${accounts.find(a => a._id === formData.otherAccount).bankName}`}
                                             </>
                                         ) : (
                                             <>
-                                                Withdrawing <strong>₹{formData.amount.toLocaleString()}</strong> from <strong>Cash</strong>
+                                                Withdrawing <strong>Rs. {formData.amount.toLocaleString()}</strong> from <strong>Cash</strong>
                                                 {accounts.find(a => a._id === formData.otherAccount) && ` to ${accounts.find(a => a._id === formData.otherAccount).bankName}`}
                                             </>
                                         )}
@@ -365,7 +365,7 @@ const CashInHand = () => {
                                 <div className="text-right">
                                     <p className="text-xs text-indigo-500 uppercase font-bold">New Cash Balance</p>
                                     <p className="text-lg font-black text-indigo-700">
-                                        ₹{(formData.type === 'in' ? (position?.cashInHand || 0) + formData.amount : (position?.cashInHand || 0) - formData.amount).toLocaleString()}
+                                        Rs. {(formData.type === 'in' ? (position?.cashInHand || 0) + formData.amount : (position?.cashInHand || 0) - formData.amount).toLocaleString()}
                                     </p>
                                 </div>
                             </div>

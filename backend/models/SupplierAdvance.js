@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 
 // Advance application history schema
 const advanceApplicationSchema = new mongoose.Schema({
@@ -115,7 +115,7 @@ supplierAdvanceSchema.methods.applyAdvance = async function (
 ) {
     if (amount > this.advanceRemaining) {
         throw new Error(
-            `Insufficient advance balance. Available: ₹${this.advanceRemaining.toFixed(2)}, Requested: ₹${amount.toFixed(2)}`
+            `Insufficient advance balance. Available: Rs. ${this.advanceRemaining.toFixed(2)}, Requested: Rs. ${amount.toFixed(2)}`
         );
     }
 

@@ -181,7 +181,7 @@ class SalesReportExporter {
             invoices.forEach((row, index) => {
                 // Prepare row data
                 const rowData = [
-                    new Date(row.invoiceDate).toLocaleDateString('en-IN', {
+                    new Date(row.invoiceDate).toLocaleDateString('en-PK', {
                         day: '2-digit',
                         month: '2-digit',
                         year: '2-digit'
@@ -283,7 +283,7 @@ class SalesReportExporter {
                 );
 
                 // Generated timestamp
-                const timestamp = `Generated on ${new Date().toLocaleDateString('en-IN')} at ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`;
+                const timestamp = `Generated on ${new Date().toLocaleDateString('en-PK')} at ${new Date().toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' })}`;
                 doc.text(
                     timestamp,
                     pageWidth - marginRight,
@@ -329,7 +329,7 @@ class SalesReportExporter {
             const invoices = reportData.data || reportData;
             invoices.forEach((row) => {
                 const rowData = [
-                    new Date(row.invoiceDate).toLocaleDateString('en-IN'),
+                    new Date(row.invoiceDate).toLocaleDateString('en-PK'),
                     row.invoiceNo,
                     `"${row.customerName}"`,
                     row.itemsCount,
@@ -370,7 +370,7 @@ class SalesReportExporter {
      */
     formatCurrency(value) {
         if (value === null || value === undefined) return '0.00';
-        return parseFloat(value).toLocaleString('en-IN', {
+        return parseFloat(value).toLocaleString('en-PK', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
@@ -400,7 +400,7 @@ class SalesReportExporter {
         };
 
         if (filters.dateFilter === 'custom' && filters.customStartDate && filters.customEndDate) {
-            return `${new Date(filters.customStartDate).toLocaleDateString('en-IN')} - ${new Date(filters.customEndDate).toLocaleDateString('en-IN')}`;
+            return `${new Date(filters.customStartDate).toLocaleDateString('en-PK')} - ${new Date(filters.customEndDate).toLocaleDateString('en-PK')}`;
         }
 
         return presets[filters.dateFilter] || 'This Month';

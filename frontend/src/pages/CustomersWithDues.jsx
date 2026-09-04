@@ -41,7 +41,7 @@ const CustomersWithDues = () => {
 
     return (
         <Layout>
-            <div className="max-w-7xl mx-auto">
+            <div className="space-y-6">
                 {/* Header */}
                 <div className="mb-8">
                     <button
@@ -112,7 +112,7 @@ const CustomersWithDues = () => {
                                 Total Outstanding Dues
                             </p>
                             <p className="text-4xl font-bold">
-                                ₹{totalOutstandingDues.toFixed(2)}
+                                Rs. {totalOutstandingDues.toFixed(2)}
                             </p>
                             <p className="text-red-100 text-sm mt-2">
                                 From {customersWithDues.length} customer
@@ -224,7 +224,7 @@ const CustomersWithDues = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                    ₹{customer.dues.toFixed(2)}
+                                                    Rs. {customer.dues.toFixed(2)}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

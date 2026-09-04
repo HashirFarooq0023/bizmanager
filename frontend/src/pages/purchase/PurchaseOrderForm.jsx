@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+﻿import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -720,13 +720,13 @@ const PurchaseOrderForm = () => {
                                                 <tr key={index} className="hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-table-row-hover))]">
                                                     <td className="px-6 py-3 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">{item.itemName}</td>
                                                     <td className="px-6 py-3 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">{item.quantity}</td>
-                                                    <td className="px-6 py-3 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">₹{item.rate}</td>
+                                                    <td className="px-6 py-3 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {item.rate}</td>
                                                     <td className="px-6 py-3 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">
                                                         {item.discount} {item.discountType === "percentage" ? "%" : ""}
                                                     </td>
                                                     <td className="px-6 py-3 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">{item.taxRate}%</td>
                                                     <td className="px-6 py-3 text-xs font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">
-                                                        ₹{calculateItemTotal(item).toFixed(2)}
+                                                        Rs. {calculateItemTotal(item).toFixed(2)}
                                                     </td>
                                                     <td className="px-6 py-3 text-xs">
                                                         <button
@@ -856,28 +856,28 @@ const PurchaseOrderForm = () => {
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Subtotal:</span>
-                                        <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">₹{totals.subtotal}</span>
+                                        <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {totals.subtotal}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Item Discount:</span>
-                                        <span className="font-medium text-red-600 dark:text-red-400">-₹{totals.itemDiscount}</span>
+                                        <span className="font-medium text-red-600 dark:text-red-400">-Rs. {totals.itemDiscount}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Taxable Value:</span>
-                                        <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">₹{totals.taxableValue}</span>
+                                        <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {totals.taxableValue}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Total Tax:</span>
-                                        <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">₹{totals.totalTax}</span>
+                                        <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {totals.totalTax}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Bill Discount:</span>
-                                        <span className="font-medium text-red-600 dark:text-red-400">-₹{formData.billDiscount}</span>
+                                        <span className="font-medium text-red-600 dark:text-red-400">-Rs. {formData.billDiscount}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Additional Charges:</span>
                                         <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
-                                            ₹
+                                            Rs. 
                                             {(
                                                 parseFloat(formData.shippingCharges) +
                                                 parseFloat(formData.packingCharges) +
@@ -887,11 +887,11 @@ const PurchaseOrderForm = () => {
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">TDS:</span>
-                                        <span className="font-medium text-red-600 dark:text-red-400">-₹{formData.tdsAmount}</span>
+                                        <span className="font-medium text-red-600 dark:text-red-400">-Rs. {formData.tdsAmount}</span>
                                     </div>
                                     <div className="flex justify-between text-lg font-bold border-t border-gray-200 dark:border-[rgb(var(--color-border))] pt-2">
                                         <span className="text-gray-900 dark:text-[rgb(var(--color-text))]">Total Amount:</span>
-                                        <span className="text-indigo-600 dark:text-[rgb(var(--color-primary))]">₹{totals.totalAmount}</span>
+                                        <span className="text-indigo-600 dark:text-[rgb(var(--color-primary))]">Rs. {totals.totalAmount}</span>
                                     </div>
                                 </div>
                             </div>

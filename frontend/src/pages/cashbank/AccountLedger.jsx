@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
@@ -151,19 +151,19 @@ const AccountLedger = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                 <div className="bg-white rounded-xl shadow-sm p-6">
                     <p className="text-gray-500 text-sm font-medium">Opening Balance</p>
-                    <p className="text-2xl font-bold text-gray-900 mt-2">₹{ledgerData.summary.openingBalance.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-gray-900 mt-2">Rs. {ledgerData.summary.openingBalance.toFixed(2)}</p>
                 </div>
                 <div className="bg-white rounded-xl shadow-sm p-6">
                     <p className="text-gray-500 text-sm font-medium">Total Credits</p>
-                    <p className="text-2xl font-bold text-green-600 mt-2">₹{ledgerData.summary.totalCredits.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-green-600 mt-2">Rs. {ledgerData.summary.totalCredits.toFixed(2)}</p>
                 </div>
                 <div className="bg-white rounded-xl shadow-sm p-6">
                     <p className="text-gray-500 text-sm font-medium">Total Debits</p>
-                    <p className="text-2xl font-bold text-red-600 mt-2">₹{ledgerData.summary.totalDebits.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-red-600 mt-2">Rs. {ledgerData.summary.totalDebits.toFixed(2)}</p>
                 </div>
                 <div className="bg-white rounded-xl shadow-sm p-6">
                     <p className="text-gray-500 text-sm font-medium">Closing Balance</p>
-                    <p className="text-2xl font-bold text-indigo-600 mt-2">₹{ledgerData.summary.closingBalance.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-indigo-600 mt-2">Rs. {ledgerData.summary.closingBalance.toFixed(2)}</p>
                 </div>
             </div>
 
@@ -289,13 +289,13 @@ const AccountLedger = () => {
                                             )}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-red-600">
-                                            {txn.debit > 0 ? `₹${txn.debit.toFixed(2)}` : '-'}
+                                            {txn.debit > 0 ? `Rs. ${txn.debit.toFixed(2)}` : '-'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-green-600">
-                                            {txn.credit > 0 ? `₹${txn.credit.toFixed(2)}` : '-'}
+                                            {txn.credit > 0 ? `Rs. ${txn.credit.toFixed(2)}` : '-'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-bold text-indigo-600">
-                                            ₹{txn.runningBalance.toFixed(2)}
+                                            Rs. {txn.runningBalance.toFixed(2)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                             {txn.reconciled ? (

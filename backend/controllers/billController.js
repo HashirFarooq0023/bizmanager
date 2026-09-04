@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 import Bill from "../models/Bill.js";
 import Purchase from "../models/Purchase.js";
 import Supplier from "../models/Supplier.js";
@@ -428,7 +428,7 @@ export const recordPayment = async (req, res) => {
           available: cashBalance,
           requested: paymentAmount,
           shortfall: paymentAmount - cashBalance,
-          message: `Insufficient cash balance. Available: ₹${cashBalance.toFixed(2)}, Required: ₹${paymentAmount.toFixed(2)}, Shortfall: ₹${(paymentAmount - cashBalance).toFixed(2)}`
+          message: `Insufficient cash balance. Available: Rs. ${cashBalance.toFixed(2)}, Required: Rs. ${paymentAmount.toFixed(2)}, Shortfall: Rs. ${(paymentAmount - cashBalance).toFixed(2)}`
         });
       }
     }
@@ -455,7 +455,7 @@ export const recordPayment = async (req, res) => {
           available: bankAcc.currentBalance,
           requested: paymentAmount,
           shortfall: paymentAmount - bankAcc.currentBalance,
-          message: `Insufficient bank balance. Available: ₹${bankAcc.currentBalance.toFixed(2)}, Required: ₹${paymentAmount.toFixed(2)}, Shortfall: ₹${(paymentAmount - bankAcc.currentBalance).toFixed(2)}`
+          message: `Insufficient bank balance. Available: Rs. ${bankAcc.currentBalance.toFixed(2)}, Required: Rs. ${paymentAmount.toFixed(2)}, Shortfall: Rs. ${(paymentAmount - bankAcc.currentBalance).toFixed(2)}`
         });
       }
 
@@ -480,7 +480,7 @@ export const recordPayment = async (req, res) => {
       );
 
       transactionId = cashbankTxn._id;
-      info(`${paymentMethod.toUpperCase()} payment for bill ${bill.billNo}: -₹${paymentAmount}`);
+      info(`${paymentMethod.toUpperCase()} payment for bill ${bill.billNo}: -Rs. ${paymentAmount}`);
     } else if (paymentMethod === 'cash') {
       // Record cash payment transaction
       const cashbankTxn = await CashbankTransaction.create({
@@ -494,7 +494,7 @@ export const recordPayment = async (req, res) => {
       });
 
       transactionId = cashbankTxn._id;
-      info(`Cash payment for bill ${bill.billNo}: -₹${paymentAmount}`);
+      info(`Cash payment for bill ${bill.billNo}: -Rs. ${paymentAmount}`);
     } else if (paymentMethod === 'owner') {
       // Owner's personal payment - no balance validation needed
       // This represents owner's capital contribution to pay business expenses
@@ -509,7 +509,7 @@ export const recordPayment = async (req, res) => {
       });
 
       transactionId = cashbankTxn._id;
-      info(`Owner's personal payment for bill ${bill.billNo}: ₹${paymentAmount}`);
+      info(`Owner's personal payment for bill ${bill.billNo}: Rs. ${paymentAmount}`);
     } else {
       // If payment method is not recognized or bank account is missing for bank methods
       return res.status(400).json({

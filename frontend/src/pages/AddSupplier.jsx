@@ -146,12 +146,11 @@ const AddSupplier = () => {
                 name="contactNo"
                 value={contactNo}
                 onChange={onChange}
-                required
-                pattern="[0-9]{10}"
-                maxLength={10}
-                title="Please enter a valid 10-digit mobile number"
+                pattern="[0-9]{10,11}"
+                maxLength={11}
+                title="Please enter a valid mobile number"
                 className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="+91 9876543210"
+                placeholder="0325-4567318"
               />
             </div>
 

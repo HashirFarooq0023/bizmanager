@@ -51,7 +51,7 @@ const DataExport = () => {
 
     return (
         <Layout>
-            <div className="max-w-7xl mx-auto">
+            <div className="space-y-6">
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-main mb-2">Data Export</h1>

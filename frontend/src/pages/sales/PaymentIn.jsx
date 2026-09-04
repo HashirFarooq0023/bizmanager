@@ -195,7 +195,7 @@ const PaymentIn = () => {
 
     if (creditApplied > customerInfo.availableCredit) {
       toast.error(
-        `Credit applied (₹${creditApplied}) exceeds available credit (₹${customerInfo.availableCredit})`
+        `Credit applied (Rs. ${creditApplied}) exceeds available credit (Rs. ${customerInfo.availableCredit})`
       );
       return;
     }
@@ -405,7 +405,7 @@ const PaymentIn = () => {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto">
+      <div className="space-y-6">
         {/* Header */}
         <div className="mb-1 md:mb-8">
           <div className="flex items-center justify-between mb-0.5 md:mb-2">
@@ -472,11 +472,11 @@ const PaymentIn = () => {
                       </p>
                       <div className="flex gap-1 md:gap-3 mt-0.5 md:mt-1">
                         <p className="text-[8px] md:text-xs text-orange-600 font-medium">
-                          Outstanding: ₹{customerInfo.outstandingDue.toFixed(2)}
+                          Outstanding: Rs. {customerInfo.outstandingDue.toFixed(2)}
                         </p>
                         {customerInfo.availableCredit > 0 && (
                           <p className="text-[8px] md:text-xs text-green-600 font-medium">
-                            Credit: ₹{customerInfo.availableCredit.toFixed(2)}
+                            Credit: Rs. {customerInfo.availableCredit.toFixed(2)}
                           </p>
                         )}
                       </div>
@@ -768,10 +768,10 @@ const PaymentIn = () => {
                             {new Date(invoice.date).toLocaleDateString()}
                           </td>
                           <td className="px-1 py-1 md:px-4 md:py-3 text-[9px] md:text-sm font-medium">
-                            ₹{invoice.total.toFixed(2)}
+                            Rs. {invoice.total.toFixed(2)}
                           </td>
                           <td className="px-1 py-1 md:px-4 md:py-3 text-[9px] md:text-sm font-medium text-orange-600">
-                            ₹{invoice.balance.toFixed(2)}
+                            Rs. {invoice.balance.toFixed(2)}
                           </td>
                           <td className="px-1 py-1 md:px-4 md:py-3">
                             <input
@@ -825,7 +825,7 @@ const PaymentIn = () => {
                   <div className="flex justify-between text-[9px] md:text-sm">
                     <span className="text-secondary">Total Payment:</span>
                     <span className="font-medium text-green-600">
-                      ₹{totalPayment.toFixed(2)}
+                      Rs. {totalPayment.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -853,7 +853,7 @@ const PaymentIn = () => {
                       step="0.01"
                     />
                     <p className="text-[8px] md:text-xs text-muted mt-0.5 md:mt-1">
-                      Available: ₹{customerInfo.availableCredit.toFixed(2)}
+                      Available: Rs. {customerInfo.availableCredit.toFixed(2)}
                     </p>
                   </div>
                 )}
@@ -862,7 +862,7 @@ const PaymentIn = () => {
                   <div className="flex justify-between text-[9px] md:text-sm">
                     <span className="text-secondary">Effective Payment:</span>
                     <span className="font-medium">
-                      ₹{effectivePayment.toFixed(2)}
+                      Rs. {effectivePayment.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -871,7 +871,7 @@ const PaymentIn = () => {
                   <div className="flex justify-between text-[9px] md:text-sm">
                     <span className="text-secondary">Allocated to Invoices:</span>
                     <span className="font-medium">
-                      ₹{totalAllocated.toFixed(2)}
+                      Rs. {totalAllocated.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -883,7 +883,7 @@ const PaymentIn = () => {
                       className={`text-xs md:text-lg font-bold ${remainingAmount >= 0 ? "text-gray-900" : "text-red-600"
                         }`}
                     >
-                      ₹{remainingAmount.toFixed(2)}
+                      Rs. {remainingAmount.toFixed(2)}
                     </span>
                   </div>
                   {remainingAmount > 0 && (

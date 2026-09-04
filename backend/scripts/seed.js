@@ -12,11 +12,13 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
+import dns from "dns";
 
 // Load environment variables
 dotenv.config();
 
 // Import models
+import Organization from "../models/Organization.js";
 import User from "../models/User.js";
 import Customer from "../models/Customer.js";
 import Item from "../models/Item.js";
@@ -24,11 +26,18 @@ import Supplier from "../models/Supplier.js";
 import BankAccount from "../models/BankAccount.js";
 import Invoice from "../models/Invoice.js";
 import Counter from "../models/Counter.js";
+import { mobileItemsData } from "./seed-mobiles.js";
 
 // Connect to MongoDB
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URI);
+        const mongoUri = process.env.MONGO_URI || "";
+        if (mongoUri.startsWith("mongodb+srv://")) {
+            try {
+                dns.setServers(["8.8.8.8", "1.1.1.1"]);
+            } catch (e) {}
+        }
+        const conn = await mongoose.connect(mongoUri);
         console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
         console.error(`❌ Error: ${error.message}`);
@@ -83,11 +92,8 @@ const sampleItems = [
     { name: "Haldiram Namkeen (400g)", sku: "SNK003", category: "Snacks", costPrice: 90, sellingPrice: 110, stockQty: 35, unit: "pcs" },
     { name: "Hide & Seek (120g)", sku: "SNK004", category: "Snacks", costPrice: 25, sellingPrice: 35, stockQty: 80, unit: "pcs" },
 
-    // Cooking Essentials
-    { name: "Sunflower Oil (1L)", sku: "OIL001", category: "Cooking", costPrice: 140, sellingPrice: 170, stockQty: 40, unit: "litre" },
-    { name: "Salt (1kg)", sku: "ESS001", category: "Essentials", costPrice: 18, sellingPrice: 25, stockQty: 100, unit: "kg" },
-    { name: "Sugar (1kg)", sku: "ESS002", category: "Essentials", costPrice: 42, sellingPrice: 50, stockQty: 60, unit: "kg" },
-    { name: "Red Chilli Powder (100g)", sku: "SPC001", category: "Spices", costPrice: 30, sellingPrice: 40, stockQty: 70, unit: "pcs" },
+    // Mobile Phones (iPhones 11-17 Pro Max & Samsung S22U-S25 Series)
+    ...mobileItemsData,
 ];
 
 // Sample suppliers
@@ -162,6 +168,23 @@ const clearData = async (userId) => {
     console.log("   ✓ Cleared invoices, items, customers, suppliers, bank accounts, counters");
 };
 
+// Create demo organization
+const createDemoOrg = async (userId) => {
+    console.log("\n🏢 Creating demo organization...");
+    let org = await Organization.findOne({ name: "Demo Organization" });
+    if (!org) {
+        org = await Organization.create({
+            name: "Demo Organization",
+            subdomain: "demo-shop",
+            createdBy: userId,
+        });
+        console.log(`   ✓ Created demo organization: ${org.name}`);
+    } else {
+        console.log("   ℹ Demo organization already exists");
+    }
+    return org;
+};
+
 // Create demo user
 const createDemoUser = async () => {
     console.log("\n👤 Creating demo user...");
@@ -170,7 +193,12 @@ const createDemoUser = async () => {
     let user = await User.findOne({ email: demoUser.email });
 
     if (user) {
-        console.log("   ℹ Demo user already exists, using existing account");
+        console.log("   ℹ Demo user already exists, updating password and account status...");
+        user.password = demoUser.password; // pre-save hook will hash password if modified
+        user.accountStatus = "active";
+        user.accountLockedUntil = null;
+        user.failedLoginAttempts = 0;
+        await user.save();
         return user;
     }
 
@@ -182,7 +210,7 @@ const createDemoUser = async () => {
 };
 
 // Create customers
-const createCustomers = async (ownerId) => {
+const createCustomers = async (ownerId, orgId) => {
     console.log("\n👥 Creating sample customers...");
 
     const customers = [];
@@ -190,6 +218,8 @@ const createCustomers = async (ownerId) => {
         const customer = await Customer.create({
             ...customerData,
             owner: ownerId,
+            createdBy: ownerId,
+            organizationId: orgId,
         });
         customers.push(customer);
     }
@@ -199,7 +229,7 @@ const createCustomers = async (ownerId) => {
 };
 
 // Create inventory items
-const createItems = async (userId) => {
+const createItems = async (userId, orgId) => {
     console.log("\n📦 Creating sample inventory items...");
 
     const items = [];
@@ -207,6 +237,7 @@ const createItems = async (userId) => {
         const item = await Item.create({
             ...itemData,
             addedBy: userId,
+            organizationId: orgId,
         });
         items.push(item);
     }
@@ -216,7 +247,7 @@ const createItems = async (userId) => {
 };
 
 // Create suppliers
-const createSuppliers = async (ownerId) => {
+const createSuppliers = async (ownerId, orgId) => {
     console.log("\n🏭 Creating sample suppliers...");
 
     const suppliers = [];
@@ -224,6 +255,7 @@ const createSuppliers = async (ownerId) => {
         const supplier = await Supplier.create({
             ...supplierData,
             owner: ownerId,
+            organizationId: orgId,
         });
         suppliers.push(supplier);
     }
@@ -337,13 +369,22 @@ const seedDatabase = async () => {
         // Create or get demo user
         const user = await createDemoUser();
 
+        // Create or get demo organization
+        const org = await createDemoOrg(user._id);
+
+        // Ensure user is linked to demo organization
+        if (!user.organizationId) {
+            user.organizationId = org._id;
+            await user.save();
+        }
+
         // Clear existing data for this user
         await clearData(user._id);
 
         // Create all sample data
-        const customers = await createCustomers(user._id);
-        const items = await createItems(user._id);
-        await createSuppliers(user._id);
+        const customers = await createCustomers(user._id, org._id);
+        const items = await createItems(user._id, org._id);
+        await createSuppliers(user._id, org._id);
         await createBankAccount(user._id);
         await createInvoices(user._id, customers, items);
 

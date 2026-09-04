@@ -7,12 +7,20 @@ import {
   reset,
 } from "../redux/slices/customerSlice";
 import Layout from "../components/Layout";
+import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
+import Card from "../components/Card";
+import StatsCard from "../components/StatsCard";
+import StatusBadge from "../components/StatusBadge";
 import Modal from "../components/Modal";
+import FormInput from "../components/FormInput";
+import EmptyState from "../components/EmptyState";
+import LoadingSkeleton from "../components/LoadingSkeleton";
 
 const Customers = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { customers, isLoading, isError, message } = useSelector(
+  const { customers = [], isLoading, isError, message } = useSelector(
     (state) => state.customers
   );
 
@@ -32,10 +40,8 @@ const Customers = () => {
     dispatch(getAllCustomers());
   };
 
-  // FIX: Prevent default behavior and use proper navigation
   const handleAddCustomer = (e) => {
-    e.preventDefault();
-    // e.stopPropagation();
+    if (e) e.preventDefault();
     navigate("/customers/add");
   };
 
@@ -47,290 +53,175 @@ const Customers = () => {
         customer.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const totalDues = customers.reduce((sum, c) => sum + (c.dues || 0), 0);
+  const customersWithDuesCount = customers.filter((c) => (c.dues || 0) > 0).length;
+
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto">
+      <div className="space-y-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-2">Customers</h1>
-          <p className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Manage your customer database</p>
-        </div>
+        <PageHeader
+          title="Customers"
+          description="Manage your customer directory, contact details, and account balances."
+          actions={
+            <Button
+              onClick={handleAddCustomer}
+              variant="primary"
+              icon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+              }
+            >
+              Add New Customer
+            </Button>
+          }
+        />
 
-        {/* Error Message */}
+        {/* Error Notification */}
         {isError && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-red-600 dark:text-red-400 text-sm">{message}</p>
+          <div className="p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-xl">
+            <p className="text-rose-700 dark:text-rose-400 text-sm font-medium">{message}</p>
           </div>
         )}
 
-        {/* Actions Bar */}
-        <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-4 mb-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-            {/* Search */}
-            <div className="w-full sm:w-96">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search by name, phone, or email..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-[rgb(var(--color-border))] bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] placeholder:text-gray-400 dark:placeholder:text-[rgb(var(--color-placeholder))] rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[rgb(var(--color-primary))] focus:border-transparent"
-                />
-                <svg
-                  className="absolute left-3 top-2.5 w-5 h-5 text-gray-400 dark:text-[rgb(var(--color-text-muted))]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            {/* Add Customer Button - FIX: Added type="button" */}
-            <button
-              type="button"
-              onClick={handleAddCustomer}
-              className="flex items-center space-x-2 px-6 py-2 bg-indigo-600 dark:bg-[rgb(var(--color-primary))] text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-[rgb(var(--color-primary-hover))] transition"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StatsCard
+            title="Total Customers"
+            value={customers.length}
+            iconBgColor="bg-violet-50 dark:bg-violet-900/20"
+            iconColor="text-violet-600 dark:text-violet-400"
+            icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              <span>Add Customer</span>
-            </button>
+            }
+          />
+          <StatsCard
+            title="Total Outstanding Dues"
+            value={`Rs. ${totalDues.toFixed(2)}`}
+            iconBgColor="bg-rose-50 dark:bg-rose-900/20"
+            iconColor="text-rose-600 dark:text-rose-400"
+            icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            }
+          />
+          <div onClick={() => navigate("/customers/with-dues")} className="cursor-pointer">
+            <StatsCard
+              title="Customers with Pending Dues"
+              value={customersWithDuesCount}
+              subtitle="Click to view details →"
+              iconBgColor="bg-amber-50 dark:bg-amber-900/20"
+              iconColor="text-amber-600 dark:text-amber-400"
+              icon={
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              }
+            />
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 dark:text-[rgb(var(--color-text-secondary))] text-sm font-medium">
-                  Total Customers
-                </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mt-2">
-                  {customers.length}
-                </p>
-              </div>
-              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                <svg
-                  className="w-8 h-8 text-blue-600 dark:text-blue-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-              </div>
+        {/* Customer Directory Table Card */}
+        <Card padding="none">
+          <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="w-full sm:w-80">
+              <FormInput
+                type="text"
+                placeholder="Search name, phone, or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                leftIcon={
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                }
+              />
+            </div>
+            <div className="text-xs text-gray-500 font-medium">
+              Showing {filteredCustomers.length} of {customers.length} customers
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 dark:text-[rgb(var(--color-text-secondary))] text-sm font-medium">Total Dues</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mt-2">
-                  ₹
-                  {customers
-                    .reduce((sum, c) => sum + (c.dues || 0), 0)
-                    .toFixed(2)}
-                </p>
-              </div>
-              <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
-                <svg
-                  className="w-8 h-8 text-red-600 dark:text-red-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div
-            onClick={() => navigate("/customers/with-dues")}
-            className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-6 cursor-pointer hover:shadow-md dark:hover:shadow-xl transition-shadow"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 dark:text-[rgb(var(--color-text-secondary))] text-sm font-medium">With Dues</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mt-2">
-                  {customers.filter((c) => c.dues > 0).length}
-                </p>
-                <p className="text-xs text-indigo-600 dark:text-[rgb(var(--color-primary))] mt-2">
-                  Click to view details →
-                </p>
-              </div>
-              <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-                <svg
-                  className="w-8 h-8 text-yellow-600 dark:text-yellow-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Customers Table */}
-        <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] overflow-hidden">
           {isLoading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-[rgb(var(--color-primary))]"></div>
+            <div className="p-6">
+              <LoadingSkeleton type="table" rows={5} />
             </div>
           ) : filteredCustomers.length === 0 ? (
-            <div className="text-center py-12">
-              <svg
-                className="w-16 h-16 text-gray-400 dark:text-[rgb(var(--color-text-muted))] mx-auto mb-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              <p className="text-gray-500 dark:text-[rgb(var(--color-text-secondary))] text-lg">No customers found</p>
-              <button
-                type="button"
-                onClick={handleAddCustomer}
-                className="mt-4 text-indigo-600 dark:text-[rgb(var(--color-primary))] hover:text-indigo-700 dark:hover:text-[rgb(var(--color-primary-hover))] font-medium"
-              >
-                Add your first customer
-              </button>
-            </div>
+            <EmptyState
+              title="No Customers Found"
+              description={searchTerm ? "No customers match your search query." : "Get started by adding your first customer."}
+              actionLabel="Add Customer"
+              onAction={handleAddCustomer}
+            />
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 dark:bg-[rgb(var(--color-table-header))] border-b border-gray-200 dark:border-[rgb(var(--color-border))]">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Customer
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Contact
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Address
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Dues
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+              <table className="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    <th className="py-3.5 px-6">Customer</th>
+                    <th className="py-3.5 px-6">Contact Info</th>
+                    <th className="py-3.5 px-6">Address</th>
+                    <th className="py-3.5 px-6">Balance / Status</th>
+                    <th className="py-3.5 px-6 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-[rgb(var(--color-table-row))] divide-y divide-gray-200 dark:divide-[rgb(var(--color-border))]">
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                   {filteredCustomers.map((customer) => (
-                    <tr key={customer._id} className="hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="w-10 h-10 bg-indigo-600 dark:bg-[rgb(var(--color-primary))] rounded-full flex items-center justify-center">
-                            <span className="text-white font-bold">
-                              {customer.name.charAt(0).toUpperCase()}
-                            </span>
+                    <tr key={customer._id} className="hover:bg-gray-50/60 dark:hover:bg-gray-800/50 transition-colors">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 font-semibold flex items-center justify-center text-sm">
+                            {customer.name?.charAt(0).toUpperCase() || 'C'}
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900  dark:text-[rgb(var(--color-text))]">
-                              {customer.name}
-                            </div>
+                          <div>
+                            <div className="font-semibold text-gray-900 dark:text-gray-100">{customer.name}</div>
+                            {customer.referredBy && (
+                              <div className="text-xs text-gray-400">Referred by existing customer</div>
+                            )}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900  dark:text-[rgb(var(--color-text))]">
-                          {customer.phone}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {customer.email || "No email"}
-                        </div>
+                      <td className="py-4 px-6">
+                        <div className="font-medium text-gray-900 dark:text-gray-100">{customer.phone}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{customer.email || "No email"}</div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900  dark:text-[rgb(var(--color-text))]">
-                          {customer.address || "No address"}
-                        </div>
+                      <td className="py-4 px-6 text-gray-600 dark:text-gray-300">
+                        {customer.address || "—"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {customer.dues > 0 ? (
-                          // Customer owes shop (Debt) -> Red
-                          <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                            ₹{customer.dues.toFixed(2)}
-                          </span>
-                        ) : customer.dues < 0 ? (
-                          // Shop owes customer (Return) -> Yellow/Orange
-                          <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                            ₹{Math.abs(customer.dues).toFixed(2)} (Return)
-                          </span>
+                      <td className="py-4 px-6 whitespace-nowrap">
+                        {(customer.dues || 0) > 0 ? (
+                          <StatusBadge status="warning">
+                            Owes Rs. {(customer.dues).toFixed(2)}
+                          </StatusBadge>
+                        ) : (customer.dues || 0) < 0 ? (
+                          <StatusBadge status="info">
+                            Advance Rs. {Math.abs(customer.dues).toFixed(2)}
+                          </StatusBadge>
                         ) : (
-                          // No Dues -> Green
-                          <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            No Dues
-                          </span>
+                          <StatusBadge status="success">
+                            Clear
+                          </StatusBadge>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            navigate(`/customers/${customer._id}`);
-                          }}
-                          className="text-indigo-600 dark:text-[rgb(var(--color-primary))] hover:text-indigo-900 dark:hover:text-[rgb(var(--color-primary-hover))] mr-4"
+                      <td className="py-4 px-6 text-right space-x-2">
+                        <Button
+                          size="xs"
+                          variant="secondary"
+                          onClick={() => navigate(`/customers/${customer._id}`)}
                         >
                           View
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setDeleteConfirm(customer._id);
-                          }}
-                          className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-500"
+                        </Button>
+                        <Button
+                          size="xs"
+                          variant="danger"
+                          onClick={() => setDeleteConfirm(customer._id)}
                         >
                           Delete
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -338,35 +229,26 @@ const Customers = () => {
               </table>
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Delete Confirmation Modal */}
         <Modal
           isOpen={!!deleteConfirm}
           onClose={() => setDeleteConfirm(null)}
-          title="Confirm Delete"
+          title="Delete Customer"
           size="sm"
         >
           <div className="space-y-4">
-            <p className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
-              Are you sure you want to delete this customer? This action cannot
-              be undone.
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Are you sure you want to delete this customer? This action will permanently remove their records.
             </p>
-            <div className="flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 border border-gray-300 dark:border-[rgb(var(--color-border))] text-gray-700 dark:text-[rgb(var(--color-text))] bg-white dark:bg-[rgb(var(--color-card))] rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]"
-              >
+            <div className="flex justify-end gap-3 pt-2">
+              <Button variant="secondary" size="sm" onClick={() => setDeleteConfirm(null)}>
                 Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDelete(deleteConfirm)}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
-                Delete
-              </button>
+              </Button>
+              <Button variant="danger" size="sm" onClick={() => handleDelete(deleteConfirm)}>
+                Delete Customer
+              </Button>
             </div>
           </div>
         </Modal>

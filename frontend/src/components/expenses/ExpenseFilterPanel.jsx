@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { FiX, FiSearch } from 'react-icons/fi';
 
 const ExpenseFilterPanel = ({ filters, categories, onFilterChange, onClear }) => {
@@ -171,7 +171,7 @@ const ExpenseFilterPanel = ({ filters, categories, onFilterChange, onClear }) =>
                 {/* Row 3: Amount Range */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Min Amount (₹)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Min Amount (Rs. )</label>
                         <input
                             type="number"
                             name="minAmount"
@@ -185,7 +185,7 @@ const ExpenseFilterPanel = ({ filters, categories, onFilterChange, onClear }) =>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Max Amount (₹)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Max Amount (Rs. )</label>
                         <input
                             type="number"
                             name="maxAmount"

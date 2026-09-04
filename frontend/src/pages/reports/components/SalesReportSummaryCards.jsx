@@ -1,4 +1,4 @@
-const SalesReportSummaryCards = ({ summary, isLoading }) => {
+﻿const SalesReportSummaryCards = ({ summary, isLoading }) => {
     if (isLoading || !summary) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -15,7 +15,7 @@ const SalesReportSummaryCards = ({ summary, isLoading }) => {
     const cards = [
         {
             label: 'Total Sales',
-            value: `₹${summary.totalSales.toLocaleString('en-IN')}`,
+            value: `Rs. ${summary.totalSales.toLocaleString('en-PK')}`,
             change: summary.comparison?.salesChange,
             icon: '💰',
             color: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800',
@@ -23,7 +23,7 @@ const SalesReportSummaryCards = ({ summary, isLoading }) => {
         },
         {
             label: 'Total Invoices',
-            value: summary.totalInvoices.toLocaleString('en-IN'),
+            value: summary.totalInvoices.toLocaleString('en-PK'),
             change: summary.comparison?.invoicesChange,
             icon: '📄',
             color: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800',
@@ -31,7 +31,7 @@ const SalesReportSummaryCards = ({ summary, isLoading }) => {
         },
         {
             label: 'Total Quantity',
-            value: summary.totalQuantity.toLocaleString('en-IN'),
+            value: summary.totalQuantity.toLocaleString('en-PK'),
             change: summary.comparison?.quantityChange,
             icon: '📦',
             color: 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800',
@@ -39,28 +39,28 @@ const SalesReportSummaryCards = ({ summary, isLoading }) => {
         },
         {
             label: 'Total Tax',
-            value: `₹${summary.totalTax.toLocaleString('en-IN')}`,
+            value: `Rs. ${summary.totalTax.toLocaleString('en-PK')}`,
             icon: '🏛️',
             color: 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800',
             textColor: 'text-orange-700 dark:text-orange-300',
         },
         {
             label: 'Total Discount',
-            value: `₹${summary.totalDiscount.toLocaleString('en-IN')}`,
+            value: `Rs. ${summary.totalDiscount.toLocaleString('en-PK')}`,
             icon: '🎁',
             color: 'bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-800',
             textColor: 'text-pink-700 dark:text-pink-300',
         },
         {
             label: 'Gross Profit',
-            value: `₹${summary.grossProfit.toLocaleString('en-IN')}`,
+            value: `Rs. ${summary.grossProfit.toLocaleString('en-PK')}`,
             icon: '📈',
             color: 'bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800',
             textColor: 'text-teal-700 dark:text-teal-300',
         },
         {
             label: 'Net Profit',
-            value: `₹${summary.netProfit.toLocaleString('en-IN')}`,
+            value: `Rs. ${summary.netProfit.toLocaleString('en-PK')}`,
             change: summary.comparison?.profitChange,
             icon: '💎',
             color: 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800',
@@ -68,7 +68,7 @@ const SalesReportSummaryCards = ({ summary, isLoading }) => {
         },
         {
             label: 'Avg Order Value',
-            value: `₹${summary.averageOrderValue.toLocaleString('en-IN')}`,
+            value: `Rs. ${summary.averageOrderValue.toLocaleString('en-PK')}`,
             icon: '📊',
             color: 'bg-cyan-50 dark:bg-cyan-900/20 border-cyan-200 dark:border-cyan-800',
             textColor: 'text-cyan-700 dark:text-cyan-300',

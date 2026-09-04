@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import Layout from '../../components/Layout';
 import PageHeader from '../../components/PageHeader';
 import FormInput from '../../components/FormInput';
@@ -106,7 +106,7 @@ const Purchase = () => {
                                                     <option value="28">28%</option>
                                                 </select>
                                             </td>
-                                            <td className="px-4 py-3 font-medium">₹{item.amount.toFixed(2)}</td>
+                                            <td className="px-4 py-3 font-medium">Rs. {item.amount.toFixed(2)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -126,11 +126,11 @@ const Purchase = () => {
                         <div className="space-y-3 mb-4">
                             <div className="flex justify-between text-sm">
                                 <span className="text-secondary">Subtotal:</span>
-                                <span className="font-medium">₹{calculateSubtotal().toFixed(2)}</span>
+                                <span className="font-medium">Rs. {calculateSubtotal().toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-secondary">Tax:</span>
-                                <span className="font-medium">₹{calculateTax().toFixed(2)}</span>
+                                <span className="font-medium">Rs. {calculateTax().toFixed(2)}</span>
                             </div>
                             <div>
                                 <label className="block text-sm text-secondary mb-1">Discount:</label>
@@ -144,7 +144,7 @@ const Purchase = () => {
                         <div className="border-t pt-4">
                             <div className="flex justify-between items-center">
                                 <span className="text-lg font-bold">Total:</span>
-                                <span className="text-2xl font-bold text-indigo-600">₹{calculateTotal().toFixed(2)}</span>
+                                <span className="text-2xl font-bold text-indigo-600">Rs. {calculateTotal().toFixed(2)}</span>
                             </div>
                         </div>
                         <div className="mt-6 space-y-3">

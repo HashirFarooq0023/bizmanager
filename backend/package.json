@@ -1,7 +1,7 @@
 {
-  "name": "backend",
+  "name": "bizmanager-backend",
   "version": "2.0.0",
-  "description": "BizzAI Backend - Production Ready",
+  "description": "BizManager Backend - Developed by MegaTrix",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -29,7 +29,7 @@
     "mongodb",
     "express"
   ],
-  "author": "BizzAI Team",
+  "author": "MegaTrix",
   "license": "Apache-2.0",
   "dependencies": {
     "@sentry/node": "^7.99.0",

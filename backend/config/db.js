@@ -1,10 +1,15 @@
 import mongoose from "mongoose";
+import dns from "dns";
 import { info, error as logError } from "../utils/logger.js";
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY = 5000; // 5 seconds
 
 const connectDB = async (retryCount = 0) => {
+  if (mongoose.connection.readyState >= 1) {
+    return;
+  }
+
   try {
     // Clean the connection string to remove any BOM or encoding issues
     let mongoUri = process.env.MONGO_URI || "";
@@ -17,6 +22,15 @@ const connectDB = async (retryCount = 0) => {
       !mongoUri.startsWith("mongodb+srv://")
     ) {
       throw new Error("Invalid MongoDB connection string format");
+    }
+
+    // Set fallback public DNS servers for SRV record lookup (fixes Windows local DNS querySrv ECONNREFUSED)
+    if (mongoUri.startsWith("mongodb+srv://")) {
+      try {
+        dns.setServers(["8.8.8.8", "1.1.1.1"]);
+      } catch (dnsErr) {
+        // Fallback to default system DNS if setServers fails
+      }
     }
 
     // Connection options with pooling

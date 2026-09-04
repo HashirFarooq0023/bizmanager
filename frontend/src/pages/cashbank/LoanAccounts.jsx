@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import Layout from '../../components/Layout';
 import PageHeader from '../../components/PageHeader';
 import FormInput from '../../components/FormInput';
@@ -123,14 +123,14 @@ const LoanAccounts = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <StatsCard
                     title="Total Borrowed"
-                    value={`₹${totalBorrowed.toLocaleString()}`}
+                    value={`Rs. ${totalBorrowed.toLocaleString()}`}
                     icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg>}
                     iconBgColor="bg-red-100"
                     iconColor="text-red-600"
                 />
                 <StatsCard
                     title="Total Lent"
-                    value={`₹${totalLent.toLocaleString()}`}
+                    value={`Rs. ${totalLent.toLocaleString()}`}
                     icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>}
                     iconBgColor="bg-green-100"
                     iconColor="text-green-600"
@@ -247,7 +247,7 @@ const LoanAccounts = () => {
                     <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
                             <p className="text-sm text-secondary mb-1">EMI Amount</p>
-                            <p className="text-2xl font-bold text-indigo-600">₹{selectedLoan.emiAmount.toLocaleString()}</p>
+                            <p className="text-2xl font-bold text-indigo-600">Rs. {selectedLoan.emiAmount.toLocaleString()}</p>
                         </div>
                         <div>
                             <p className="text-sm text-secondary mb-1">Due Date</p>
@@ -300,7 +300,7 @@ const LoanAccounts = () => {
                         <div className="grid grid-cols-3 gap-4 text-sm">
                             <div>
                                 <p className="text-secondary">Loan Amount</p>
-                                <p className="font-bold">₹{selectedLoan.loanAmount.toLocaleString()}</p>
+                                <p className="font-bold">Rs. {selectedLoan.loanAmount.toLocaleString()}</p>
                             </div>
                             <div>
                                 <p className="text-secondary">Interest Rate</p>
@@ -308,7 +308,7 @@ const LoanAccounts = () => {
                             </div>
                             <div>
                                 <p className="text-secondary">EMI Amount</p>
-                                <p className="font-bold">₹{selectedLoan.emiAmount.toLocaleString()}</p>
+                                <p className="font-bold">Rs. {selectedLoan.emiAmount.toLocaleString()}</p>
                             </div>
                         </div>
                     </div>
@@ -328,10 +328,10 @@ const LoanAccounts = () => {
                                 {generateEMISchedule(selectedLoan).map((emi) => (
                                     <tr key={emi.emiNo} className={emi.status === 'paid' ? 'bg-green-50' : ''}>
                                         <td className="px-4 py-3 font-medium">{emi.emiNo}</td>
-                                        <td className="px-4 py-3">₹{emi.emiAmount.toFixed(2)}</td>
-                                        <td className="px-4 py-3">₹{emi.principal.toFixed(2)}</td>
-                                        <td className="px-4 py-3">₹{emi.interest.toFixed(2)}</td>
-                                        <td className="px-4 py-3">₹{emi.balance.toFixed(2)}</td>
+                                        <td className="px-4 py-3">Rs. {emi.emiAmount.toFixed(2)}</td>
+                                        <td className="px-4 py-3">Rs. {emi.principal.toFixed(2)}</td>
+                                        <td className="px-4 py-3">Rs. {emi.interest.toFixed(2)}</td>
+                                        <td className="px-4 py-3">Rs. {emi.balance.toFixed(2)}</td>
                                         <td className="px-4 py-3">
                                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${emi.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                                                 }`}>
@@ -371,14 +371,14 @@ const LoanAccounts = () => {
                             </div>
                             <div className="text-right">
                                 <p className="text-sm text-secondary mb-1">Balance Remaining</p>
-                                <p className="text-2xl font-bold text-indigo-600">₹{loan.balanceRemaining.toLocaleString()}</p>
+                                <p className="text-2xl font-bold text-indigo-600">Rs. {loan.balanceRemaining.toLocaleString()}</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                             <div>
                                 <p className="text-xs text-secondary mb-1">Loan Amount</p>
-                                <p className="font-bold  text-main">₹{loan.loanAmount.toLocaleString()}</p>
+                                <p className="font-bold  text-main">Rs. {loan.loanAmount.toLocaleString()}</p>
                             </div>
                             <div>
                                 <p className="text-xs text-secondary mb-1">Interest Rate</p>
@@ -386,7 +386,7 @@ const LoanAccounts = () => {
                             </div>
                             <div>
                                 <p className="text-xs text-secondary mb-1">EMI Amount</p>
-                                <p className="font-bold  text-main">₹{loan.emiAmount.toLocaleString()}</p>
+                                <p className="font-bold  text-main">Rs. {loan.emiAmount.toLocaleString()}</p>
                             </div>
                             <div>
                                 <p className="text-xs text-secondary mb-1">Tenure</p>

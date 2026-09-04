@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 import PaymentIn from "../models/PaymentIn.js";
 import Customer from "../models/Customer.js";
 import Invoice from "../models/Invoice.js";
@@ -117,7 +117,7 @@ export const createPaymentIn = async (req, res) => {
             const availableCredit = customer.dues < 0 ? Math.abs(customer.dues) : 0;
             if (creditApplied > availableCredit) {
                 return res.status(400).json({
-                    message: `Credit applied (₹${creditApplied}) exceeds available credit (₹${availableCredit.toFixed(2)})`,
+                    message: `Credit applied (Rs. ${creditApplied}) exceeds available credit (Rs. ${availableCredit.toFixed(2)})`,
                 });
             }
         }
@@ -162,7 +162,7 @@ export const createPaymentIn = async (req, res) => {
 
             if (allocation.allocatedAmount > invoiceBalance) {
                 return res.status(400).json({
-                    message: `Allocated amount (₹${allocation.allocatedAmount}) exceeds invoice balance (₹${invoiceBalance.toFixed(2)}) for invoice ${invoice.invoiceNo}`,
+                    message: `Allocated amount (Rs. ${allocation.allocatedAmount}) exceeds invoice balance (Rs. ${invoiceBalance.toFixed(2)}) for invoice ${invoice.invoiceNo}`,
                 });
             }
 
@@ -183,7 +183,7 @@ export const createPaymentIn = async (req, res) => {
         // Validate that we're not over-allocating
         if (totalAllocated > effectivePayment) {
             return res.status(400).json({
-                message: `Total allocated (₹${totalAllocated}) exceeds total payment (₹${effectivePayment.toFixed(2)})`,
+                message: `Total allocated (Rs. ${totalAllocated}) exceeds total payment (Rs. ${effectivePayment.toFixed(2)})`,
             });
         }
 
@@ -300,7 +300,7 @@ export const createPaymentIn = async (req, res) => {
         }
 
         info(
-            `Payment In created by ${req.user.name}: Receipt ${receiptNumber} - ₹${totalPayment} from ${customer.name}`
+            `Payment In created by ${req.user.name}: Receipt ${receiptNumber} - Rs. ${totalPayment} from ${customer.name}`
         );
 
         // Populate and return

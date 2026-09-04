@@ -3,6 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
+import PageHeader from '../../components/PageHeader';
+import Card from '../../components/Card';
+import StatusBadge from '../../components/StatusBadge';
+import Button from '../../components/Button';
+import EmptyState from '../../components/EmptyState';
+import LoadingSkeleton from '../../components/LoadingSkeleton';
+import Modal from '../../components/Modal';
 import { getAllDeliveryChallans, deleteDeliveryChallan, convertToInvoice, reset } from '../../redux/slices/deliveryChallanSlice';
 
 const DeliveryChallanList = () => {
@@ -52,67 +59,39 @@ const DeliveryChallanList = () => {
         return matchesSearch && matchesStatus;
     }) : [];
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'Draft':
-                return 'bg-gray-100 text-gray-800';
-            case 'Delivered':
-                return 'bg-blue-100 text-blue-800';
-            case 'Converted':
-                return 'bg-green-100 text-green-800';
-            default:
-                return 'bg-gray-100 text-gray-800';
-        }
-    };
-
     return (
         <Layout>
-            {/* Custom Header */}
-            <div className="mb-6">
-                <button
-                    onClick={() => navigate('/sales/delivery-challan')}
-                    className="flex items-center text-gray-600 dark:text-[rgb(var(--color-text-secondary))] hover:text-gray-900 dark:hover:text-[rgb(var(--color-text))] mb-4"
-                >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    <span className="text-base">Back to Delivery Challan</span>
-                </button>
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-2">
-                            Delivery Challans
-                        </h1>
-                        <p className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
-                            View and manage delivery challans
-                        </p>
-                    </div>
-                    <button
-                        onClick={() => {
-                            dispatch(reset());
-                            navigate('/sales/delivery-challan');
-                        }}
-                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
-                    >
-                        + Create Challan
-                    </button>
-                </div>
-            </div>
+            <div className="space-y-6">
+                <PageHeader
+                    title="Delivery Challans"
+                    subtitle="View and manage customer dispatch notes and delivery receipts"
+                    backPath="/sales/delivery-challan"
+                    action={
+                        <Button
+                            variant="primary"
+                            onClick={() => {
+                                dispatch(reset());
+                                navigate('/sales/delivery-challan');
+                            }}
+                            icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>}
+                        >
+                            Create Challan
+                        </Button>
+                    }
+                />
 
-            {/* Filters */}
-            <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-3 mb-6">
-                <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-                    <div className="w-full sm:w-96">
-                        <div className="relative">
+                <Card noPadding>
+                    <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div className="w-full sm:w-80 relative">
                             <input
                                 type="text"
                                 placeholder="Search by challan number or customer..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-lg bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))]"
+                                className="w-full pl-10 pr-4 py-2 text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-xl focus:ring-2 focus:ring-violet-500/20 focus:outline-none"
                             />
                             <svg
-                                className="absolute left-3 top-2.5 w-5 h-5 text-muted"
+                                className="absolute left-3 top-2.5 w-4 h-4 text-gray-400"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -120,164 +99,142 @@ const DeliveryChallanList = () => {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
+
+                        <div className="w-full sm:w-auto">
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="w-full px-3 py-2 text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-xl focus:ring-2 focus:ring-violet-500/20 focus:outline-none"
+                            >
+                                <option value="all">All Statuses</option>
+                                <option value="Draft">Draft</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Converted">Converted</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <div className="flex items-center space-x-4">
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="px-4 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-lg bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))]"
-                        >
-                            <option value="all">All Status</option>
-                            <option value="Draft">Draft</option>
-                            <option value="Delivered">Delivered</option>
-                            <option value="Converted">Converted</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            {/* Challans Table */}
-            <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] overflow-hidden">
-                {isLoading ? (
-                    <div className="flex justify-center items-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-                    </div>
-                ) : filteredChallans.length === 0 ? (
-                    <div className="text-center py-12">
-                        <svg
-                            className="w-16 h-16 text-muted mx-auto mb-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <p className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))] text-sm">No delivery challans found</p>
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-[rgb(var(--color-border))]">
-                                <tr>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">Challan No</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">Date</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">Customer</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">Items</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">Status</th>
-                                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200 dark:divide-[rgb(var(--color-border))]">
-                                {filteredChallans.map((challan) => (
-                                    <tr key={challan._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30">
-                                        <td className="px-4 py-3 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-indigo-600 dark:text-indigo-400">{challan.challanNumber}</div>
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">
-                                                {new Date(challan.challanDate).toLocaleDateString('en-IN')}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <div className="text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">{challan.customer?.name || 'N/A'}</div>
-                                            {challan.customer?.phone && (
-                                                <div className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{challan.customer.phone}</div>
-                                            )}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">{challan.items.length} items</div>
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap">
-                                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(challan.status)}`}>
-                                                {challan.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                            <button
-                                                onClick={() => navigate(`/sales/delivery-challan/${challan._id}`)}
-                                                className="text-indigo-600 hover:text-indigo-900 mr-4"
-                                            >
-                                                View
-                                            </button>
-                                            {challan.status !== 'Converted' && (
-                                                <>
-                                                    <button
-                                                        onClick={() => setConvertConfirm(challan._id)}
-                                                        className="text-green-600 hover:text-green-900 mr-4"
-                                                    >
-                                                        Convert
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setDeleteConfirm(challan._id)}
-                                                        className="text-red-600 hover:text-red-900"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </>
-                                            )}
-                                        </td>
+                    {isLoading ? (
+                        <div className="p-6">
+                            <LoadingSkeleton count={5} />
+                        </div>
+                    ) : filteredChallans.length === 0 ? (
+                        <div className="p-8">
+                            <EmptyState
+                                title="No delivery challans found"
+                                description="Create your first delivery challan to track goods dispatched to customers."
+                                actionText="Create Challan"
+                                onAction={() => navigate('/sales/delivery-challan')}
+                            />
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-xs text-left">
+                                <thead className="bg-gray-50/70 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    <tr>
+                                        <th className="px-4 py-3">Challan No</th>
+                                        <th className="px-4 py-3">Date</th>
+                                        <th className="px-4 py-3">Customer</th>
+                                        <th className="px-4 py-3">Items</th>
+                                        <th className="px-4 py-3">Status</th>
+                                        <th className="px-4 py-3 text-right">Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
+                                    {filteredChallans.map((challan) => (
+                                        <tr key={challan._id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
+                                            <td className="px-4 py-3 font-semibold text-violet-700 dark:text-violet-400">
+                                                {challan.challanNumber}
+                                            </td>
+                                            <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                                {new Date(challan.challanDate).toLocaleDateString('en-PK')}
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="font-medium text-gray-900 dark:text-gray-100">{challan.customer?.name || 'N/A'}</div>
+                                                {challan.customer?.phone && (
+                                                    <div className="text-[11px] text-gray-400">{challan.customer.phone}</div>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                                {challan.items.length} item(s)
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <StatusBadge status={challan.status} />
+                                            </td>
+                                            <td className="px-4 py-3 text-right space-x-1">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => navigate(`/sales/delivery-challan/${challan._id}`)}
+                                                >
+                                                    View
+                                                </Button>
+                                                {challan.status !== 'Converted' && (
+                                                    <>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => setConvertConfirm(challan._id)}
+                                                        >
+                                                            Convert
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                                                            onClick={() => setDeleteConfirm(challan._id)}
+                                                        >
+                                                            Delete
+                                                        </Button>
+                                                    </>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </Card>
+
+                {/* Modal Confirmations */}
+                <Modal
+                    isOpen={Boolean(deleteConfirm)}
+                    onClose={() => setDeleteConfirm(null)}
+                    title="Confirm Delete"
+                    size="sm"
+                    footer={
+                        <div className="flex space-x-3 w-full">
+                            <Button variant="secondary" className="w-full" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+                            <Button variant="danger" className="w-full" onClick={() => handleDelete(deleteConfirm)}>Delete</Button>
+                        </div>
+                    }
+                >
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Are you sure you want to delete this delivery challan? Dispatched stock reserved for this challan will be restored.
+                    </p>
+                </Modal>
+
+                <Modal
+                    isOpen={Boolean(convertConfirm)}
+                    onClose={() => setConvertConfirm(null)}
+                    title="Convert to Invoice"
+                    size="sm"
+                    footer={
+                        <div className="flex space-x-3 w-full">
+                            <Button variant="secondary" className="w-full" onClick={() => setConvertConfirm(null)}>Cancel</Button>
+                            <Button variant="primary" className="w-full" onClick={() => handleConvert(convertConfirm)}>Convert</Button>
+                        </div>
+                    }
+                >
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Are you sure you want to convert this delivery challan to a Sales Invoice?
+                    </p>
+                </Modal>
             </div>
-
-            {/* Delete Confirmation Modal */}
-            {deleteConfirm && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-xl border dark:border-[rgb(var(--color-border))] p-6 max-w-md w-full mx-4">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-4">Confirm Delete</h3>
-                        <p className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-6">
-                            Are you sure you want to delete this delivery challan? Stock will be restored.
-                        </p>
-                        <div className="flex space-x-4">
-                            <button
-                                onClick={() => setDeleteConfirm(null)}
-                                className="flex-1 px-4 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-[rgb(var(--color-text))]"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={() => handleDelete(deleteConfirm)}
-                                className="flex-1 px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700"
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Convert Confirmation Modal */}
-            {convertConfirm && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-xl border dark:border-[rgb(var(--color-border))] p-6 max-w-md w-full mx-4">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-4">Convert to Invoice</h3>
-                        <p className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-6">
-                            Are you sure you want to convert this challan to an invoice? This action cannot be undone.
-                        </p>
-                        <div className="flex space-x-4">
-                            <button
-                                onClick={() => setConvertConfirm(null)}
-                                className="flex-1 px-4 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-[rgb(var(--color-text))]"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={() => handleConvert(convertConfirm)}
-                                className="flex-1 px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
-                            >
-                                Convert
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </Layout>
     );
 };
 
 export default DeliveryChallanList;
+

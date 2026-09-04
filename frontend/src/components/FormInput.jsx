@@ -15,13 +15,13 @@ const FormInput = ({
     return (
         <div className={`${className}`}>
             {label && (
-                <label htmlFor={name} className="block text-xs font-medium text-gray-700 dark:text-[rgb(var(--color-text))] mb-1">
-                    {label} {required && <span className="text-red-500 dark:text-red-400">*</span>}
+                <label htmlFor={name} className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                    {label} {required && <span className="text-rose-500 dark:text-rose-400">*</span>}
                 </label>
             )}
             <div className="relative">
                 {icon && (
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[rgb(var(--color-text-muted))]">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none">
                         {icon}
                     </div>
                 )}
@@ -34,12 +34,15 @@ const FormInput = ({
                     placeholder={placeholder}
                     required={required}
                     disabled={disabled}
-                    className={`w-full ${icon ? 'pl-10' : 'pl-3'} pr-3 py-1.5 text-sm border ${error ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[rgb(var(--color-border))]'
-                        } bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] placeholder:text-gray-400 dark:placeholder:text-[rgb(var(--color-placeholder))] rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[rgb(var(--color-primary))] focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-[rgb(var(--color-border))] disabled:cursor-not-allowed`}
+                    className={`w-full ${icon ? 'pl-9.5' : 'pl-3'} pr-3 py-2 text-sm border transition duration-150 ${
+                        error
+                            ? 'border-rose-400 dark:border-rose-600 focus:ring-rose-500/20 focus:border-rose-600'
+                            : 'border-gray-300/80 dark:border-gray-700 focus:ring-violet-500/20 focus:border-violet-600'
+                    } bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg outline-none disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-400 disabled:cursor-not-allowed`}
                     {...props}
                 />
             </div>
-            {error && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>}
+            {error && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{error}</p>}
         </div>
     );
 };

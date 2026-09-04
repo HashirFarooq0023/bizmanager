@@ -258,7 +258,7 @@ const ImportItems = () => {
 
     return (
         <Layout>
-            <div className="max-w-7xl mx-auto">
+            <div className="space-y-6">
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-main mb-2">Import Items</h1>
@@ -465,8 +465,8 @@ const ImportItems = () => {
                                             <td className="px-6 py-4 text-sm text-main">{row.name || <span className="text-red-500">Missing</span>}</td>
                                             <td className="px-6 py-4 text-sm text-muted">{row.sku || '-'}</td>
                                             <td className="px-6 py-4 text-sm text-muted">{row.category}</td>
-                                            <td className="px-6 py-4 text-sm text-main">₹{row.costPrice}</td>
-                                            <td className="px-6 py-4 text-sm text-main">₹{row.sellingPrice}</td>
+                                            <td className="px-6 py-4 text-sm text-main">Rs. {row.costPrice}</td>
+                                            <td className="px-6 py-4 text-sm text-main">Rs. {row.sellingPrice}</td>
                                             <td className="px-6 py-4 text-sm text-main">{row.stock}</td>
                                         </tr>
                                     ))}

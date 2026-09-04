@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 import DueAdjustment from "../models/DueAdjustment.js";
 import Customer from "../models/Customer.js";
 import Transaction from "../models/Transaction.js";
@@ -54,7 +54,7 @@ export const createDueAdjustment = async (req, res) => {
         // Validate adjustment amount doesn't exceed outstanding due
         if (adjustmentAmount > customer.dues) {
             return res.status(400).json({
-                message: `Adjustment amount (₹${adjustmentAmount}) cannot exceed outstanding due (₹${customer.dues})`,
+                message: `Adjustment amount (Rs. ${adjustmentAmount}) cannot exceed outstanding due (Rs. ${customer.dues})`,
             });
         }
 
@@ -93,11 +93,11 @@ export const createDueAdjustment = async (req, res) => {
             dueAdjustment: dueAdjustment._id,
             amount: adjustmentAmount,
             paymentMethod: adjustmentMethod,
-            description: `Due adjustment of ₹${adjustmentAmount} via ${adjustmentMethod}${notes ? ` - ${notes}` : ""}`,
+            description: `Due adjustment of Rs. ${adjustmentAmount} via ${adjustmentMethod}${notes ? ` - ${notes}` : ""}`,
         });
 
         info(
-            `Due adjustment created by ${req.user.name}: ₹${adjustmentAmount} for customer ${customer.name}`
+            `Due adjustment created by ${req.user.name}: Rs. ${adjustmentAmount} for customer ${customer.name}`
         );
 
         // Populate and return the created adjustment

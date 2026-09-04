@@ -1,4 +1,4 @@
-import Bill from "../models/Bill.js";
+﻿import Bill from "../models/Bill.js";
 import Counter from "../models/Counter.js";
 import { info, error } from "./logger.js";
 
@@ -99,7 +99,7 @@ export const validatePayment = (bill, paymentAmount) => {
     if (paymentAmount > outstanding) {
         return {
             valid: false,
-            message: `Payment amount exceeds outstanding balance. Outstanding: ₹${outstanding.toFixed(2)}`
+            message: `Payment amount exceeds outstanding balance. Outstanding: Rs. ${outstanding.toFixed(2)}`
         };
     }
 
@@ -231,7 +231,7 @@ export const applyPaymentToBill = async (bill, payment) => {
             action: 'payment_recorded',
             performedBy: payment.recordedBy,
             performedAt: new Date(),
-            details: `Payment of ₹${payment.amount} recorded via ${payment.paymentMethod}`,
+            details: `Payment of Rs. ${payment.amount} recorded via ${payment.paymentMethod}`,
             changes: {
                 amount: payment.amount,
                 method: payment.paymentMethod,
@@ -242,7 +242,7 @@ export const applyPaymentToBill = async (bill, payment) => {
 
         await bill.save();
 
-        info(`Payment of ₹${payment.amount} applied to Bill ${bill.billNo}`);
+        info(`Payment of Rs. ${payment.amount} applied to Bill ${bill.billNo}`);
 
         return bill;
     } catch (err) {
@@ -263,7 +263,7 @@ export const applyCreditNoteToBill = async (bill, creditNote, amount, userId) =>
         }
 
         if (amount > outstanding) {
-            throw new Error(`Credit amount exceeds outstanding balance. Outstanding: ₹${outstanding.toFixed(2)}`);
+            throw new Error(`Credit amount exceeds outstanding balance. Outstanding: Rs. ${outstanding.toFixed(2)}`);
         }
 
         // Add credit note to applied list
@@ -283,7 +283,7 @@ export const applyCreditNoteToBill = async (bill, creditNote, amount, userId) =>
             action: 'credit_applied',
             performedBy: userId,
             performedAt: new Date(),
-            details: `Credit note ${creditNote.returnId} applied for ₹${amount}`,
+            details: `Credit note ${creditNote.returnId} applied for Rs. ${amount}`,
             changes: {
                 creditNoteId: creditNote._id,
                 amount,
@@ -294,7 +294,7 @@ export const applyCreditNoteToBill = async (bill, creditNote, amount, userId) =>
 
         await bill.save();
 
-        info(`Credit note ${creditNote.returnId} applied to Bill ${bill.billNo} for ₹${amount}`);
+        info(`Credit note ${creditNote.returnId} applied to Bill ${bill.billNo} for Rs. ${amount}`);
 
         return bill;
     } catch (err) {

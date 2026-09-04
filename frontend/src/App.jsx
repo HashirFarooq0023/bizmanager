@@ -25,7 +25,6 @@ import EditItem from './pages/EditItem';
 import POS from './pages/POS';
 import Invoices from './pages/Invoice';
 import InvoiceDetail from './pages/InvoiceDetail';
-import Reports from './pages/Reports';
 
 // Sales
 import SalesInvoice from './pages/sales/SalesInvoice';
@@ -46,7 +45,6 @@ import Return from './pages/sales/Return';
 import ReturnedItems from './pages/sales/ReturnedItems';
 
 // Purchase
-import Purchase from './pages/purchase/Purchase';
 import PurchaseEntry from './pages/purchase/PurchaseEntry';
 import PurchaseList from './pages/purchase/PurchaseList';
 import PurchaseDetail from './pages/purchase/PurchaseDetail';
@@ -58,7 +56,6 @@ import PaymentOutList from './pages/purchase/PaymentOutList';
 import PaymentOutDetail from './pages/purchase/PaymentOutDetail';
 import Expenses from './pages/purchase/Expenses';
 // Purchase Returns
-import PurchaseReturn from './pages/purchase/PurchaseReturn';
 import PurchaseReturnList from './pages/purchase/PurchaseReturnList';
 import PurchaseReturnFormNew from './pages/purchase/PurchaseReturnFormNew';
 import PurchaseReturnDetail from './pages/purchase/PurchaseReturnDetail';
@@ -106,6 +103,8 @@ import ImportItems from './pages/utilities/ImportItems';
 import BusinessSetup from './pages/utilities/BusinessSetup';
 import DataExport from './pages/utilities/DataExport';
 
+import LandingPage from './pages/LandingPage';
+
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { user } = useSelector((state) => state.auth);
@@ -139,8 +138,8 @@ function App() {
         <ToastContainer />
         <Router>
           <Routes>
-            {/* Default Route */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            {/* Public Landing Page */}
+            <Route path="/" element={<LandingPage />} />
 
             {/* Public Routes */}
             <Route
@@ -342,6 +341,7 @@ function App() {
 
             {/* Sales Routes */}
             <Route path="/sales">
+              <Route path="invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} />
               <Route path="invoice" element={<ProtectedRoute><SalesInvoice /></ProtectedRoute>} />
               <Route path="invoice/:id" element={<ProtectedRoute><SalesInvoiceDetail /></ProtectedRoute>} />
               <Route path="estimate" element={<ProtectedRoute><Estimate /></ProtectedRoute>} />
@@ -350,8 +350,9 @@ function App() {
               <Route path="payment-in" element={<ProtectedRoute><PaymentIn /></ProtectedRoute>} />
               <Route path="payment-in-list" element={<ProtectedRoute><PaymentInList /></ProtectedRoute>} />
               <Route path="payment-in/:id" element={<ProtectedRoute><PaymentReceiptDetail /></ProtectedRoute>} />
+              <Route path="orders" element={<ProtectedRoute><SalesOrderList /></ProtectedRoute>} />
+              <Route path="sales-order-list" element={<Navigate to="/sales/orders" replace />} />
               <Route path="sales-order" element={<ProtectedRoute><SalesOrder /></ProtectedRoute>} />
-              <Route path="sales-order-list" element={<ProtectedRoute><SalesOrderList /></ProtectedRoute>} />
               <Route path="sales-order/:id" element={<ProtectedRoute><SalesOrderDetail /></ProtectedRoute>} />
               <Route path="order" element={<ProtectedRoute><SalesOrder /></ProtectedRoute>} />
               <Route path="delivery-challan" element={<ProtectedRoute><DeliveryChallan /></ProtectedRoute>} />
@@ -363,6 +364,7 @@ function App() {
 
             {/* Purchase Routes */}
             <Route path="/purchase">
+              <Route index element={<Navigate to="/purchase/list" replace />} />
               <Route path="entry" element={<ProtectedRoute><PurchaseEntry /></ProtectedRoute>} />
               <Route path="edit/:id" element={<ProtectedRoute><PurchaseEntry /></ProtectedRoute>} />
               <Route path="list" element={<ProtectedRoute><PurchaseList /></ProtectedRoute>} />
@@ -375,12 +377,13 @@ function App() {
               <Route path="payment-out/:id" element={<ProtectedRoute><PaymentOutDetail /></ProtectedRoute>} />
               <Route path="expenses" element={<ProtectedRoute><Expenses /></ProtectedRoute>} />
 
-              {/* Purchase Returns - Form First Pattern */}
-              <Route path="return" element={<ProtectedRoute><PurchaseReturn /></ProtectedRoute>} />
+              {/* Purchase Returns Routes */}
+              <Route path="returns" element={<ProtectedRoute><PurchaseReturnList /></ProtectedRoute>} />
               <Route path="returns/list" element={<ProtectedRoute><PurchaseReturnList /></ProtectedRoute>} />
               <Route path="returns/new" element={<ProtectedRoute><PurchaseReturnFormNew /></ProtectedRoute>} />
               <Route path="returns/:id" element={<ProtectedRoute><PurchaseReturnDetail /></ProtectedRoute>} />
               <Route path="returns/:id/edit" element={<ProtectedRoute><PurchaseReturnFormNew /></ProtectedRoute>} />
+              <Route path="return" element={<Navigate to="/purchase/returns" replace />} />
             </Route>
 
             {/* Purchase Order Routes */}
@@ -404,7 +407,10 @@ function App() {
               <Route path="cash-in-hand" element={<ProtectedRoute><CashInHand /></ProtectedRoute>} />
               <Route path="cheques" element={<ProtectedRoute><Cheques /></ProtectedRoute>} />
               <Route path="loan-accounts" element={<ProtectedRoute><LoanAccounts /></ProtectedRoute>} />
+              <Route path="position" element={<ProtectedRoute><CashBankPosition /></ProtectedRoute>} />
+              <Route path="summary" element={<ProtectedRoute><BankSummary /></ProtectedRoute>} />
             </Route>
+            <Route path="/transfers" element={<ProtectedRoute><Transfers /></ProtectedRoute>} />
 
             {/* Business Growth Routes */}
             <Route path="/business">

@@ -3,6 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
+import PageHeader from '../../components/PageHeader';
+import Card from '../../components/Card';
+import StatsCard from '../../components/StatsCard';
+import StatusBadge from '../../components/StatusBadge';
+import Button from '../../components/Button';
+import LoadingSkeleton from '../../components/LoadingSkeleton';
+import EmptyState from '../../components/EmptyState';
 
 const SalesOrderList = () => {
     const navigate = useNavigate();
@@ -34,7 +41,6 @@ const SalesOrderList = () => {
 
             let fetchedOrders = response.data;
 
-            // Apply search filter on frontend
             if (filters.search) {
                 const searchLower = filters.search.toLowerCase();
                 fetchedOrders = fetchedOrders.filter(order =>
@@ -52,19 +58,6 @@ const SalesOrderList = () => {
         }
     };
 
-    const getStatusColor = (status) => {
-        const colors = {
-            'Draft': 'bg-gray-100 text-gray-800',
-            'Confirmed': 'bg-blue-100 text-blue-800',
-            'Partially Delivered': 'bg-purple-100 text-purple-800',
-            'Delivered': 'bg-indigo-100 text-indigo-800',
-            'Partially Invoiced': 'bg-yellow-100 text-yellow-800',
-            'Invoiced': 'bg-green-100 text-green-800',
-            'Cancelled': 'bg-red-100 text-red-800'
-        };
-        return colors[status] || 'bg-gray-100 text-gray-800';
-    };
-
     const isOverdue = (order) => {
         if (order.status === 'Invoiced' || order.status === 'Cancelled') return false;
         const expectedDate = new Date(order.expectedDeliveryDate);
@@ -74,112 +67,90 @@ const SalesOrderList = () => {
 
     return (
         <Layout>
-            <div className="max-w-7xl mx-auto">
-                {/* Header */}
-                <div className="mb-8">
-                    <button
-                        onClick={() => navigate('/sales/sales-order')}
-                        className="flex items-center text-gray-600 dark:text-[rgb(var(--color-text-secondary))] hover:text-gray-900 dark:hover:text-[rgb(var(--color-text))] mb-4"
-                    >
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                        <span className="text-base">Back to Sales Order</span>
-                    </button>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-2">
-                        Sales Orders
-                    </h1>
-                    <p className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
-                        View and manage all sales orders
-                    </p>
-                </div>
+            <div className="space-y-6">
+                <PageHeader
+                    title="Sales Orders"
+                    subtitle="View and manage all sales orders and order statuses"
+                    backPath="/sales/sales-order"
+                    action={
+                        <Button
+                            variant="primary"
+                            onClick={() => navigate('/sales/sales-order')}
+                            icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>}
+                        >
+                            New Sales Order
+                        </Button>
+                    }
+                />
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Total Orders</p>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mt-1">{orders.length}</p>
-                            </div>
-                            <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <StatsCard
+                        title="Total Orders"
+                        value={orders.length}
+                        color="indigo"
+                        icon={
+                            <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        }
+                    />
 
-                    <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Confirmed Orders</p>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mt-1">
-                                    {orders.filter(o => o.status === 'Confirmed' || o.status === 'Partially Delivered' || o.status === 'Delivered').length}
-                                </p>
-                            </div>
-                            <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
-                                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
+                    <StatsCard
+                        title="Confirmed Orders"
+                        value={orders.filter(o => o.status === 'Confirmed' || o.status === 'Partially Delivered' || o.status === 'Delivered').length}
+                        color="emerald"
+                        icon={
+                            <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        }
+                    />
 
-                    <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Total Amount</p>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mt-1">
-                                    ₹{orders.reduce((sum, o) => sum + o.totalAmount, 0).toFixed(0)}
-                                </p>
-                            </div>
-                            <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-                                <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
+                    <StatsCard
+                        title="Total Amount"
+                        value={`Rs. ${orders.reduce((sum, o) => sum + o.totalAmount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`}
+                        color="violet"
+                        icon={
+                            <svg className="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        }
+                    />
 
-                    <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Overdue Orders</p>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mt-1">
-                                    {orders.filter(o => isOverdue(o)).length}
-                                </p>
-                            </div>
-                            <div className="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
-                                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
+                    <StatsCard
+                        title="Overdue Orders"
+                        value={orders.filter(o => isOverdue(o)).length}
+                        color="rose"
+                        icon={
+                            <svg className="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        }
+                    />
                 </div>
 
-                <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-4">
-                    {/* Filters */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+                <Card noPadding>
+                    {/* Filter toolbar */}
+                    <div className="p-4 border-b border-gray-100 dark:border-gray-800 grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
                         <div>
-                            <label className="block text-xs font-medium text-gray-700 dark:text-[rgb(var(--color-text-secondary))] mb-1">Search</label>
+                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Search</label>
                             <input
                                 type="text"
                                 placeholder="Order No or Customer..."
                                 value={filters.search}
                                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                                className="w-full px-3 py-1 text-xs border border-gray-300 dark:border-[rgb(var(--color-border))] bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[rgb(var(--color-primary))]"
+                                className="w-full px-3 py-2 text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-xl focus:ring-2 focus:ring-violet-500/20 focus:outline-none"
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-medium text-gray-700 dark:text-[rgb(var(--color-text-secondary))] mb-1">Status</label>
+                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Status</label>
                             <select
                                 value={filters.status}
                                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                                className="w-full px-3 py-1 text-xs border border-gray-300 dark:border-[rgb(var(--color-border))] bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[rgb(var(--color-primary))]"
+                                className="w-full px-3 py-2 text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-xl focus:ring-2 focus:ring-violet-500/20 focus:outline-none"
                             >
-                                <option value="">All Status</option>
+                                <option value="">All Statuses</option>
                                 <option value="Draft">Draft</option>
                                 <option value="Confirmed">Confirmed</option>
                                 <option value="Partially Delivered">Partially Delivered</option>
@@ -189,94 +160,99 @@ const SalesOrderList = () => {
                                 <option value="Cancelled">Cancelled</option>
                             </select>
                         </div>
-                        <div className="flex items-end">
-                            <label className="flex items-center gap-2 cursor-pointer">
+                        <div className="flex items-center h-9">
+                            <label className="flex items-center gap-2 cursor-pointer select-none">
                                 <input
                                     type="checkbox"
                                     checked={filters.overdue}
                                     onChange={(e) => setFilters({ ...filters, overdue: e.target.checked })}
-                                    className="w-4 h-4 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
+                                    className="w-4 h-4 text-violet-600 rounded border-gray-300 focus:ring-violet-500"
                                 />
-                                <span className="text-xs font-medium text-gray-700 dark:text-[rgb(var(--color-text-secondary))]">Show Overdue Only</span>
+                                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Overdue Only</span>
                             </label>
                         </div>
-                        <div className="flex items-end">
-                            <button
+                        <div>
+                            <Button
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => setFilters({ status: '', search: '', overdue: false })}
-                                className="px-3 py-1 text-xs border border-gray-300 dark:border-[rgb(var(--color-border))] text-gray-700 dark:text-[rgb(var(--color-text-secondary))] rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-surface))]"
+                                className="w-full"
                             >
-                                Clear Filters
-                            </button>
+                                Reset Filters
+                            </Button>
                         </div>
                     </div>
 
-                    {/* Orders Table */}
+                    {/* Table */}
                     {loading ? (
-                        <div className="flex justify-center items-center py-12">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-[rgb(var(--color-primary))]"></div>
+                        <div className="p-6">
+                            <LoadingSkeleton count={5} />
                         </div>
                     ) : orders.length === 0 ? (
-                        <div className="text-center py-12 text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
-                            No sales orders found. Create your first order!
+                        <div className="p-8">
+                            <EmptyState
+                                title="No sales orders found"
+                                description="Create your first sales order to start tracking customer orders."
+                                actionText="Create Sales Order"
+                                onAction={() => navigate('/sales/sales-order')}
+                            />
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead className="bg-gray-50 dark:bg-[rgb(var(--color-table-header))] border-b border-gray-200 dark:border-[rgb(var(--color-border))]">
+                            <table className="w-full text-xs text-left">
+                                <thead className="bg-gray-50/70 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                     <tr>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Order No</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Customer</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Order Date</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Expected Delivery</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Status</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Total Amount</th>
-                                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Actions</th>
+                                        <th className="px-4 py-3">Order No</th>
+                                        <th className="px-4 py-3">Customer</th>
+                                        <th className="px-4 py-3">Order Date</th>
+                                        <th className="px-4 py-3">Expected Delivery</th>
+                                        <th className="px-4 py-3">Status</th>
+                                        <th className="px-4 py-3">Total Amount</th>
+                                        <th className="px-4 py-3 text-right">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white dark:bg-[rgb(var(--color-table-row))] divide-y divide-gray-200 dark:divide-[rgb(var(--color-border))]">
+                                <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
                                     {orders.map((order) => (
                                         <tr
                                             key={order._id}
-                                            className="hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-surface))] cursor-pointer"
+                                            className="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
                                             onClick={() => navigate(`/sales/sales-order/${order._id}`)}
                                         >
-                                            <td className="px-4 py-3">
-                                                <div className="text-xs font-medium text-indigo-600 dark:text-[rgb(var(--color-primary))]">{order.orderNumber}</div>
+                                            <td className="px-4 py-3 font-semibold text-violet-700 dark:text-violet-400">
+                                                {order.orderNumber}
                                             </td>
                                             <td className="px-4 py-3">
-                                                <div className="text-xs font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">{order.customer?.name || 'N/A'}</div>
-                                                <div className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{order.customer?.phone}</div>
+                                                <div className="font-medium text-gray-900 dark:text-gray-100">{order.customer?.name || 'N/A'}</div>
+                                                <div className="text-[11px] text-gray-400">{order.customer?.phone}</div>
                                             </td>
-                                            <td className="px-4 py-3 text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
+                                            <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
                                                 {new Date(order.orderDate).toLocaleDateString()}
                                             </td>
                                             <td className="px-4 py-3">
-                                                <div className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
+                                                <div className="text-gray-600 dark:text-gray-400">
                                                     {new Date(order.expectedDeliveryDate).toLocaleDateString()}
                                                 </div>
                                                 {isOverdue(order) && (
-                                                    <span className="text-xs text-red-600 font-medium">OVERDUE</span>
+                                                    <span className="text-[10px] font-bold text-rose-600 uppercase tracking-wide">Overdue</span>
                                                 )}
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                                                    {order.status}
-                                                </span>
+                                                <StatusBadge status={order.status} />
                                             </td>
-                                            <td className="px-4 py-3 text-xs font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
-                                                ₹{order.totalAmount.toFixed(2)}
+                                            <td className="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">
+                                                Rs. {order.totalAmount.toFixed(2)}
                                             </td>
                                             <td className="px-4 py-3 text-right">
-                                                <button
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         navigate(`/sales/sales-order/${order._id}`);
-
                                                     }}
-                                                    className="text-xs text-indigo-600 dark:text-[rgb(var(--color-primary))] hover:text-indigo-700 font-medium"
                                                 >
-                                                    View Details
-                                                </button>
+                                                    View
+                                                </Button>
                                             </td>
                                         </tr>
                                     ))}
@@ -284,10 +260,11 @@ const SalesOrderList = () => {
                             </table>
                         </div>
                     )}
-                </div>
+                </Card>
             </div>
         </Layout>
     );
 };
 
 export default SalesOrderList;
+

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
@@ -129,7 +129,7 @@ const PaymentOutList = () => {
         {
             key: 'totalAmount',
             label: 'Amount',
-            render: (value, row) => <span className="font-bold">₹{row.totalAmount.toFixed(2)}</span>,
+            render: (value, row) => <span className="font-bold">Rs. {row.totalAmount.toFixed(2)}</span>,
         },
         {
             key: 'paymentMethod',

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 import PaymentOut from "../models/PaymentOut.js";
 import SupplierAdvance from "../models/SupplierAdvance.js";
 import Supplier from "../models/Supplier.js";
@@ -117,7 +117,7 @@ export const createPaymentOut = async (req, res) => {
                     available: bankAccountDoc.currentBalance,
                     requested: paymentAmount,
                     shortfall: paymentAmount - bankAccountDoc.currentBalance,
-                    message: `Insufficient bank balance. Available: ₹${bankAccountDoc.currentBalance.toFixed(2)}, Required: ₹${paymentAmount.toFixed(2)}, Shortfall: ₹${(paymentAmount - bankAccountDoc.currentBalance).toFixed(2)}`,
+                    message: `Insufficient bank balance. Available: Rs. ${bankAccountDoc.currentBalance.toFixed(2)}, Required: Rs. ${paymentAmount.toFixed(2)}, Shortfall: Rs. ${(paymentAmount - bankAccountDoc.currentBalance).toFixed(2)}`,
                 });
             }
         }
@@ -134,7 +134,7 @@ export const createPaymentOut = async (req, res) => {
                     available: cashBalance,
                     requested: paymentAmount,
                     shortfall: paymentAmount - cashBalance,
-                    message: `Insufficient cash balance. Available: ₹${cashBalance.toFixed(2)}, Required: ₹${paymentAmount.toFixed(2)}, Shortfall: ₹${(paymentAmount - cashBalance).toFixed(2)}`,
+                    message: `Insufficient cash balance. Available: Rs. ${cashBalance.toFixed(2)}, Required: Rs. ${paymentAmount.toFixed(2)}, Shortfall: Rs. ${(paymentAmount - cashBalance).toFixed(2)}`,
                 });
             }
         }
@@ -334,7 +334,7 @@ export const createPaymentOut = async (req, res) => {
 
 
         info(
-            `Payment Out created by ${req.user.name}: ${paymentNo} - ₹${paymentAmount} to ${supplier.businessName}`
+            `Payment Out created by ${req.user.name}: ${paymentNo} - Rs. ${paymentAmount} to ${supplier.businessName}`
         );
 
         // Populate and return

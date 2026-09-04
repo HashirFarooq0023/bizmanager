@@ -10,11 +10,11 @@ const GoogleProfile = () => {
     const [showPhotoUpload, setShowPhotoUpload] = useState(false);
 
     const [profileData, setProfileData] = useState({
-        businessName: 'BizzAI Billing Solutions',
-        address: '123 Business Street, Mumbai, Maharashtra 400001',
-        phone: '+91 98765 43210',
-        email: 'contact@bizzai.com',
-        website: 'www.bizzai.com',
+        businessName: 'BizManager Solutions',
+        address: 'Lahore, Punjab, Pakistan',
+        phone: '0325-4567318',
+        email: 'admin.megatrix@gmail.com',
+        website: 'www.megatrixai.com',
         category: 'Software Company',
         description: 'Complete billing and inventory management solution for businesses',
         verified: true

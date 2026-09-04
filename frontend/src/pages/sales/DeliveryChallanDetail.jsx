@@ -106,7 +106,7 @@ const DeliveryChallanDetail = () => {
                             <div className="text-right flex-shrink-0">
                                 <div className="text-xs font-semibold text-gray-800 uppercase mb-1">Challan Date</div>
                                 <div className="font-bold text-base text-gray-900">
-                                    {new Date(challan.challanDate).toLocaleDateString('en-IN', {
+                                    {new Date(challan.challanDate).toLocaleDateString('en-PK', {
                                         day: '2-digit',
                                         month: 'short',
                                         year: 'numeric',
@@ -116,7 +116,7 @@ const DeliveryChallanDetail = () => {
                                     <>
                                         <div className="text-xs font-semibold text-gray-800 uppercase mb-1 mt-2">Delivery Date</div>
                                         <div className="font-bold text-base text-gray-900">
-                                            {new Date(challan.deliveryDate).toLocaleDateString('en-IN', {
+                                            {new Date(challan.deliveryDate).toLocaleDateString('en-PK', {
                                                 day: '2-digit',
                                                 month: 'short',
                                                 year: 'numeric',
@@ -268,7 +268,7 @@ const DeliveryChallanDetail = () => {
                         <p className="text-xs text-gray-500 mt-2">This is a computer-generated delivery challan.</p>
                         {challan.createdAt && (
                             <p className="text-xs text-gray-500 mt-2">
-                                Created on {new Date(challan.createdAt).toLocaleString('en-IN')}
+                                Created on {new Date(challan.createdAt).toLocaleString('en-PK')}
                             </p>
                         )}
                     </div>

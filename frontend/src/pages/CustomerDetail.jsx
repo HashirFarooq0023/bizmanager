@@ -144,7 +144,7 @@ const CustomerDetail = () => {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto">
+      <div className="space-y-6">
         {/* Header */}
         <div className="mb-8">
           <button
@@ -355,8 +355,8 @@ const CustomerDetail = () => {
                         : "text-green-600"
                     }`}
                 >
-                  {/* Absolute value used to display returns as positive (e.g. ₹9 instead of ₹-9) */}
-                  ₹{Math.abs(customer.dues || 0).toFixed(2)}
+                  {/* Absolute value used to display returns as positive (e.g. Rs. 9 instead of Rs. -9) */}
+                  Rs. {Math.abs(customer.dues || 0).toFixed(2)}
                 </p>
                 {customer.dues > 0 && (
                   <p className="text-xs text-indigo-600 dark:text-[rgb(var(--color-primary))] mt-1">
@@ -445,7 +445,7 @@ const CustomerDetail = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900  dark:text-[rgb(var(--color-text))]">
-                        ₹{Math.abs(transaction.amount?.toFixed(2))}
+                        Rs. {Math.abs(transaction.amount?.toFixed(2))}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-2">

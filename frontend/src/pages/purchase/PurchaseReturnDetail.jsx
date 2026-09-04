@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
@@ -130,7 +130,7 @@ const PurchaseReturnDetail = () => {
                     </div>
                     <div>
                         <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">Total Amount</p>
-                        <p className="text-lg font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{returnData.totalAmount?.toFixed(2)}</p>
+                        <p className="text-lg font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {returnData.totalAmount?.toFixed(2)}</p>
                     </div>
                     <div>
                         <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">Refund Mode</p>
@@ -310,9 +310,9 @@ const PurchaseReturnDetail = () => {
                                             )}
                                         </td>
                                         <td className="px-3 py-2 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">{item.returnQty || item.quantity}</td>
-                                        <td className="px-3 py-2 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">₹{item.rate?.toFixed(2)}</td>
+                                        <td className="px-3 py-2 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {item.rate?.toFixed(2)}</td>
                                         <td className="px-3 py-2 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">{item.taxRate}%</td>
-                                        <td className="px-3 py-2 text-xs font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{item.total?.toFixed(2)}</td>
+                                        <td className="px-3 py-2 text-xs font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {item.total?.toFixed(2)}</td>
                                         <td className="px-3 py-2">
                                             <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
                                                 {item.condition}
@@ -339,15 +339,15 @@ const PurchaseReturnDetail = () => {
                                 <dl className="space-y-2">
                                     <div className="flex justify-between">
                                         <dt className="text-sm text-gray-600">Subtotal</dt>
-                                        <dd className="text-sm font-medium">₹{returnData.subtotal?.toFixed(2)}</dd>
+                                        <dd className="text-sm font-medium">Rs. {returnData.subtotal?.toFixed(2)}</dd>
                                     </div>
                                     <div className="flex justify-between">
                                         <dt className="text-sm text-gray-600">Item Discount</dt>
-                                        <dd className="text-sm font-medium text-red-600">- ₹{returnData.itemDiscount?.toFixed(2)}</dd>
+                                        <dd className="text-sm font-medium text-red-600">- Rs. {returnData.itemDiscount?.toFixed(2)}</dd>
                                     </div>
                                     <div className="flex justify-between">
                                         <dt className="text-sm text-gray-600">Bill Discount</dt>
-                                        <dd className="text-sm font-medium text-red-600">- ₹{returnData.billDiscount?.toFixed(2)}</dd>
+                                        <dd className="text-sm font-medium text-red-600">- Rs. {returnData.billDiscount?.toFixed(2)}</dd>
                                     </div>
                                 </dl>
                             </div>
@@ -357,19 +357,19 @@ const PurchaseReturnDetail = () => {
                                 <dl className="space-y-2">
                                     <div className="flex justify-between">
                                         <dt className="text-sm text-gray-600">CGST</dt>
-                                        <dd className="text-sm font-medium">₹{returnData.totalCGST?.toFixed(2)}</dd>
+                                        <dd className="text-sm font-medium">Rs. {returnData.totalCGST?.toFixed(2)}</dd>
                                     </div>
                                     <div className="flex justify-between">
                                         <dt className="text-sm text-gray-600">SGST</dt>
-                                        <dd className="text-sm font-medium">₹{returnData.totalSGST?.toFixed(2)}</dd>
+                                        <dd className="text-sm font-medium">Rs. {returnData.totalSGST?.toFixed(2)}</dd>
                                     </div>
                                     <div className="flex justify-between">
                                         <dt className="text-sm text-gray-600">IGST</dt>
-                                        <dd className="text-sm font-medium">₹{returnData.totalIGST?.toFixed(2)}</dd>
+                                        <dd className="text-sm font-medium">Rs. {returnData.totalIGST?.toFixed(2)}</dd>
                                     </div>
                                     <div className="flex justify-between border-t pt-2">
                                         <dt className="text-sm font-semibold">Total Tax</dt>
-                                        <dd className="text-sm font-semibold">₹{returnData.taxAmount?.toFixed(2)}</dd>
+                                        <dd className="text-sm font-semibold">Rs. {returnData.taxAmount?.toFixed(2)}</dd>
                                     </div>
                                 </dl>
                             </div>
@@ -379,7 +379,7 @@ const PurchaseReturnDetail = () => {
                             <div className="flex justify-between items-center">
                                 <span className="text-xl font-semibold text-gray-900">Total Return Amount</span>
                                 <span className="text-2xl font-bold text-blue-600">
-                                    ₹{returnData.totalAmount?.toFixed(2)}
+                                    Rs. {returnData.totalAmount?.toFixed(2)}
                                 </span>
                             </div>
                         </div>
@@ -529,7 +529,7 @@ const PurchaseReturnDetail = () => {
                             <h1 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 3px 0', color: '#1f2937' }}>
                                 PURCHASE RETURN
                             </h1>
-                            <p style={{ fontSize: '11px', color: '#6b7280', margin: 0 }}>BizzAI Inventory Management</p>
+                            <p style={{ fontSize: '11px', color: '#6b7280', margin: 0 }}>BizManager Inventory Management (by MegaTrix)</p>
                         </div>
                         <div style={{ textAlign: 'right' }}>
                             <p style={{ fontSize: '13px', fontWeight: 'bold', margin: '0 0 3px 0' }}>{returnData.returnId}</p>
@@ -551,7 +551,7 @@ const PurchaseReturnDetail = () => {
                     <div style={{ padding: '10px', backgroundColor: '#f3f4f6', borderRadius: '4px' }}>
                         <p style={{ fontSize: '9px', color: '#6b7280', margin: '0 0 3px 0', textTransform: 'uppercase', fontWeight: '600' }}>Total Amount</p>
                         <p style={{ fontSize: '14px', fontWeight: 'bold', margin: 0, color: '#2563eb' }}>
-                            ₹{returnData.totalAmount?.toFixed(2)}
+                            Rs. {returnData.totalAmount?.toFixed(2)}
                         </p>
                     </div>
                 </div>
@@ -638,10 +638,10 @@ const PurchaseReturnDetail = () => {
                                     <td style={{ padding: '6px 5px', textAlign: 'center', fontWeight: '600', fontSize: '10px' }}>
                                         {item.returnQty || item.quantity}
                                     </td>
-                                    <td style={{ padding: '6px 5px', textAlign: 'right', fontSize: '9px' }}>₹{item.rate?.toFixed(2)}</td>
+                                    <td style={{ padding: '6px 5px', textAlign: 'right', fontSize: '9px' }}>Rs. {item.rate?.toFixed(2)}</td>
                                     <td style={{ padding: '6px 5px', textAlign: 'center', fontSize: '9px' }}>{item.taxRate}%</td>
                                     <td style={{ padding: '6px 5px', textAlign: 'right', fontWeight: '600', fontSize: '10px' }}>
-                                        ₹{item.total?.toFixed(2)}
+                                        Rs. {item.total?.toFixed(2)}
                                     </td>
                                     <td style={{ padding: '6px 5px', textAlign: 'center', fontSize: '8px', textTransform: 'capitalize' }}>
                                         {item.condition}
@@ -658,30 +658,30 @@ const PurchaseReturnDetail = () => {
                         <div style={{ padding: '8px 10px', borderBottom: '1px solid #e5e7eb' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
                                 <span style={{ fontSize: '10px', color: '#6b7280' }}>Subtotal:</span>
-                                <span style={{ fontSize: '10px', fontWeight: '600' }}>₹{returnData.subtotal?.toFixed(2)}</span>
+                                <span style={{ fontSize: '10px', fontWeight: '600' }}>Rs. {returnData.subtotal?.toFixed(2)}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
                                 <span style={{ fontSize: '10px', color: '#6b7280' }}>Item Discount:</span>
                                 <span style={{ fontSize: '10px', fontWeight: '600', color: '#dc2626' }}>
-                                    - ₹{returnData.itemDiscount?.toFixed(2)}
+                                    - Rs. {returnData.itemDiscount?.toFixed(2)}
                                 </span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
                                 <span style={{ fontSize: '10px', color: '#6b7280' }}>Bill Discount:</span>
                                 <span style={{ fontSize: '10px', fontWeight: '600', color: '#dc2626' }}>
-                                    - ₹{returnData.billDiscount?.toFixed(2)}
+                                    - Rs. {returnData.billDiscount?.toFixed(2)}
                                 </span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span style={{ fontSize: '10px', color: '#6b7280' }}>Tax Amount:</span>
-                                <span style={{ fontSize: '10px', fontWeight: '600' }}>₹{returnData.taxAmount?.toFixed(2)}</span>
+                                <span style={{ fontSize: '10px', fontWeight: '600' }}>Rs. {returnData.taxAmount?.toFixed(2)}</span>
                             </div>
                         </div>
                         <div style={{ padding: '8px 10px', backgroundColor: '#2563eb' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'white' }}>Total Amount:</span>
                                 <span style={{ fontSize: '14px', fontWeight: 'bold', color: 'white' }}>
-                                    ₹{returnData.totalAmount?.toFixed(2)}
+                                    Rs. {returnData.totalAmount?.toFixed(2)}
                                 </span>
                             </div>
                         </div>
@@ -701,7 +701,7 @@ const PurchaseReturnDetail = () => {
                 {/* Footer */}
                 <div style={{ marginTop: '25px', paddingTop: '10px', borderTop: '1px solid #e5e7eb', textAlign: 'center' }}>
                     <p style={{ fontSize: '8px', color: '#9ca3af', margin: 0 }}>
-                        Generated on {new Date().toLocaleString()} | BizzAI Inventory Management System
+                        Generated on {new Date().toLocaleString()} | BizManager Inventory Management System (by MegaTrix)
                     </p>
                 </div>
             </div>

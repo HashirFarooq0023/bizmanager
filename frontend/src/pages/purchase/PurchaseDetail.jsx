@@ -58,7 +58,7 @@ const PurchaseDetail = () => {
 
     return (
         <Layout>
-            <div className="max-w-7xl mx-auto">
+            <div className="space-y-6">
                 {/* Header */}
                 <div className="mb-6 flex justify-between items-center">
                     <div>
@@ -181,10 +181,10 @@ const PurchaseDetail = () => {
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3 text-sm text-secondary">{item.quantity}</td>
-                                                <td className="px-4 py-3 text-sm text-secondary">₹{item.purchaseRate.toFixed(2)}</td>
+                                                <td className="px-4 py-3 text-sm text-secondary">Rs. {item.purchaseRate.toFixed(2)}</td>
                                                 <td className="px-4 py-3 text-sm text-secondary">{item.taxRate}%</td>
-                                                <td className="px-4 py-3 text-sm text-secondary">₹{item.discount.toFixed(2)}</td>
-                                                <td className="px-4 py-3 text-sm font-medium text-main">₹{item.total.toFixed(2)}</td>
+                                                <td className="px-4 py-3 text-sm text-secondary">Rs. {item.discount.toFixed(2)}</td>
+                                                <td className="px-4 py-3 text-sm font-medium text-main">Rs. {item.total.toFixed(2)}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -220,19 +220,19 @@ const PurchaseDetail = () => {
                             <div className="space-y-3">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-secondary">Subtotal:</span>
-                                    <span className="font-medium">₹{purchase.subtotal.toFixed(2)}</span>
+                                    <span className="font-medium">Rs. {purchase.subtotal.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-secondary">Item Discount:</span>
-                                    <span className="font-medium">-₹{purchase.itemDiscount.toFixed(2)}</span>
+                                    <span className="font-medium">-Rs. {purchase.itemDiscount.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-secondary">Bill Discount:</span>
-                                    <span className="font-medium">-₹{purchase.billDiscount.toFixed(2)}</span>
+                                    <span className="font-medium">-Rs. {purchase.billDiscount.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-secondary">Shipping:</span>
-                                    <span className="font-medium">₹{purchase.shippingCharges.toFixed(2)}</span>
+                                    <span className="font-medium">Rs. {purchase.shippingCharges.toFixed(2)}</span>
                                 </div>
 
                                 {/* Tax Breakup */}
@@ -241,17 +241,17 @@ const PurchaseDetail = () => {
                                     {purchase.totalIGST > 0 ? (
                                         <div className="flex justify-between text-sm">
                                             <span className="text-secondary">IGST:</span>
-                                            <span className="font-medium">₹{purchase.totalIGST.toFixed(2)}</span>
+                                            <span className="font-medium">Rs. {purchase.totalIGST.toFixed(2)}</span>
                                         </div>
                                     ) : (
                                         <>
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-secondary">CGST:</span>
-                                                <span className="font-medium">₹{purchase.totalCGST.toFixed(2)}</span>
+                                                <span className="font-medium">Rs. {purchase.totalCGST.toFixed(2)}</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-secondary">SGST:</span>
-                                                <span className="font-medium">₹{purchase.totalSGST.toFixed(2)}</span>
+                                                <span className="font-medium">Rs. {purchase.totalSGST.toFixed(2)}</span>
                                             </div>
                                         </>
                                     )}
@@ -259,13 +259,13 @@ const PurchaseDetail = () => {
 
                                 <div className="flex justify-between text-sm">
                                     <span className="text-secondary">Round Off:</span>
-                                    <span className="font-medium">₹{purchase.roundOff.toFixed(2)}</span>
+                                    <span className="font-medium">Rs. {purchase.roundOff.toFixed(2)}</span>
                                 </div>
 
                                 <div className="border-t pt-3">
                                     <div className="flex justify-between items-center mb-3">
                                         <span className="text-lg font-bold">Total:</span>
-                                        <span className="text-2xl font-bold text-indigo-600">₹{purchase.totalAmount.toFixed(2)}</span>
+                                        <span className="text-2xl font-bold text-indigo-600">Rs. {purchase.totalAmount.toFixed(2)}</span>
                                     </div>
                                 </div>
 
@@ -278,11 +278,11 @@ const PurchaseDetail = () => {
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-secondary">Paid Amount:</span>
-                                        <span className="font-medium text-green-600">₹{purchase.paidAmount.toFixed(2)}</span>
+                                        <span className="font-medium text-green-600">Rs. {purchase.paidAmount.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-secondary">Outstanding:</span>
-                                        <span className="font-medium text-red-600">₹{purchase.outstandingAmount.toFixed(2)}</span>
+                                        <span className="font-medium text-red-600">Rs. {purchase.outstandingAmount.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-secondary">Payment Status:</span>

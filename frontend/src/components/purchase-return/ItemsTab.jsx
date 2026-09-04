@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 const ItemsTab = ({ items, onItemUpdate, onRemoveItem }) => {
     const conditionOptions = [
@@ -98,7 +98,7 @@ const ItemsTab = ({ items, onItemUpdate, onRemoveItem }) => {
                                     />
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-900">
-                                    ₹{(item.rate || 0).toFixed(2)}
+                                    Rs. {(item.rate || 0).toFixed(2)}
                                 </td>
                                 <td className="px-3 py-2">
                                     <select

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 import BankAccount from "../models/BankAccount.js";
 import CashbankTransaction from "../models/CashbankTransaction.js";
 import { info, error } from "../utils/logger.js";
@@ -154,7 +154,7 @@ export const getTransactions = async (req, res) => {
     console.log('\n=== TRANSACTION SORT DEBUG ===');
     console.log('Total transactions:', transactions.length);
     transactions.slice(0, 3).forEach((t, i) => {
-      console.log(`${i + 1}. ${t.description} - ₹${t.amount} - Date: ${t.date} - Created: ${t.createdAt}`);
+      console.log(`${i + 1}. ${t.description} - Rs. ${t.amount} - Date: ${t.date} - Created: ${t.createdAt}`);
     });
     console.log('=== END DEBUG ===\n');
 
@@ -217,7 +217,7 @@ export const createTransfer = async (req, res) => {
 
       if (cashInHand < amount) {
         return res.status(400).json({
-          message: `Insufficient cash in hand. Available: ₹${cashInHand.toFixed(2)}`
+          message: `Insufficient cash in hand. Available: Rs. ${cashInHand.toFixed(2)}`
         });
       }
     }
@@ -290,7 +290,7 @@ export const createCashTransaction = async (req, res) => {
         const bankAcc = await BankAccount.findOne({ _id: otherAccount, userId: req.user._id });
         if (!bankAcc) return res.status(404).json({ message: "Source bank account not found" });
         if (bankAcc.currentBalance < amount) {
-          return res.status(400).json({ message: `Insufficient bank balance. Available: ₹${bankAcc.currentBalance}` });
+          return res.status(400).json({ message: `Insufficient bank balance. Available: Rs. ${bankAcc.currentBalance}` });
         }
       } else { // Cash -> Bank (Deposit)
         // Validation for cash balance already calculated in similar way in position API
@@ -305,7 +305,7 @@ export const createCashTransaction = async (req, res) => {
         const cashInHand = (cashIn[0]?.total || 0) - (cashOut[0]?.total || 0);
 
         if (cashInHand < amount) {
-          return res.status(400).json({ message: `Insufficient cash in hand. Available: ₹${cashInHand.toFixed(2)}` });
+          return res.status(400).json({ message: `Insufficient cash in hand. Available: Rs. ${cashInHand.toFixed(2)}` });
         }
       }
     }
@@ -718,7 +718,7 @@ export const getCashBalance = async (req, res) => {
 
     res.status(200).json({
       balance,
-      formatted: `₹${balance.toFixed(2)}`
+      formatted: `Rs. ${balance.toFixed(2)}`
     });
   } catch (err) {
     error(`Get cash balance failed: ${err.message}`);

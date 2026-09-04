@@ -222,7 +222,7 @@ const Estimate = () => {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto">
+      <div className="space-y-6">
         <div className="print:hidden">
           {/* Header */}
           <div className="mb-1 md:mb-8 flex items-center justify-between">
@@ -315,7 +315,7 @@ const Estimate = () => {
                         </span>
                       </div>
                       <span className="text-xs md:text-lg font-bold text-green-600 dark:text-green-400">
-                        ₹{Math.abs(customer.dues.toFixed(2))}
+                        Rs. {Math.abs(customer.dues.toFixed(2))}
                       </span>
                     </div>
                   </div>
@@ -344,7 +344,7 @@ const Estimate = () => {
                         </span>
                       </div>
                       <span className="text-xs md:text-lg font-bold text-red-600 dark:text-red-400">
-                        ₹{customer.dues.toFixed(2)}
+                        Rs. {customer.dues.toFixed(2)}
                       </span>
                     </div>
                   </div>
@@ -388,7 +388,7 @@ const Estimate = () => {
                         {item.name}
                       </div>
                       <div className="text-[10px] md:text-sm font-bold text-indigo-600 dark:text-[rgb(var(--color-primary))]">
-                        ₹{item.sellingPrice}
+                        Rs. {item.sellingPrice}
                       </div>
                       <div className="text-[8px] md:text-xs text-muted dark:text-[rgb(var(--color-text-secondary))] mt-0.5 md:mt-1">
                         Stock: {item.stockQty} {item.unit}
@@ -428,7 +428,7 @@ const Estimate = () => {
                             {item.name}
                           </div>
                           <div className="text-[8px] md:text-xs text-muted dark:text-[rgb(var(--color-text-secondary))]">
-                            ₹{item.price} each
+                            Rs. {item.price} each
                           </div>
                         </div>
                         <div className="flex items-center space-x-0.5 md:space-x-2">
@@ -471,7 +471,7 @@ const Estimate = () => {
                           </button>
                         </div>
                         <div className="ml-1 md:ml-3 font-bold text-maindark:text-[rgb(var(--color-text))] w-14 md:w-20 text-right text-[10px] md:text-base">
-                          ₹{item.total.toFixed(2)}
+                          Rs. {item.total.toFixed(2)}
                         </div>
                       </div>
                     ))
@@ -481,7 +481,7 @@ const Estimate = () => {
                 {/* Discount */}
                 <div className="mb-1 md:mb-3">
                   <label className="block text-[10px] md:text-xs font-medium text-gray-700 dark:text-[rgb(var(--color-text-secondary))] mb-0.5 md:mb-1">
-                    Discount (₹)
+                    Discount (Rs. )
                   </label>
                   <input
                     type="number"
@@ -517,7 +517,7 @@ const Estimate = () => {
                       Subtotal:
                     </span>
                     <span className="font-medium text-maindark:text-[rgb(var(--color-text))]">
-                      ₹{subtotal.toFixed(2)}
+                      Rs. {subtotal.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between text-[10px] md:text-sm">
@@ -525,7 +525,7 @@ const Estimate = () => {
                       Discount:
                     </span>
                     <span className="font-medium text-red-600 dark:text-red-400">
-                      -₹{discount.toFixed(2)}
+                      -Rs. {discount.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between text-xs md:text-lg font-bold border-t border-default dark:border-[rgb(var(--color-border))] pt-1 md:pt-2">
@@ -533,7 +533,7 @@ const Estimate = () => {
                       Estimated Total:
                     </span>
                     <span className="text-indigo-600 dark:text-[rgb(var(--color-primary))]">
-                      ₹{total.toFixed(2)}
+                      Rs. {total.toFixed(2)}
                     </span>
                   </div>
                 </div>

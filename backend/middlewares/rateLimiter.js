@@ -69,12 +69,12 @@ const memoryStore = new Map();
  */
 const LIMITS = {
     IP: {
-        max: process.env.NODE_ENV === 'test' ? 10 : 5, // Higher in test to prevent interference
+        max: 500, // Increased for dev/testing
         windowMs: 15 * 60 * 1000, // 15 minutes
         keyPrefix: 'rl:ip:',
     },
     ACCOUNT: {
-        max: process.env.NODE_ENV === 'test' ? 10 : 5, // Higher in test to allow account lockout test
+        max: 500, // Increased for dev/testing
         windowMs: 15 * 60 * 1000, // 15 minutes
         keyPrefix: 'rl:account:',
     },

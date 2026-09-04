@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Layout from '../../components/Layout';
@@ -49,7 +49,7 @@ const BillAging = () => {
         agingBuckets.forEach(bucket => {
             const data = aging?.[bucket.key];
             if (data) {
-                csvData.push([bucket.label, data.count, `₹${data.amount.toFixed(2)}`]);
+                csvData.push([bucket.label, data.count, `Rs. ${data.amount.toFixed(2)}`]);
             }
         });
 
@@ -65,7 +65,7 @@ const BillAging = () => {
                         bill.billNo,
                         bill.supplier?.businessName || 'N/A',
                         bill.dueDate ? new Date(bill.dueDate).toLocaleDateString() : 'N/A',
-                        `₹${bill.outstanding.toFixed(2)}`,
+                        `Rs. ${bill.outstanding.toFixed(2)}`,
                         bill.daysOverdue || 0
                     ]);
                 });
@@ -147,14 +147,14 @@ const BillAging = () => {
                 <StatsCard
                     title="Total Outstanding Bills"
                     value={totalBills}
-                    subtitle={`₹${totalOutstanding.toFixed(2)}`}
+                    subtitle={`Rs. ${totalOutstanding.toFixed(2)}`}
                     icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
                     iconBgColor="bg-indigo-100"
                     iconColor="text-indigo-600"
                 />
                 <StatsCard
                     title="Overdue Amount"
-                    value={`₹${((aging?.['1-30Days']?.amount || 0) + (aging?.['31-60Days']?.amount || 0) + (aging?.['60PlusDays']?.amount || 0)).toFixed(2)}`}
+                    value={`Rs. ${((aging?.['1-30Days']?.amount || 0) + (aging?.['31-60Days']?.amount || 0) + (aging?.['60PlusDays']?.amount || 0)).toFixed(2)}`}
                     subtitle={`${(aging?.['1-30Days']?.count || 0) + (aging?.['31-60Days']?.count || 0) + (aging?.['60PlusDays']?.count || 0)} bills`}
                     icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>}
                     iconBgColor="bg-red-100"
@@ -181,7 +181,7 @@ const BillAging = () => {
                             </div>
                             <div className="mt-2">
                                 <p className="text-2xl font-bold">{data?.count || 0}</p>
-                                <p className="text-sm text-gray-600">₹{(data?.amount || 0).toFixed(2)}</p>
+                                <p className="text-sm text-gray-600">Rs. {(data?.amount || 0).toFixed(2)}</p>
                             </div>
                         </div>
                     );
@@ -262,10 +262,10 @@ const BillAging = () => {
                                             {bill.dueDate ? new Date(bill.dueDate).toLocaleDateString() : 'N/A'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                                            ₹{bill.totalAmount.toFixed(2)}
+                                            Rs. {bill.totalAmount.toFixed(2)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right font-semibold text-red-600">
-                                            ₹{bill.outstanding.toFixed(2)}
+                                            Rs. {bill.outstanding.toFixed(2)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                             {bill.daysOverdue > 0 ? (
@@ -302,7 +302,7 @@ const BillAging = () => {
                     <div className="text-center">
                         <p className="text-sm text-gray-600 mb-1">Total Outstanding</p>
                         <p className="text-3xl font-bold text-red-600">
-                            ₹{filteredBills.reduce((sum, bill) => sum + bill.outstanding, 0).toFixed(2)}
+                            Rs. {filteredBills.reduce((sum, bill) => sum + bill.outstanding, 0).toFixed(2)}
                         </p>
                     </div>
                     <div className="text-center">

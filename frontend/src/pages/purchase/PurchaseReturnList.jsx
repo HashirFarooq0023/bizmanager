@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
@@ -128,7 +128,7 @@ const PurchaseReturnList = () => {
                                 </svg>
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{returns.reduce((sum, ret) => sum + (ret.totalAmount || 0), 0).toLocaleString()}</p>
+                                <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {returns.reduce((sum, ret) => sum + (ret.totalAmount || 0), 0).toLocaleString()}</p>
                                 <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">Total Amount</p>
                             </div>
                         </div>
@@ -248,7 +248,7 @@ const PurchaseReturnList = () => {
                                                 {returnItem.items?.length || 0}
                                             </td>
                                             <td className="px-4 py-3 whitespace-nowrap text-xs font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">
-                                                ₹{returnItem.totalAmount?.toFixed(2)}
+                                                Rs. {returnItem.totalAmount?.toFixed(2)}
                                             </td>
                                             <td className="px-4 py-3 whitespace-nowrap">
                                                 <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusBadge(returnItem.status)}`}>

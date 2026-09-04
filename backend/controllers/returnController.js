@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 import Return from "../models/Return.js";
 import Invoice from "../models/Invoice.js";
 import Item from "../models/Item.js";
@@ -340,7 +340,7 @@ export const createReturn = async (req, res) => {
                     returnRecord.refundProcessed = true;
                     await returnRecord.save();
 
-                    info(`Bank refund for return ${returnId}: -₹${totalReturnAmount} from ${bankAcc.bankName}`);
+                    info(`Bank refund for return ${returnId}: -Rs. ${totalReturnAmount} from ${bankAcc.bankName}`);
                 }
             } catch (bankErr) {
                 error(`Bank refund processing failed (non-blocking): ${bankErr.message}`);
@@ -362,7 +362,7 @@ export const createReturn = async (req, res) => {
                 info('Cash transaction created:', { transactionId: cashTxn._id });
                 info('Amount:', { amount: totalReturnAmount });
 
-                info(`Cash refund for return ${returnId}: -₹${totalReturnAmount}`);
+                info(`Cash refund for return ${returnId}: -Rs. ${totalReturnAmount}`);
             } catch (cashErr) {
                 error(`Cash refund processing failed (non-blocking): ${cashErr.message}`);
             }
@@ -538,7 +538,7 @@ export const deleteReturn = async (req, res) => {
                     // Delete the cashbank transaction
                     await CashbankTransaction.findByIdAndDelete(cashbankTxn._id);
 
-                    info(`Bank refund reversed for return ${returnRecord.returnId}: +₹${returnRecord.totalReturnAmount} to ${bankAcc.bankName}`);
+                    info(`Bank refund reversed for return ${returnRecord.returnId}: +Rs. ${returnRecord.totalReturnAmount} to ${bankAcc.bankName}`);
                 }
             }
         }

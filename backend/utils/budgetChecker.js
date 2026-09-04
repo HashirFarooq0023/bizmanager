@@ -1,4 +1,4 @@
-import Expense from "../models/Expense.js";
+﻿import Expense from "../models/Expense.js";
 import ExpenseCategory from "../models/ExpenseCategory.js";
 
 /**
@@ -76,7 +76,7 @@ export const checkCategoryBudget = async (userId, categoryName, amount, expenseD
                 const overspend = projectedMonthlySpend - category.monthlyBudget;
                 result.warnings.push({
                     type: 'monthly',
-                    message: `This expense will exceed your monthly budget for ${categoryName} by ₹${overspend.toFixed(2)}`,
+                    message: `This expense will exceed your monthly budget for ${categoryName} by Rs. ${overspend.toFixed(2)}`,
                     severity: 'high',
                     budget: category.monthlyBudget,
                     currentSpend: currentMonthlySpend,
@@ -129,7 +129,7 @@ export const checkCategoryBudget = async (userId, categoryName, amount, expenseD
                 const overspend = projectedYearlySpend - category.yearlyBudget;
                 result.warnings.push({
                     type: 'yearly',
-                    message: `This expense will exceed your yearly budget for ${categoryName} by ₹${overspend.toFixed(2)}`,
+                    message: `This expense will exceed your yearly budget for ${categoryName} by Rs. ${overspend.toFixed(2)}`,
                     severity: 'high',
                     budget: category.yearlyBudget,
                     currentSpend: currentYearlySpend,

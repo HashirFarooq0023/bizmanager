@@ -27,7 +27,7 @@ describe.skip('Multi-Tenancy Integration Tests', () => {
         org1 = await Organization.create({
             name: 'Organization 1',
             subdomain: 'org1-test',
-            settings: { currency: 'INR', timezone: 'Asia/Kolkata' }
+            settings: { currency: 'PKR', timezone: 'Asia/Kolkata' }
         });
 
         org2 = await Organization.create({

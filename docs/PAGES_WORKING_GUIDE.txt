@@ -1,0 +1,540 @@
+================================================================================
+                    BIZMANAGER - COMPLETE PAGES WORKING GUIDE
+                       Developed by MegaTrix (Pakistan)
+================================================================================
+
+This document provides a comprehensive, step-by-step operational guide for every page 
+in the BizManager Billing, POS & Inventory Management System.
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1. AUTHENTICATION & ACCOUNT PAGES
+2. CORE DASHBOARD & POS
+3. INVENTORY MANAGEMENT
+4. CUSTOMER MANAGEMENT
+5. SUPPLIER MANAGEMENT
+6. SALES MANAGEMENT
+7. PURCHASE MANAGEMENT
+8. CASH & BANK MANAGEMENT
+9. BUSINESS & MARKETING TOOLS
+10. APPROVALS & GOVERNANCE
+11. DATA SYNC & BACKUP
+12. UTILITIES
+13. REPORTS & ANALYTICS
+
+================================================================================
+1. AUTHENTICATION & ACCOUNT PAGES
+================================================================================
+
+1.1 Login Page (Login.jsx)
+--------------------------
+- Purpose: Authenticates shop owners and users into the BizManager platform.
+- Step-by-Step Working:
+  1. User opens the application and enters their registered email address and password.
+  2. Clicking "Login" dispatches an HTTP POST request to /api/auth/login.
+  3. The backend validates credentials, checks if the account is locked (5 failed attempts lock the account for 15 minutes), and generates a JWT token and HttpOnly device session cookie.
+  4. On successful response, user credentials and token are stored in localStorage and Redux state.
+  5. The user is automatically redirected to the main Dashboard.
+  6. Includes quick navigation links to Registration and Forgot Password.
+
+1.2 Registration Page (Register.jsx)
+------------------------------------
+- Purpose: Onboards new shop owners and registers their business.
+- Step-by-Step Working:
+  1. User fills in personal and business details: Owner Name, Email, Password, Shop Name, Address, and Phone Number (formatted for +92 Pakistan).
+  2. Validates password strength (minimum 8 characters with uppercase, lowercase, numbers, and symbols) and matching passwords.
+  3. Submitting the form dispatches /api/auth/register.
+  4. Backend creates the User record along with a default Organization tenant scope.
+  5. Automatically logs in the new owner and navigates them to the Dashboard.
+
+1.3 Forgot Password Page (ForgotPassword.jsx)
+---------------------------------------------
+- Purpose: Initiates password reset procedure when a user forgets their credentials.
+- Step-by-Step Working:
+  1. User inputs their registered email address.
+  2. Submitting sends a POST request to /api/auth/forgotpassword.
+  3. If configured, an email containing a secure token link is dispatched.
+  4. Displays a confirmation message instructing the user to check their email inbox.
+
+1.4 Reset Password Page (ResetPassword.jsx)
+-------------------------------------------
+- Purpose: Allows users to set a new password using a secure reset token.
+- Step-by-Step Working:
+  1. User navigates via the link received in email containing the token parameter.
+  2. User enters a new strong password and confirms it.
+  3. Sends a PUT request to /api/auth/resetpassword/:token.
+  4. Backend updates the encrypted password, invalidates the token, and redirects the user to Login.
+
+1.5 Profile Settings Page (ProfileSettings.jsx)
+-----------------------------------------------
+- Purpose: Manages personal profile, shop credentials, tax numbers, and security options.
+- Step-by-Step Working:
+  1. Displays user profile details: Name, Email, Phone, Shop Name, GST/Tax Number, and Shop Address.
+  2. Allows inline editing of business metadata.
+  3. Provides a password update section requiring the current password and new password.
+  4. Clicking "Save Changes" updates the User model via /api/users/profile.
+
+
+================================================================================
+2. CORE DASHBOARD & POS
+================================================================================
+
+2.1 Dashboard Page (Dashboard.jsx)
+----------------------------------
+- Purpose: Executive overview of real-time business performance, sales metrics, and inventory alerts.
+- Step-by-Step Working:
+  1. Upon load, fetches aggregated data for total sales, net revenue, total orders, dues, and low-stock items.
+  2. Displays Key Performance Indicator (KPI) cards with percentage growth comparisons.
+  3. Renders interactive sales trend charts (daily, weekly, monthly views).
+  4. Shows a quick action menu for fast navigation to POS, New Invoice, Add Item, and Add Customer.
+  5. Lists recent transaction histories and low stock alerts with quick reorder triggers.
+
+2.2 Point of Sale Page (POS.jsx)
+-------------------------------
+- Purpose: Fast-paced retail billing screen optimized for barcode scanning and quick checkout.
+- Step-by-Step Working:
+  1. Left panel displays categorized inventory items with real-time stock badges and search/filter controls.
+  2. User adds items to the cart by clicking or scanning barcodes with a USB/Bluetooth scanner.
+  3. Cart calculates line items, subtotal, tax rates, item discounts, and overall bill discount.
+  4. User selects or creates a Customer (Walk-in or registered customer).
+  5. User selects Payment Method: Cash, Card, UPI/Online, or Split Payment.
+  6. Clicking "Checkout" creates a completed Invoice, deducts item stock quantities automatically, updates customer dues if partial payment, and generates a printable thermal receipt.
+
+
+================================================================================
+3. INVENTORY MANAGEMENT
+================================================================================
+
+3.1 Inventory List Page (Inventory.jsx)
+---------------------------------------
+- Purpose: Master catalog of all stock items, stock valuation, and category filters.
+- Step-by-Step Working:
+  1. Fetches all inventory items for the user's organization from /api/items.
+  2. Displays summary metrics: Total Stock Valuation (at cost price), Total Expected Revenue (at selling price), Total Items, and Out-of-Stock count.
+  3. Search and filter by category, stock level (Low Stock, Out of Stock, In Stock), or barcode.
+  4. Each item row displays SKU, Barcode, Category, Cost Price (Rs.), Selling Price (Rs.), Available Stock, and Actions.
+  5. Quick actions include Edit Item, Delete Item, and Print Barcode.
+
+3.2 Add Item Page (AddItem.jsx)
+-------------------------------
+- Purpose: Creates new inventory product records with pricing and stock rules.
+- Step-by-Step Working:
+  1. Form inputs: Product Name, SKU, Barcode, Category, Unit (kg, pcs, litre), Cost Price (Rs.), Selling Price (Rs.), Opening Stock, Low Stock Threshold, HSN Code, and Tax Rate (%).
+  2. Automatically calculates estimated profit margin per unit and percentage.
+  3. Form validation ensures positive pricing and unique SKU/Barcode within the organization.
+  4. Submitting dispatches POST /api/items to create the database record.
+
+3.3 Edit Item Page (EditItem.jsx)
+---------------------------------
+- Purpose: Updates existing product specifications, prices, or stock adjustments.
+- Step-by-Step Working:
+  1. Pre-fills form fields with current item data using the URL ID parameter.
+  2. Allows modifying item price, category, unit, tax rules, or threshold parameters.
+  3. Submitting sends a PUT request to /api/items/:id and redirects back to Inventory.
+
+
+================================================================================
+4. CUSTOMER MANAGEMENT
+================================================================================
+
+4.1 Customers List Page (Customers.jsx)
+---------------------------------------
+- Purpose: Directory of all registered customers with balances, dues, and transaction histories.
+- Step-by-Step Working:
+  1. Fetches customer list from /api/customers.
+  2. Displays Total Customers count and Total Outstanding Dues across all customers.
+  3. Search customers by Name, Phone Number (0325-4567318 format), or Email.
+  4. Table displays Customer Name, Phone, Dues (Rs.), and Actions (View Ledger, Edit, Delete).
+
+4.2 Add Customer Page (AddCustomer.jsx)
+---------------------------------------
+- Purpose: Registers a new customer into the system.
+- Step-by-Step Working:
+  1. Inputs: Customer Name, Phone Number, Email, Address, and Opening Balance/Dues.
+  2. Validates phone format and prevents duplicate phone registration.
+  3. Submitting sends POST /api/customers and updates the customer directory.
+
+4.3 Edit Customer Page (EditCustomer.jsx)
+-----------------------------------------
+- Purpose: Edits existing customer details or contact info.
+- Step-by-Step Working:
+  1. Pre-populates customer data using URL parameter.
+  2. Allows editing Name, Phone, Email, or Address.
+  3. Submitting updates the customer via PUT /api/customers/:id.
+
+4.4 Customer Detail Page (CustomerDetail.jsx)
+---------------------------------------------
+- Purpose: Detailed customer ledger showing all sales invoices, payments received, and net balance.
+- Step-by-Step Working:
+  1. Displays Customer profile header, total purchases, total payments, and current outstanding dues.
+  2. Lists all historical Invoices issued to this customer.
+  3. Lists all Payment Receipt entries received from this customer.
+  4. Allows downloading/printing the complete Customer Account Statement.
+
+4.5 Customers With Dues Page (CustomersWithDues.jsx)
+---------------------------------------------------
+- Purpose: Specialized view filtering only customers who have unpaid balances.
+- Step-by-Step Working:
+  1. Queries /api/customers with dues > 0.
+  2. Displays total credit extended across the business.
+  3. Features quick action buttons to Send WhatsApp Payment Reminders or Collect Payment.
+
+4.6 Due Adjustment Page (DueAdjustment.jsx)
+-------------------------------------------
+- Purpose: Allows manual credit/debit adjustments or bad debt write-offs on customer accounts.
+- Step-by-Step Working:
+  1. User selects a Customer and chooses Adjustment Type (Add Due / Reduce Due / Write-off).
+  2. User enters Amount (Rs.), Date, and Reason/Notes.
+  3. Submitting posts an adjustment record and updates the customer's net balance.
+
+
+================================================================================
+5. SUPPLIER MANAGEMENT
+================================================================================
+
+5.1 Suppliers List Page (Suppliers.jsx)
+---------------------------------------
+- Purpose: Directory of vendors and wholesalers with payable balances.
+- Step-by-Step Working:
+  1. Fetches supplier list from /api/suppliers.
+  2. Displays total vendors count and Total Outstanding Payable Amount.
+  3. Search suppliers by Business Name, Contact Person, or Phone Number.
+  4. Displays vendor details, credit periods, and current payable dues.
+
+5.2 Add Supplier Page (AddSupplier.jsx)
+---------------------------------------
+- Purpose: Creates a new vendor/supplier profile.
+- Step-by-Step Working:
+  1. Inputs: Business Name, Contact Person Name, Phone Number, Email, Address, GST/Tax Number, Supplier Type, Opening Balance, and Credit Period (days).
+  2. Submitting creates the record via POST /api/suppliers.
+
+5.3 Edit Supplier Page (EditSupplier.jsx)
+-----------------------------------------
+- Purpose: Updates vendor profile information or credit terms.
+- Step-by-Step Working:
+  1. Loads existing vendor record by ID and populates the form.
+  2. Allows editing contact info, address, or credit days.
+  3. Submitting updates the vendor record via PUT /api/suppliers/:id.
+
+5.4 Supplier Detail Page (SupplierDetail.jsx)
+---------------------------------------------
+- Purpose: Comprehensive vendor ledger including purchase orders, GRNs, bills, and payments out.
+- Step-by-Step Working:
+  1. Displays vendor summary stats: Total Purchased Amount, Total Payments Made, Net Payable Dues.
+  2. Tabbed navigation showing Purchase Invoices, Goods Received Notes (GRN), and Payment Out receipts.
+  3. Exportable supplier statement for financial reconciliation.
+
+
+================================================================================
+6. SALES MANAGEMENT
+================================================================================
+
+6.1 Sales Invoice List (SalesInvoice.jsx / Invoice.jsx)
+-------------------------------------------------------
+- Purpose: Manages all billing sales invoices generated via POS or Manual Billing.
+- Step-by-Step Working:
+  1. Fetches list of all sales invoices with date range filters.
+  2. Summary cards display Total Sales Volume, Total Paid, and Total Unpaid Amounts.
+  3. Table lists Invoice #, Customer Name, Date, Payment Status (Paid, Unpaid, Partial), Total Amount (Rs.), and Actions.
+  4. Actions include View Invoice, Download PDF, Send Receipt, or Cancel Invoice.
+
+6.2 Invoice Detail Page (SalesInvoiceDetail.jsx / InvoiceDetail.jsx)
+-------------------------------------------------------------------
+- Purpose: Detailed printable view of a specific sales invoice.
+- Step-by-Step Working:
+  1. Displays business header, tax details, invoice number, and customer information.
+  2. Itemized table showing Description, Quantity, Unit Rate (Rs.), Tax, Discount, and Total.
+  3. Calculation breakdown: Subtotal, Total Tax, Bill Discount, Net Payable, Paid Amount, and Balance Due.
+  4. Action buttons: Print Thermal Receipt, Download Standard PDF, Send via WhatsApp/Email.
+
+6.3 Sales Orders (SalesOrder.jsx / SalesOrderList.jsx / SalesOrderDetail.jsx)
+------------------------------------------------------------------------------
+- Purpose: Creates and manages advance sales orders before goods delivery.
+- Step-by-Step Working:
+  1. User selects customer and adds items with promised delivery dates.
+  2. Creates Sales Order record with status (Pending, Confirmed, Fulfilled, Cancelled).
+  3. Detail view allows converting a confirmed Sales Order directly into a final Sales Invoice.
+
+6.4 Estimates / Quotations (Estimate.jsx / EstimateList.jsx / EstimateDetail.jsx)
+--------------------------------------------------------------------------------
+- Purpose: Generates price quotes and proforma estimates for prospective buyers.
+- Step-by-Step Working:
+  1. User enters customer info, item details, and validity date.
+  2. Generates quotation PDF document.
+  3. When customer approves, single-click converts the Estimate into an active Sales Order or Invoice.
+
+6.5 Delivery Challan (DeliveryChallan.jsx / DeliveryChallanList.jsx / DeliveryChallanDetail.jsx)
+--------------------------------------------------------------------------------------------------
+- Purpose: Generates dispatch documents for goods shipped without immediate payment demand.
+- Step-by-Step Working:
+  1. User creates a Delivery Challan detailing vehicle number, dispatch date, items, and quantities.
+  2. Track delivery status (In Transit, Delivered).
+  3. Convert delivered challans into finalized sales invoices upon confirmation.
+
+6.6 Payment In (PaymentIn.jsx / PaymentInList.jsx / PaymentReceiptDetail.jsx)
+-----------------------------------------------------------------------------
+- Purpose: Records money received from customers against pending dues or advance payment.
+- Step-by-Step Working:
+  1. User selects Customer; system automatically displays outstanding invoices.
+  2. User enters Amount Received (Rs.), Payment Mode (Cash, Bank Transfer, Cheque, Online), Date, and Reference Number.
+  3. Allocates payment against specific unpaid invoices.
+  4. Generates Payment Receipt document and updates customer's balance.
+
+6.7 Sales Returns & Credit Notes (Return.jsx / ReturnedItems.jsx)
+-----------------------------------------------------------------
+- Purpose: Processes items returned by customers and issues refunds or credit notes.
+- Step-by-Step Working:
+  1. User selects original Invoice # and items being returned with reason.
+  2. System restocks returned items automatically into inventory.
+  3. Issues Credit Note or Cash Refund to customer and updates sales records.
+
+
+================================================================================
+7. PURCHASE MANAGEMENT
+================================================================================
+
+7.1 Purchase Orders (PurchaseOrderForm.jsx / PurchaseOrderList.jsx / PurchaseOrderDetail.jsx)
+---------------------------------------------------------------------------------------------
+- Purpose: Creates formal purchase orders to buy inventory from suppliers.
+- Step-by-Step Working:
+  1. User selects Supplier, adds required items, order quantities, expected rates, and delivery date.
+  2. Tracks order status (Draft, Sent, Approved, Partial Received, Closed).
+  3. Generates PO document to send to vendor.
+
+7.2 Goods Received Notes (GRNForm.jsx / GRNList.jsx / GRNDetail.jsx)
+--------------------------------------------------------------------
+- Purpose: Records physical receipt of products at warehouse against Purchase Orders.
+- Step-by-Step Working:
+  1. Selects Purchase Order and verifies delivered quantities against ordered quantities.
+  2. Records batch numbers, expiry dates (if applicable), and rejected quantities.
+  3. Updates physical stock levels in inventory.
+
+7.3 Purchase Bills & Invoices (PurchaseEntry.jsx / Bills.jsx / BillDetail.jsx)
+--------------------------------------------------------------------------------
+- Purpose: Enters vendor purchase bills into accounting system for inventory and accounts payable.
+- Step-by-Step Working:
+  1. User enters Vendor Bill #, Bill Date, Supplier, and itemized purchase rates, taxes, and freight charges.
+  2. System updates inventory cost prices and creates supplier payable dues.
+  3. Displays Bill Aging (0-30 days, 31-60 days, 60+ days) to manage vendor payment schedules.
+
+7.4 Purchase Returns (PurchaseReturnFormNew.jsx / PurchaseReturnList.jsx / PurchaseReturnDetail.jsx)
+----------------------------------------------------------------------------------------------------
+- Purpose: Returns damaged or incorrect products back to suppliers.
+- Step-by-Step Working:
+  1. Selects Purchase Bill and items being returned.
+  2. Deducts items from inventory stock.
+  3. Creates Debit Note and reduces vendor payable balance.
+
+7.5 Payment Out (PaymentOut.jsx / PaymentOutList.jsx / PaymentOutDetail.jsx)
+-----------------------------------------------------------------------------
+- Purpose: Records payments made to vendors/suppliers.
+- Step-by-Step Working:
+  1. Selects Supplier and inputs Amount Paid (Rs.), Payment Method, and Bank Account used.
+  2. Settles selected pending purchase bills.
+  3. Generates Payment Voucher receipt.
+
+7.6 Expenses Page (Expenses.jsx)
+--------------------------------
+- Purpose: Tracks operational business expenses (Rent, Electricity, Salaries, Maintenance).
+- Step-by-Step Working:
+  1. User records expense date, category, amount (Rs.), payment mode, and attaches receipt image/file.
+  2. Categorizes expenses into Fixed vs Variable operating costs.
+  3. Feeds directly into Net Profit calculation in Financial Reports.
+
+
+================================================================================
+8. CASH & BANK MANAGEMENT
+================================================================================
+
+8.1 Cash & Bank Position (CashBankPosition.jsx)
+-----------------------------------------------
+- Purpose: Unified view of total liquidity across cash registers and bank accounts.
+- Step-by-Step Working:
+  1. Displays total Cash in Hand, total Bank Balances, and combined available liquid assets.
+  2. Shows graph of cash flow trends over time.
+
+8.2 Cash In Hand (CashInHand.jsx)
+---------------------------------
+- Purpose: Tracks daily cash drawer cash-in and cash-out entries.
+- Step-by-Step Working:
+  1. Displays opening cash balance for the day.
+  2. Records cash sales, cash expense payouts, and manual cash adjustments.
+  3. Reconciles physical cash in drawer against system cash balance.
+
+8.3 Bank Accounts & Summary (BankAccounts.jsx / BankSummary.jsx)
+---------------------------------------------------------------
+- Purpose: Manages company bank accounts and monitors account balances.
+- Step-by-Step Working:
+  1. Add/Edit bank accounts (Bank Name, Account Number, IFSC/IBAN, Branch, Account Type).
+  2. Displays real-time current balance per bank account.
+  3. Views bank transactions summary and statement history.
+
+8.4 Account Ledger (AccountLedger.jsx)
+-------------------------------------
+- Purpose: Complete chronological ledger statement for any selected account.
+- Step-by-Step Working:
+  1. Select account (Bank, Cash, Customer, Supplier) and date range.
+  2. Displays running balance column with debits and credits.
+
+8.5 Cheques Management (Cheques.jsx)
+------------------------------------
+- Purpose: Tracks post-dated and pending cheques received or issued.
+- Step-by-Step Working:
+  1. Logs cheque number, bank, drawer/payee, amount (Rs.), and clearance due date.
+  2. Updates cheque status: Pending, Cleared, Bounced, Cancelled.
+
+8.6 Fund Transfers (Transfers.jsx)
+----------------------------------
+- Purpose: Records internal money movement between accounts (e.g. Cash to Bank deposit or Bank to Cash withdrawal).
+- Step-by-Step Working:
+  1. Selects From Account and To Account.
+  2. Enters Transfer Amount (Rs.) and Date.
+  3. Creates corresponding debit and credit entries simultaneously.
+
+8.7 Loan Accounts (LoanAccounts.jsx)
+------------------------------------
+- Purpose: Tracks business loans, interest rates, and EMI repayment schedules.
+- Step-by-Step Working:
+  1. Add business loan details (Lender Name, Principal Amount, Interest Rate %, Loan Term).
+  2. Records EMI repayments and splits principal vs interest paid.
+
+
+================================================================================
+9. BUSINESS & MARKETING TOOLS
+================================================================================
+
+9.1 Google Business Profile (GoogleProfile.jsx)
+-----------------------------------------------
+- Purpose: Integrates local business information for Google search visibility.
+- Step-by-Step Working:
+  1. Displays Business Name, Location (Lahore, Punjab, Pakistan), Contact Phone (0325-4567318), Email (admin.megatrix@gmail.com), and Website (www.megatrixai.com).
+  2. Allows updating business operating hours and photos.
+
+9.2 WhatsApp Marketing (WhatsAppMarketing.jsx)
+----------------------------------------------
+- Purpose: Sends promotional messages, digital bills, and payment links to customers via WhatsApp.
+- Step-by-Step Working:
+  1. User selects target customer segment or filter.
+  2. Chooses message template (Discount offer, Festival greeting, Due reminder).
+  3. Dispatches messages directly via WhatsApp Web/API integration.
+
+9.3 Marketing Tools & Online Shop (MarketingTools.jsx / OnlineShop.jsx)
+-----------------------------------------------------------------------
+- Purpose: Enables creation of digital product catalogs and promotional coupon campaigns.
+- Step-by-Step Working:
+  1. Create discount promo codes and percentage offers.
+  2. Enable online store link to share product catalog directly with customers.
+
+
+================================================================================
+10. APPROVALS & GOVERNANCE
+================================================================================
+
+10.1 My Approvals Page (MyApprovals.jsx)
+---------------------------------------
+- Purpose: Approval queue for high-value purchase orders, credit limits, or discount requests.
+- Step-by-Step Working:
+  1. Pending approval requests submitted by staff appear in owner/manager queue.
+  2. Manager reviews details and clicks Approve or Reject with comments.
+
+10.2 Approval Settings Page (ApprovalSettings.jsx)
+-------------------------------------------------
+- Purpose: Configures multi-tier approval rules and financial thresholds.
+- Step-by-Step Working:
+  1. Set rules (e.g. Purchase Orders above Rs. 50,000 require Owner approval).
+  2. Enable/disable approval requirements per module.
+
+
+================================================================================
+11. DATA SYNC & BACKUP
+================================================================================
+
+11.1 Data Backup Page (Backup.jsx)
+----------------------------------
+- Purpose: Creates manual database backups and schedules automated cloud backups.
+- Step-by-Step Working:
+  1. User clicks "Create Instant Backup".
+  2. System generates a compressed JSON/MongoDB database dump archive.
+  3. Provides download link to save backup file locally.
+
+11.2 Data Restore Page (Restore.jsx)
+------------------------------------
+- Purpose: Restores database state from a saved backup file.
+- Step-by-Step Working:
+  1. User uploads a valid backup .json / .tar file.
+  2. System verifies schema compatibility and prompts confirmation.
+  3. Restores collections safely.
+
+11.3 Sync & Share Page (SyncShare.jsx)
+--------------------------------------
+- Purpose: Manages multi-device synchronization and cloud data state.
+- Step-by-Step Working:
+  1. Shows current cloud connection status and last sync timestamp.
+  2. Trigger manual sync for offline store transactions.
+
+
+================================================================================
+12. UTILITIES
+================================================================================
+
+12.1 Business Setup Page (BusinessSetup.jsx)
+--------------------------------------------
+- Purpose: Initial configuration wizard for company parameters.
+- Step-by-Step Working:
+  1. Sets default currency (Rs. PKR), timezone, GST/Tax registration details, address, and default invoice terms.
+
+12.2 Barcode Generator Page (BarcodeGenerator.jsx)
+-------------------------------------------------
+- Purpose: Generates and prints barcode labels for stock items.
+- Step-by-Step Working:
+  1. Select product item and specify number of barcode labels to print.
+  2. Choose barcode symbology (CODE128, EAN-13, QR Code).
+  3. Renders printable sticker grid compatible with standard barcode label printers.
+
+12.3 Import Items Page (ImportItems.jsx)
+----------------------------------------
+- Purpose: Bulk imports products into inventory via Excel / CSV spreadsheet files.
+- Step-by-Step Working:
+  1. Download standard CSV sample template.
+  2. User fills template with product names, SKUs, prices, stock quantities, and uploads file.
+  3. System parses spreadsheet, validates data formatting, and imports items in batch.
+
+12.4 Data Export Page (DataExport.jsx)
+--------------------------------------
+- Purpose: Exports raw store data (Items, Sales, Customers, Suppliers) to Excel/CSV.
+- Step-by-Step Working:
+  1. Select module and date filter range.
+  2. Export dataset into formatted Excel (.xlsx) or CSV files for accounting external tools.
+
+
+================================================================================
+13. REPORTS & ANALYTICS
+================================================================================
+
+13.1 Reports Dashboard (Reports.jsx / ReportsDashboard.jsx)
+----------------------------------------------------------
+- Purpose: Central hub for all financial, inventory, and sales analytics.
+- Step-by-Step Working:
+  1. Select date range (Today, This Week, This Month, Custom Range).
+  2. Overview cards show Total Revenue, Gross Profit, Total Expenses, Net Profit.
+  3. Interactive chart visualization of revenue vs expense trends.
+
+13.2 Sales Report Page (SalesReport.jsx)
+---------------------------------------
+- Purpose: Detailed analysis of sales performance, top-selling items, and payment modes.
+- Step-by-Step Working:
+  1. Breakdown of sales by item category, customer type, and payment channel.
+  2. Export comprehensive PDF / Excel sales report.
+
+13.3 Purchase Return Analytics (PurchaseReturnAnalytics.jsx)
+------------------------------------------------------------
+- Purpose: Tracks product return rates and vendor defect ratios.
+- Step-by-Step Working:
+  1. Displays total return values, top returned items, and vendor return percentages.
+  2. Helps identify poor-quality suppliers and defective stock trends.
+
+================================================================================
+                                END OF GUIDE
+                  BizManager - Developed by MegaTrix
+================================================================================

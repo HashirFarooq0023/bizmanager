@@ -15,8 +15,10 @@ We release patches for security vulnerabilities in the following versions:
 
 Instead, please report them via email to our security team:
 
-**Primary Contact:** shingadekartik1@gmail.com  
-**CC:** nalekunal343@gmail.com, tusharminche@gmail.com
+**Primary Contact:** admin.megatrix@gmail.com  
+**Support Line:** +92 325-4567318  
+**Website:** https://www.megatrixai.com  
+**Location:** Lahore, Punjab, Pakistan
 
 ### What to Include
 

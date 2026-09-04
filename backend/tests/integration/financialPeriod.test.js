@@ -27,7 +27,7 @@ describe.skip('Financial Period Locking Integration Tests', () => {
             subdomain: 'test-period-locking',
             settings: {
                 fiscalYearStart: 4, // April
-                currency: 'INR',
+                currency: 'PKR',
                 timezone: 'Asia/Kolkata'
             }
         });

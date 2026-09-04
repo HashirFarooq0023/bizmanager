@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Sidebar from './Sidebar';
 import { useTheme } from '../contexts/ThemeContext';
+import Logo from './Logo';
 
 const Layout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -45,7 +46,7 @@ const Layout = ({ children }) => {
   }, [isSidebarOpen]);
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--color-bg))]">
+    <div className="min-h-screen bg-[#F7F7FA] dark:bg-[#0B0F14]">
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -54,23 +55,23 @@ const Layout = ({ children }) => {
         expandedMenus={expandedMenus}
         setExpandedMenus={setExpandedMenus}
       />
-      <div className={`flex flex-col min-h-screen transition-[margin] duration-300 ease-in-out ${isCollapsed ? 'lg:ml-12' : 'lg:ml-48'}`}>
-        <header className="flex items-center justify-between border-b border-gray-200 dark:border-[rgb(var(--color-border))] bg-white dark:bg-[rgb(var(--color-card))] px-4 py-4 shadow-sm lg:hidden print:hidden sticky top-0 z-30">
+      <div className={`flex flex-col min-h-screen transition-[margin] duration-300 ease-in-out ${isCollapsed ? 'lg:ml-14' : 'lg:ml-56'}`}>
+        <header className="flex items-center justify-between border-b border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 shadow-xs lg:hidden print:hidden sticky top-0 z-30">
           <button
             type="button"
             onClick={() => setIsSidebarOpen(true)}
-            className="inline-flex items-center justify-center rounded-md border border-gray-300 dark:border-[rgb(var(--color-border))] bg-white dark:bg-[rgb(var(--color-input))] p-2 text-gray-700 dark:text-[rgb(var(--color-text))] focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[rgb(var(--color-primary))]"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-50 focus:outline-none"
             aria-label="Open navigation menu"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <span className="text-base font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">BizzAI</span>
+          <Logo size="xs" showText={true} showSubtitle={false} />
           <button
             type="button"
             onClick={toggleTheme}
-            className="inline-flex items-center justify-center rounded-md border border-gray-300 dark:border-[rgb(var(--color-border))] bg-white dark:bg-[rgb(var(--color-input))] p-2 text-gray-700 dark:text-[rgb(var(--color-text))] focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[rgb(var(--color-primary))]"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-50 focus:outline-none"
             aria-label="Toggle theme"
           >
             {theme === 'light' ? (
@@ -85,7 +86,7 @@ const Layout = ({ children }) => {
           </button>
         </header>
 
-        <main className="flex-1 w-full px-3 py-6 sm:px-4 lg:px-6">
+        <main className="flex-1 w-full px-4 py-6 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           {children}
         </main>
       </div>

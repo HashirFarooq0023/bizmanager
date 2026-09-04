@@ -20,7 +20,7 @@ describe('Concurrency Tests', () => {
         organization = await Organization.create({
             name: 'Concurrency Test Org',
             subdomain: 'concurrency-test',
-            settings: { currency: 'INR', timezone: 'Asia/Kolkata', fiscalYearStart: 4 }
+            settings: { currency: 'PKR', timezone: 'Asia/Kolkata', fiscalYearStart: 4 }
         });
 
         user = await User.create({

@@ -166,7 +166,7 @@ const EditCustomer = () => {
                 required
                 className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${duplicateField === 'phone' ? 'border-red-500 border-2' : 'border-default'
                   }`}
-                placeholder="+91 9876543210"
+                placeholder="0325-4567318"
               />
               {duplicateField === 'phone' && (
                 <p className="mt-1 text-sm text-red-600">This phone number already exists</p>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getItemById, updateItem, reset } from '../redux/slices/inventorySlice';
@@ -207,7 +207,7 @@ const EditItem = () => {
                     htmlFor="costPrice"
                     className="block text-sm font-medium  text-secondary mb-2"
                   >
-                    Cost Price (₹) <span className="text-red-500">*</span>
+                    Cost Price (Rs. ) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -230,7 +230,7 @@ const EditItem = () => {
                     htmlFor="sellingPrice"
                     className="block text-sm font-medium  text-secondary mb-2"
                   >
-                    Selling Price (₹) <span className="text-red-500">*</span>
+                    Selling Price (Rs. ) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -255,7 +255,7 @@ const EditItem = () => {
                       <span className="text-green-600 font-bold">
                         {((sellingPrice - costPrice) / costPrice * 100).toFixed(1)}%
                       </span>
-                      {' '}(₹{(sellingPrice - costPrice).toFixed(2)} profit per unit)
+                      {' '}(Rs. {(sellingPrice - costPrice).toFixed(2)} profit per unit)
                     </p>
                   </div>
                 )}
@@ -428,11 +428,11 @@ const EditItem = () => {
                     <div className="grid grid-cols-3 gap-4">
                       <div className="bg-white dark:bg-[rgb(var(--color-card))] p-3 rounded-lg">
                         <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-muted))]">Cost Price</p>
-                        <p className="text-lg font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mt-1">₹{parseFloat(formData.costPrice || 0).toFixed(2)}</p>
+                        <p className="text-lg font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mt-1">Rs. {parseFloat(formData.costPrice || 0).toFixed(2)}</p>
                       </div>
                       <div className="bg-white dark:bg-[rgb(var(--color-card))] p-3 rounded-lg">
                         <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-muted))]">Selling Price</p>
-                        <p className="text-lg font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mt-1">₹{parseFloat(formData.sellingPrice || 0).toFixed(2)}</p>
+                        <p className="text-lg font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mt-1">Rs. {parseFloat(formData.sellingPrice || 0).toFixed(2)}</p>
                       </div>
                       <div className="bg-white dark:bg-[rgb(var(--color-card))] p-3 rounded-lg">
                         <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-muted))]">Profit Margin</p>

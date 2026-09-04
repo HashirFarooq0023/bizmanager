@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import api from '../services/api';
@@ -115,7 +115,7 @@ const SalesOrderSelectionModal = ({ isOpen, onClose, onSelect }) => {
                                                 <div>
                                                     <span className="text-muted">Order Date:</span>
                                                     <span className="ml-2 font-medium text-main">
-                                                        {new Date(order.orderDate).toLocaleDateString('en-IN')}
+                                                        {new Date(order.orderDate).toLocaleDateString('en-PK')}
                                                     </span>
                                                 </div>
                                                 <div>
@@ -127,7 +127,7 @@ const SalesOrderSelectionModal = ({ isOpen, onClose, onSelect }) => {
                                                 <div>
                                                     <span className="text-muted">Total Amount:</span>
                                                     <span className="ml-2 font-medium text-main">
-                                                        ₹{order.totalAmount.toLocaleString('en-IN')}
+                                                        Rs. {order.totalAmount.toLocaleString('en-PK')}
                                                     </span>
                                                 </div>
                                             </div>

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 import Invoice from "../models/Invoice.js";
 import Item from "../models/Item.js";
 import Customer from "../models/Customer.js";
@@ -116,7 +116,7 @@ export const createInvoice = async (req, res) => {
       const outstandingDue = customer.dues > 0 ? customer.dues : 0;
       if (previousDueAmount > outstandingDue) {
         return res.status(400).json({
-          message: `Previous due amount (₹${previousDueAmount}) exceeds customer's outstanding dues (₹${outstandingDue.toFixed(2)})`
+          message: `Previous due amount (Rs. ${previousDueAmount}) exceeds customer's outstanding dues (Rs. ${outstandingDue.toFixed(2)})`
         });
       }
 
@@ -131,12 +131,12 @@ export const createInvoice = async (req, res) => {
         }
         if (creditApplied > availableCredit) {
           return res.status(400).json({
-            message: `Credit applied (₹${creditApplied}) exceeds available credit (₹${availableCredit.toFixed(2)})`
+            message: `Credit applied (Rs. ${creditApplied}) exceeds available credit (Rs. ${availableCredit.toFixed(2)})`
           });
         }
         if (creditApplied > totalAmount) {
           return res.status(400).json({
-            message: `Credit applied (₹${creditApplied}) cannot exceed total amount (₹${totalAmount})`
+            message: `Credit applied (Rs. ${creditApplied}) cannot exceed total amount (Rs. ${totalAmount})`
           });
         }
       }
@@ -549,7 +549,7 @@ export const markInvoiceAsPaid = async (req, res) => {
 
     if (newPaidAmount > invoice.totalAmount) {
       return res.status(400).json({
-        message: `Payment exceeds invoice total. Remaining: ₹${invoice.totalAmount - invoice.paidAmount}`
+        message: `Payment exceeds invoice total. Remaining: Rs. ${invoice.totalAmount - invoice.paidAmount}`
       });
     }
 
@@ -599,7 +599,7 @@ export const markInvoiceAsPaid = async (req, res) => {
         }
       );
 
-      info(`Bank payment for invoice ${invoice.invoiceNo}: +₹${paidAmount}`);
+      info(`Bank payment for invoice ${invoice.invoiceNo}: +Rs. ${paidAmount}`);
     }
 
     // Update customer dues if exists

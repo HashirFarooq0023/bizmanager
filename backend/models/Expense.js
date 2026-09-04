@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 
 const expenseSchema = new mongoose.Schema(
   {
@@ -125,7 +125,7 @@ expenseSchema.index({ createdBy: 1, isDeleted: 1, date: -1 }); // For active exp
 
 // Virtual for formatted amount
 expenseSchema.virtual('formattedAmount').get(function () {
-  return `₹${this.amount.toFixed(2)}`;
+  return `Rs. ${this.amount.toFixed(2)}`;
 });
 
 // Pre-save middleware to validate conditional fields

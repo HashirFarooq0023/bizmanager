@@ -26,7 +26,7 @@ const consoleFormat = winston.format.combine(
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || "info",
   format: logFormat,
-  defaultMeta: { service: "bizzai-backend" },
+  defaultMeta: { service: "bizmanager-backend" },
   transports: [
     // Write all logs to combined.log
     new winston.transports.File({

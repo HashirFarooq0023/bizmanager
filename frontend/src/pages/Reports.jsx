@@ -46,7 +46,7 @@ const Reports = () => {
     // Group invoices by date
     const salesByDate = {};
     invoices.forEach((invoice) => {
-      const date = new Date(invoice.createdAt).toLocaleDateString('en-IN', {
+      const date = new Date(invoice.createdAt).toLocaleDateString('en-PK', {
         day: '2-digit',
         month: 'short',
       });
@@ -93,7 +93,7 @@ const Reports = () => {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto">
+      <div className="space-y-6">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-main mb-2">Reports & Analytics</h1>
@@ -151,7 +151,7 @@ const Reports = () => {
                       </svg>
                     </div>
                     <p className="text-3xl font-bold">
-                      ₹{salesReport?.report?.summary?.totalSales?.toFixed(0) || 0}
+                      Rs. {salesReport?.report?.summary?.totalSales?.toFixed(0) || 0}
                     </p>
                     <p className="text-sm opacity-80 mt-1">
                       {salesReport?.report?.summary?.totalInvoices || 0} invoices
@@ -166,7 +166,7 @@ const Reports = () => {
                       </svg>
                     </div>
                     <p className="text-3xl font-bold">
-                      ₹{salesReport?.report?.summary?.averageBill?.toFixed(0) || 0}
+                      Rs. {salesReport?.report?.summary?.averageBill?.toFixed(0) || 0}
                     </p>
                     <p className="text-sm opacity-80 mt-1">Per transaction</p>
                   </div>
@@ -206,7 +206,7 @@ const Reports = () => {
                         <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={2} name="Sales (₹)" />
+                        <Line type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={2} name="Sales (Rs. )" />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -289,7 +289,7 @@ const Reports = () => {
                         <div>
                           <p className="text-sm text-secondary">Total Revenue</p>
                           <p className="text-2xl font-bold text-blue-600">
-                            ₹{salesReport?.report?.summary?.totalSales?.toFixed(2) || 0}
+                            Rs. {salesReport?.report?.summary?.totalSales?.toFixed(2) || 0}
                           </p>
                         </div>
                         <svg className="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -313,7 +313,7 @@ const Reports = () => {
                         <div>
                           <p className="text-sm text-secondary">Average Bill Value</p>
                           <p className="text-2xl font-bold text-purple-600">
-                            ₹{salesReport?.report?.summary?.averageBill?.toFixed(2) || 0}
+                            Rs. {salesReport?.report?.summary?.averageBill?.toFixed(2) || 0}
                           </p>
                         </div>
                         <svg className="w-12 h-12 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -443,7 +443,7 @@ const Reports = () => {
                                 <div className="text-sm text-main">{customer.email || '-'}</div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-right">
-                                <span className="text-sm font-bold text-red-600">₹{customer.dues.toFixed(2)}</span>
+                                <span className="text-sm font-bold text-red-600">Rs. {customer.dues.toFixed(2)}</span>
                               </td>
                             </tr>
                           ))}

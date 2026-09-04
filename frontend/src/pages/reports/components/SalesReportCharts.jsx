@@ -1,4 +1,4 @@
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+﻿import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const SalesReportCharts = ({ charts, isLoading }) => {
     if (isLoading || !charts) {
@@ -18,7 +18,7 @@ const SalesReportCharts = ({ charts, isLoading }) => {
 
     // Format sales trend data
     const salesTrendData = charts.salesTrend?.map(item => ({
-        date: new Date(item._id).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
+        date: new Date(item._id).toLocaleDateString('en-PK', { month: 'short', day: 'numeric' }),
         sales: item.totalSales,
         count: item.count,
     })) || [];
@@ -66,7 +66,7 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                                     labelStyle={{ color: '#F3F4F6' }}
                                 />
                                 <Legend />
-                                <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} name="Sales (₹)" />
+                                <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} name="Sales (Rs. )" />
                                 <Line type="monotone" dataKey="count" stroke="#10B981" strokeWidth={2} name="Invoices" />
                             </LineChart>
                         </ResponsiveContainer>
@@ -95,7 +95,7 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                                 </Pie>
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
-                                    formatter={(value) => `₹${value.toLocaleString('en-IN')}`}
+                                    formatter={(value) => `Rs. ${value.toLocaleString('en-PK')}`}
                                 />
                             </PieChart>
                         </ResponsiveContainer>
@@ -113,10 +113,10 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                                 <YAxis stroke="#9CA3AF" />
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
-                                    formatter={(value) => `₹${value.toLocaleString('en-IN')}`}
+                                    formatter={(value) => `Rs. ${value.toLocaleString('en-PK')}`}
                                 />
                                 <Legend />
-                                <Bar dataKey="amount" fill="#8B5CF6" name="Sales (₹)" />
+                                <Bar dataKey="amount" fill="#8B5CF6" name="Sales (Rs. )" />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -133,10 +133,10 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                                 <YAxis dataKey="name" type="category" stroke="#9CA3AF" width={100} />
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
-                                    formatter={(value) => `₹${value.toLocaleString('en-IN')}`}
+                                    formatter={(value) => `Rs. ${value.toLocaleString('en-PK')}`}
                                 />
                                 <Legend />
-                                <Bar dataKey="sales" fill="#10B981" name="Sales (₹)" />
+                                <Bar dataKey="sales" fill="#10B981" name="Sales (Rs. )" />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -154,12 +154,12 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
                                     formatter={(value, name) => {
-                                        if (name === 'Amount') return `₹${value.toLocaleString('en-IN')}`;
+                                        if (name === 'Amount') return `Rs. ${value.toLocaleString('en-PK')}`;
                                         return value;
                                     }}
                                 />
                                 <Legend />
-                                <Bar dataKey="amount" fill="#F59E0B" name="Amount (₹)" />
+                                <Bar dataKey="amount" fill="#F59E0B" name="Amount (Rs. )" />
                                 <Bar dataKey="quantity" fill="#3B82F6" name="Quantity" />
                             </BarChart>
                         </ResponsiveContainer>
@@ -172,7 +172,7 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                         <h4 className="text-lg font-semibold text-main mb-4">Profit Trend</h4>
                         <ResponsiveContainer width="100%" height={300}>
                             <LineChart data={charts.profitTrend.map(item => ({
-                                date: new Date(item._id).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
+                                date: new Date(item._id).toLocaleDateString('en-PK', { month: 'short', day: 'numeric' }),
                                 revenue: item.totalRevenue,
                             }))}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -180,10 +180,10 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                                 <YAxis stroke="#9CA3AF" />
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
-                                    formatter={(value) => `₹${value.toLocaleString('en-IN')}`}
+                                    formatter={(value) => `Rs. ${value.toLocaleString('en-PK')}`}
                                 />
                                 <Legend />
-                                <Line type="monotone" dataKey="revenue" stroke="#10B981" strokeWidth={2} name="Revenue (₹)" />
+                                <Line type="monotone" dataKey="revenue" stroke="#10B981" strokeWidth={2} name="Revenue (Rs. )" />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import JsBarcode from 'jsbarcode';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -663,7 +663,7 @@ const BarcodeGenerator = () => {
                                                     <p className="text-xs font-medium text-main mt-2">{item.name}</p>
                                                 )}
                                                 {formData.includePrice && (
-                                                    <p className="text-sm font-bold text-main">₹{item.sellingPrice}</p>
+                                                    <p className="text-sm font-bold text-main">Rs. {item.sellingPrice}</p>
                                                 )}
                                             </div>
                                         ))}
@@ -689,7 +689,7 @@ const BarcodeGenerator = () => {
                                                 <p className="text-sm font-medium text-main mt-2">{formData.itemName}</p>
                                             )}
                                             {formData.includePrice && formData.price && (
-                                                <p className="text-lg font-bold text-main">₹{formData.price}</p>
+                                                <p className="text-lg font-bold text-main">Rs. {formData.price}</p>
                                             )}
                                         </div>
                                     </div>
@@ -831,7 +831,7 @@ const BarcodeGenerator = () => {
                                                             <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
                                                                 <span>SKU: {item.sku || 'N/A'}</span>
                                                                 <span>•</span>
-                                                                <span>Price: ₹{item.sellingPrice}</span>
+                                                                <span>Price: Rs. {item.sellingPrice}</span>
                                                                 <span>•</span>
                                                                 <span>Stock: {item.stockQty}</span>
                                                             </div>

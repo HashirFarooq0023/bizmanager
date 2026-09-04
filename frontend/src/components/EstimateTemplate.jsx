@@ -1,4 +1,4 @@
-const EstimateTemplate = ({ estimate }) => {
+﻿const EstimateTemplate = ({ estimate }) => {
   return (
     <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-xl shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-8 print:shadow-none">
       {/* Estimate Header */}
@@ -17,7 +17,7 @@ const EstimateTemplate = ({ estimate }) => {
               Estimate Date
             </div>
             <div className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
-              {new Date(estimate.createdAt).toLocaleDateString("en-IN", {
+              {new Date(estimate.createdAt).toLocaleDateString("en-PK", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric",
@@ -112,10 +112,10 @@ const EstimateTemplate = ({ estimate }) => {
                   {item.quantity}
                 </td>
                 <td className="py-3 px-2 text-right text-gray-900 dark:text-[rgb(var(--color-text))]">
-                  ₹{item.price.toFixed(2)}
+                  Rs. {item.price.toFixed(2)}
                 </td>
                 <td className="py-3 px-2 text-right font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
-                  ₹{item.total.toFixed(2)}
+                  Rs. {item.total.toFixed(2)}
                 </td>
               </tr>
             ))}
@@ -131,7 +131,7 @@ const EstimateTemplate = ({ estimate }) => {
               Subtotal:
             </span>
             <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
-              ₹{estimate.subtotal.toFixed(2)}
+              Rs. {estimate.subtotal.toFixed(2)}
             </span>
           </div>
           {estimate.discount > 0 && (
@@ -140,7 +140,7 @@ const EstimateTemplate = ({ estimate }) => {
                 Discount:
               </span>
               <span className="font-medium text-red-600 dark:text-red-400">
-                -₹{estimate.discount.toFixed(2)}
+                -Rs. {estimate.discount.toFixed(2)}
               </span>
             </div>
           )}
@@ -149,7 +149,7 @@ const EstimateTemplate = ({ estimate }) => {
               Estimated Total:
             </span>
             <span className="text-lg font-bold text-indigo-600 dark:text-[rgb(var(--color-primary))]">
-              ₹{estimate.totalAmount.toFixed(2)}
+              Rs. {estimate.totalAmount.toFixed(2)}
             </span>
           </div>
         </div>

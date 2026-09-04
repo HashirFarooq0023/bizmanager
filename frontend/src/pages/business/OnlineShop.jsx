@@ -1,4 +1,4 @@
-import Layout from '../../components/Layout';
+﻿import Layout from '../../components/Layout';
 import PageHeader from '../../components/PageHeader';
 
 const OnlineShop = () => {
@@ -12,9 +12,9 @@ const OnlineShop = () => {
     ];
 
     const plans = [
-        { name: 'Starter', price: '₹499/month', features: ['Up to 50 products', 'Basic theme', 'Email support'], color: 'border-blue-200 bg-blue-50' },
-        { name: 'Professional', price: '₹999/month', features: ['Unlimited products', 'Premium themes', 'Priority support', 'Custom domain'], color: 'border-indigo-200 bg-indigo-50', popular: true },
-        { name: 'Enterprise', price: '₹1999/month', features: ['Everything in Pro', 'Multi-store', 'API access', 'Dedicated manager'], color: 'border-purple-200 bg-purple-50' }
+        { name: 'Starter', price: 'Rs. 499/month', features: ['Up to 50 products', 'Basic theme', 'Email support'], color: 'border-blue-200 bg-blue-50' },
+        { name: 'Professional', price: 'Rs. 999/month', features: ['Unlimited products', 'Premium themes', 'Priority support', 'Custom domain'], color: 'border-indigo-200 bg-indigo-50', popular: true },
+        { name: 'Enterprise', price: 'Rs. 1999/month', features: ['Everything in Pro', 'Multi-store', 'API access', 'Dedicated manager'], color: 'border-purple-200 bg-purple-50' }
     ];
 
     return (

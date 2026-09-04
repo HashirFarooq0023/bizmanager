@@ -1,4 +1,4 @@
-import Counter from "../models/Counter.js";
+﻿import Counter from "../models/Counter.js";
 
 /**
  * Generate unique payment out number
@@ -33,7 +33,7 @@ export const validatePaymentAllocation = (totalAmount, allocatedBills, advanceAm
     if (totalUsed > totalAmount) {
         return {
             valid: false,
-            message: `Total allocation (₹${totalUsed.toFixed(2)}) exceeds payment amount (₹${totalAmount.toFixed(2)})`
+            message: `Total allocation (Rs. ${totalUsed.toFixed(2)}) exceeds payment amount (Rs. ${totalAmount.toFixed(2)})`
         };
     }
 
@@ -57,7 +57,7 @@ export const validateBillAllocation = (bill, allocatedAmount) => {
     if (allocatedAmount > outstanding) {
         return {
             valid: false,
-            message: `Allocated amount (₹${allocatedAmount.toFixed(2)}) exceeds bill outstanding (₹${outstanding.toFixed(2)}) for bill ${bill.billNo}`
+            message: `Allocated amount (Rs. ${allocatedAmount.toFixed(2)}) exceeds bill outstanding (Rs. ${outstanding.toFixed(2)}) for bill ${bill.billNo}`
         };
     }
 
@@ -97,7 +97,7 @@ export const applyPaymentOutToBill = async (bill, amount, paymentOutId) => {
         action: 'payment_recorded',
         performedBy: bill.createdBy,
         performedAt: new Date(),
-        details: `Payment of ₹${amount.toFixed(2)} recorded via PaymentOut ${paymentOutId}`,
+        details: `Payment of Rs. ${amount.toFixed(2)} recorded via PaymentOut ${paymentOutId}`,
         changes: {
             paymentAmount: amount,
             paymentOutId
@@ -133,7 +133,7 @@ export const reversePaymentFromBill = async (bill, amount, paymentOutId) => {
         action: 'payment_recorded',
         performedBy: bill.createdBy,
         performedAt: new Date(),
-        details: `Payment of ₹${amount.toFixed(2)} reversed from PaymentOut ${paymentOutId}`,
+        details: `Payment of Rs. ${amount.toFixed(2)} reversed from PaymentOut ${paymentOutId}`,
         changes: {
             paymentAmount: -amount,
             paymentOutId

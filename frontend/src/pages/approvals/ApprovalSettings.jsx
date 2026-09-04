@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
 import PageHeader from '../../components/PageHeader';
@@ -67,7 +67,7 @@ const ApprovalSettings = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Purchase Return Threshold (₹)
+                                    Purchase Return Threshold (Rs. )
                                 </label>
                                 <input
                                     type="number"
@@ -82,7 +82,7 @@ const ApprovalSettings = () => {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Purchase Threshold (₹)
+                                    Purchase Threshold (Rs. )
                                 </label>
                                 <input
                                     type="number"
@@ -94,7 +94,7 @@ const ApprovalSettings = () => {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Sale Threshold (₹)
+                                    Sale Threshold (Rs. )
                                 </label>
                                 <input
                                     type="number"
@@ -106,7 +106,7 @@ const ApprovalSettings = () => {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Payment Threshold (₹)
+                                    Payment Threshold (Rs. )
                                 </label>
                                 <input
                                     type="number"

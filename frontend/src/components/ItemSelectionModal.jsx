@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import api from '../services/api';
 
@@ -133,7 +133,7 @@ const ItemSelectionModal = ({ isOpen, onClose, onSelect }) => {
                                                     )}
                                                 </div>
                                                 <div className="flex items-center gap-4 mt-1 text-sm text-secondary">
-                                                    <span>Price: ₹{item.sellingPrice}</span>
+                                                    <span>Price: Rs. {item.sellingPrice}</span>
                                                     <span>Stock: {item.stockQty}</span>
                                                     {item.reservedStock > 0 && (
                                                         <span className="text-orange-600">Reserved: {item.reservedStock}</span>

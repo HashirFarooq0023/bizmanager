@@ -15,8 +15,15 @@ import {
     reset,
 } from "../../redux/slices/purchaseOrderSlice";
 import { toast } from "react-toastify";
-import { FiPlus, FiEdit, FiTrash2, FiEye, FiCopy, FiCheck, FiX, FiSend } from "react-icons/fi";
 import Layout from "../../components/Layout";
+import PageHeader from "../../components/PageHeader";
+import Card from "../../components/Card";
+import StatsCard from "../../components/StatsCard";
+import StatusBadge from "../../components/StatusBadge";
+import Button from "../../components/Button";
+import EmptyState from "../../components/EmptyState";
+import LoadingSkeleton from "../../components/LoadingSkeleton";
+import Modal from "../../components/Modal";
 
 const PurchaseOrderList = () => {
     const dispatch = useDispatch();
@@ -118,149 +125,105 @@ const PurchaseOrderList = () => {
         toast.success("Purchase Order duplicated successfully");
     };
 
-    const getStatusBadge = (status) => {
-        const statusColors = {
-            Draft: "bg-gray-200 text-gray-800",
-            "Pending Approval": "bg-yellow-200 text-yellow-800",
-            Approved: "bg-green-200 text-green-800",
-            "Partially Received": "bg-blue-200 text-blue-800",
-            "Fully Received": "bg-purple-200 text-purple-800",
-            Closed: "bg-gray-400 text-white",
-            Cancelled: "bg-red-200 text-red-800",
-        };
-
-        return (
-            <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${statusColors[status] || "bg-gray-200"}`}>
-                {status}
-            </span>
-        );
-    };
-
     return (
         <Layout>
-            <div className="space-y-4">
-                <button
-                    onClick={() => navigate('/purchase-orders/new')}
-                    className="flex items-center text-gray-600 dark:text-[rgb(var(--color-text-secondary))] hover:text-gray-900 dark:hover:text-[rgb(var(--color-text))] mb-4"
-                >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    <span className="text-base">Back to Purchase Order</span>
-                </button>
-                {/* Header */}
-                <div className="mb-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-1">Purchase Orders</h1>
-                            <p className="text-sm text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Manage and track purchase orders</p>
-                        </div>
-                        <button
+            <div className="space-y-6">
+                <PageHeader
+                    title="Purchase Orders"
+                    subtitle="Create, manage, and track supplier purchase orders"
+                    backPath="/purchase-orders/new"
+                    action={
+                        <Button
+                            variant="primary"
                             onClick={() => navigate("/purchase-orders/new")}
-                            className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
+                            icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>}
                         >
-                            <FiPlus /> New Purchase Order
-                        </button>
-                    </div>
-                </div>
+                            New Purchase Order
+                        </Button>
+                    }
+                />
 
                 {/* KPI Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                    {/* Total Orders */}
-                    <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg p-4 border dark:border-[rgb(var(--color-border))] transition-all duration-200 hover:shadow-lg">
-                        <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-full">
-                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">{pagination?.total || 0}</p>
-                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">Total Orders</p>
-                            </div>
-                        </div>
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <StatsCard
+                        title="Total Orders"
+                        value={pagination?.total || 0}
+                        color="indigo"
+                        icon={
+                            <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        }
+                    />
 
-                    {/* Total Amount */}
-                    <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg p-4 border dark:border-[rgb(var(--color-border))] transition-all duration-200 hover:shadow-lg">
-                        <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 rounded-full">
-                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{purchaseOrders.reduce((sum, po) => sum + (po.totalAmount || 0), 0).toLocaleString()}</p>
-                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">Total Amount</p>
-                            </div>
-                        </div>
-                    </div>
+                    <StatsCard
+                        title="Total Amount"
+                        value={`Rs. ${purchaseOrders.reduce((sum, po) => sum + (po.totalAmount || 0), 0).toLocaleString('en-IN', { minimumFractionDigits: 0 })}`}
+                        color="violet"
+                        icon={
+                            <svg className="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        }
+                    />
 
-                    {/* Approved */}
-                    <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg p-4 border dark:border-[rgb(var(--color-border))] transition-all duration-200 hover:shadow-lg">
-                        <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 rounded-full">
-                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">{purchaseOrders.filter(po => po.status === 'Approved' || po.status === 'Partially Received' || po.status === 'Fully Received').length}</p>
-                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">Approved</p>
-                            </div>
-                        </div>
-                    </div>
+                    <StatsCard
+                        title="Approved"
+                        value={purchaseOrders.filter(po => po.status === 'Approved' || po.status === 'Partially Received' || po.status === 'Fully Received').length}
+                        color="emerald"
+                        icon={
+                            <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        }
+                    />
 
-                    {/* Pending */}
-                    <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg p-4 border dark:border-[rgb(var(--color-border))] transition-all duration-200 hover:shadow-lg">
-                        <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-gradient-to-br from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700 rounded-full">
-                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">{purchaseOrders.filter(po => po.status === 'Draft' || po.status === 'Pending Approval').length}</p>
-                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">Pending</p>
-                            </div>
-                        </div>
-                    </div>
+                    <StatsCard
+                        title="Pending Approval"
+                        value={purchaseOrders.filter(po => po.status === 'Draft' || po.status === 'Pending Approval').length}
+                        color="amber"
+                        icon={
+                            <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        }
+                    />
                 </div>
 
-                {/* Filters */}
-                <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-3 mb-4">
-                    <div className="flex justify-between items-center mb-3">
-                        <h2 className="text-sm font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">Filters</h2>
-                        <button
-                            onClick={() => setShowFilters(!showFilters)}
-                            className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
-                        >
-                            {showFilters ? "Hide" : "Show"} Filters
-                        </button>
-                    </div>
+                <Card noPadding>
+                    <div className="p-4 border-b border-gray-100 dark:border-gray-800">
+                        <div className="flex justify-between items-center">
+                            <div className="relative flex-1 max-w-md">
+                                <input
+                                    type="text"
+                                    name="search"
+                                    value={filters.search || ''}
+                                    onChange={handleFilterChange}
+                                    placeholder="Search PO number or supplier..."
+                                    className="w-full pl-10 pr-4 py-2 text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-xl focus:ring-2 focus:ring-violet-500/20 focus:outline-none"
+                                />
+                                <svg className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowFilters(!showFilters)}
+                            >
+                                {showFilters ? "Hide Filters" : "Filter Options"}
+                            </Button>
+                        </div>
 
-                    {showFilters && (
-                        <form onSubmit={handleSearch}>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                        {showFilters && (
+                            <form onSubmit={handleSearch} className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 grid grid-cols-1 md:grid-cols-3 gap-3">
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-700 dark:text-[rgb(var(--color-text-secondary))] mb-1">Search</label>
-                                    <input
-                                        type="text"
-                                        name="search"
-                                        value={filters.search}
-                                        onChange={handleFilterChange}
-                                        placeholder="PO number, supplier..."
-                                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-md bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-700 dark:text-[rgb(var(--color-text-secondary))] mb-1">Status</label>
+                                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
                                     <select
                                         name="status"
-                                        value={filters.status}
+                                        value={filters.status || ''}
                                         onChange={handleFilterChange}
-                                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-md bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-3 py-2 text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none"
                                     >
                                         <option value="">All Statuses</option>
                                         <option value="Draft">Draft</option>
@@ -272,390 +235,217 @@ const PurchaseOrderList = () => {
                                         <option value="Cancelled">Cancelled</option>
                                     </select>
                                 </div>
-
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-700 dark:text-[rgb(var(--color-text-secondary))] mb-1">Start Date</label>
+                                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
                                     <input
                                         type="date"
                                         name="startDate"
-                                        value={filters.startDate}
+                                        value={filters.startDate || ''}
                                         onChange={handleFilterChange}
-                                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-md bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-3 py-2 text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none"
                                     />
                                 </div>
-
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-700 dark:text-[rgb(var(--color-text-secondary))] mb-1">End Date</label>
+                                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
                                     <input
                                         type="date"
                                         name="endDate"
-                                        value={filters.endDate}
+                                        value={filters.endDate || ''}
                                         onChange={handleFilterChange}
-                                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-md bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-3 py-2 text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none"
                                     />
                                 </div>
-
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-700 dark:text-[rgb(var(--color-text-secondary))] mb-1">Min Amount</label>
-                                    <input
-                                        type="number"
-                                        name="minAmount"
-                                        value={filters.minAmount}
-                                        onChange={handleFilterChange}
-                                        placeholder="0"
-                                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-md bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                    />
+                                <div className="md:col-span-3 flex gap-2 justify-end">
+                                    <Button variant="secondary" size="sm" type="button" onClick={handleClearFilters}>Clear</Button>
+                                    <Button variant="primary" size="sm" type="submit">Apply</Button>
                                 </div>
+                            </form>
+                        )}
+                    </div>
 
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-700 dark:text-[rgb(var(--color-text-secondary))] mb-1">Max Amount</label>
-                                    <input
-                                        type="number"
-                                        name="maxAmount"
-                                        value={filters.maxAmount}
-                                        onChange={handleFilterChange}
-                                        placeholder="999999"
-                                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-md bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex gap-2">
-                                <button
-                                    type="submit"
-                                    className="px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md"
-                                >
-                                    Apply Filters
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleClearFilters}
-                                    className="px-3 py-1.5 text-sm bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md"
-                                >
-                                    Clear Filters
-                                </button>
-                            </div>
-                        </form>
-                    )}
-                </div>
-
-                {/* Table */}
-                <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] overflow-hidden">
                     {isLoading ? (
-                        <div className="text-center py-8">Loading...</div>
+                        <div className="p-6">
+                            <LoadingSkeleton count={5} />
+                        </div>
                     ) : purchaseOrders.length === 0 ? (
-                        <div className="text-center py-8 text-gray-500">No purchase orders found</div>
+                        <div className="p-8">
+                            <EmptyState
+                                title="No purchase orders found"
+                                description="Create your first purchase order to start sending order requests to suppliers."
+                                actionText="Create Purchase Order"
+                                onAction={() => navigate('/purchase-orders/new')}
+                            />
+                        </div>
                     ) : (
-                        <>
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                PO Number
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Date
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Supplier
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Amount
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Status
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Actions
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {purchaseOrders.map((po) => (
-                                            <tr key={po._id} className="hover:bg-gray-50">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {po.poNumber}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {new Date(po.poDate).toLocaleDateString()}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {po.supplier?.businessName || "N/A"}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    ₹{po.totalAmount?.toLocaleString()}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(po.status)}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            onClick={() => navigate(`/purchase-orders/${po._id}`)}
-                                                            className="text-blue-600 hover:text-blue-900"
-                                                            title="View"
-                                                        >
-                                                            <FiEye />
-                                                        </button>
-
-                                                        {po.status === "Draft" && (
-                                                            <>
-                                                                <button
-                                                                    onClick={() => navigate(`/purchase-orders/${po._id}/edit`)}
-                                                                    className="text-green-600 hover:text-green-900"
-                                                                    title="Edit"
-                                                                >
-                                                                    <FiEdit />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleSubmit(po._id)}
-                                                                    className="text-purple-600 hover:text-purple-900"
-                                                                    title="Submit for Approval"
-                                                                >
-                                                                    <FiSend />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDelete(po._id)}
-                                                                    className="text-red-600 hover:text-red-900"
-                                                                    title="Delete"
-                                                                >
-                                                                    <FiTrash2 />
-                                                                </button>
-                                                            </>
-                                                        )}
-
-                                                        {po.status === "Pending Approval" && (
-                                                            <>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        setSelectedPO(po);
-                                                                        setShowApprovalModal(true);
-                                                                    }}
-                                                                    className="text-green-600 hover:text-green-900"
-                                                                    title="Approve"
-                                                                >
-                                                                    <FiCheck />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        setSelectedPO(po);
-                                                                        setShowRejectModal(true);
-                                                                    }}
-                                                                    className="text-red-600 hover:text-red-900"
-                                                                    title="Reject"
-                                                                >
-                                                                    <FiX />
-                                                                </button>
-                                                            </>
-                                                        )}
-
-                                                        {(po.status === "Approved" ||
-                                                            po.status === "Partially Received") && (
-                                                                <button
-                                                                    onClick={() => {
-                                                                        setSelectedPO(po);
-                                                                        setShowCancelModal(true);
-                                                                    }}
-                                                                    className="text-red-600 hover:text-red-900"
-                                                                    title="Cancel"
-                                                                >
-                                                                    <FiX />
-                                                                </button>
-                                                            )}
-
-                                                        <button
-                                                            onClick={() => handleDuplicate(po._id)}
-                                                            className="text-gray-600 hover:text-gray-900"
-                                                            title="Duplicate"
-                                                        >
-                                                            <FiCopy />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            {/* Pagination */}
-                            <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                                <div className="flex-1 flex justify-between sm:hidden">
-                                    <button
-                                        onClick={() => handlePageChange(pagination.page - 1)}
-                                        disabled={pagination.page === 1}
-                                        className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                                    >
-                                        Previous
-                                    </button>
-                                    <button
-                                        onClick={() => handlePageChange(pagination.page + 1)}
-                                        disabled={pagination.page >= pagination.pages}
-                                        className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                                    <div>
-                                        <p className="text-sm text-gray-700">
-                                            Showing <span className="font-medium">{(pagination.page - 1) * pagination.limit + 1}</span> to{" "}
-                                            <span className="font-medium">
-                                                {Math.min(pagination.page * pagination.limit, pagination.total)}
-                                            </span>{" "}
-                                            of <span className="font-medium">{pagination.total}</span> results
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                                            <button
-                                                onClick={() => handlePageChange(pagination.page - 1)}
-                                                disabled={pagination.page === 1}
-                                                className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                                            >
-                                                Previous
-                                            </button>
-                                            {[...Array(pagination.pages)].map((_, i) => (
-                                                <button
-                                                    key={i + 1}
-                                                    onClick={() => handlePageChange(i + 1)}
-                                                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${pagination.page === i + 1
-                                                        ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
-                                                        : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
-                                                        }`}
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-xs text-left">
+                                <thead className="bg-gray-50/70 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                    <tr>
+                                        <th className="px-4 py-3">PO Number</th>
+                                        <th className="px-4 py-3">Date</th>
+                                        <th className="px-4 py-3">Supplier</th>
+                                        <th className="px-4 py-3">Amount</th>
+                                        <th className="px-4 py-3">Status</th>
+                                        <th className="px-4 py-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
+                                    {purchaseOrders.map((po) => (
+                                        <tr key={po._id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
+                                            <td className="px-4 py-3 font-semibold text-violet-700 dark:text-violet-400">
+                                                {po.poNumber}
+                                            </td>
+                                            <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                                {new Date(po.poDate).toLocaleDateString()}
+                                            </td>
+                                            <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">
+                                                {po.supplier?.businessName || "N/A"}
+                                            </td>
+                                            <td className="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">
+                                                Rs. {po.totalAmount?.toFixed(2)}
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <StatusBadge status={po.status} />
+                                            </td>
+                                            <td className="px-4 py-3 text-right space-x-1">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => navigate(`/purchase-orders/${po._id}`)}
                                                 >
-                                                    {i + 1}
-                                                </button>
-                                            ))}
-                                            <button
-                                                onClick={() => handlePageChange(pagination.page + 1)}
-                                                disabled={pagination.page >= pagination.pages}
-                                                className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                                            >
-                                                Next
-                                            </button>
-                                        </nav>
-                                    </div>
-                                </div>
-                            </div>
-                        </>
+                                                    View
+                                                </Button>
+
+                                                {po.status === "Draft" && (
+                                                    <>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => navigate(`/purchase-orders/${po._id}/edit`)}
+                                                        >
+                                                            Edit
+                                                        </Button>
+                                                        <Button
+                                                            variant="primary"
+                                                            size="sm"
+                                                            onClick={() => handleSubmit(po._id)}
+                                                        >
+                                                            Submit
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                                                            onClick={() => handleDelete(po._id)}
+                                                        >
+                                                            Delete
+                                                        </Button>
+                                                    </>
+                                                )}
+
+                                                {po.status === "Pending Approval" && (
+                                                    <>
+                                                        <Button
+                                                            variant="primary"
+                                                            size="sm"
+                                                            onClick={() => {
+                                                                setSelectedPO(po);
+                                                                setShowApprovalModal(true);
+                                                            }}
+                                                        >
+                                                            Approve
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                                                            onClick={() => {
+                                                                setSelectedPO(po);
+                                                                setShowRejectModal(true);
+                                                            }}
+                                                        >
+                                                            Reject
+                                                        </Button>
+                                                    </>
+                                                )}
+
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleDuplicate(po._id)}
+                                                >
+                                                    Duplicate
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
-                </div>
+                </Card>
 
-                {/* Approval Modal */}
-                {showApprovalModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                            <h3 className="text-lg font-semibold mb-4">Approve Purchase Order</h3>
-                            <p className="text-gray-600 mb-4">
-                                Approve PO: <strong>{selectedPO?.poNumber}</strong>
-                            </p>
-                            <textarea
-                                value={approvalComments}
-                                onChange={(e) => setApprovalComments(e.target.value)}
-                                placeholder="Comments (optional)"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
-                                rows="3"
-                            />
-                            <div className="flex gap-2 justify-end">
-                                <button
-                                    onClick={() => {
-                                        setShowApprovalModal(false);
-                                        setApprovalComments("");
-                                        setSelectedPO(null);
-                                    }}
-                                    className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-md"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleApprove}
-                                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
-                                >
-                                    Approve
-                                </button>
-                            </div>
+                {/* Modals */}
+                <Modal
+                    isOpen={showApprovalModal}
+                    onClose={() => {
+                        setShowApprovalModal(false);
+                        setApprovalComments("");
+                        setSelectedPO(null);
+                    }}
+                    title="Approve Purchase Order"
+                    size="sm"
+                    footer={
+                        <div className="flex space-x-3 w-full">
+                            <Button variant="secondary" className="w-full" onClick={() => setShowApprovalModal(false)}>Cancel</Button>
+                            <Button variant="primary" className="w-full" onClick={handleApprove}>Approve</Button>
                         </div>
-                    </div>
-                )}
+                    }
+                >
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                        Are you sure you want to approve Purchase Order: <strong>{selectedPO?.poNumber}</strong>?
+                    </p>
+                    <textarea
+                        value={approvalComments}
+                        onChange={(e) => setApprovalComments(e.target.value)}
+                        placeholder="Add comments (optional)..."
+                        className="w-full px-3 py-2 text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl text-gray-900 dark:text-gray-100 focus:outline-none"
+                        rows="3"
+                    />
+                </Modal>
 
-                {/* Reject Modal */}
-                {showRejectModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                            <h3 className="text-lg font-semibold mb-4">Reject Purchase Order</h3>
-                            <p className="text-gray-600 mb-4">
-                                Reject PO: <strong>{selectedPO?.poNumber}</strong>
-                            </p>
-                            <textarea
-                                value={rejectionReason}
-                                onChange={(e) => setRejectionReason(e.target.value)}
-                                placeholder="Rejection reason (required)"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
-                                rows="3"
-                                required
-                            />
-                            <div className="flex gap-2 justify-end">
-                                <button
-                                    onClick={() => {
-                                        setShowRejectModal(false);
-                                        setRejectionReason("");
-                                        setSelectedPO(null);
-                                    }}
-                                    className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-md"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleReject}
-                                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md"
-                                >
-                                    Reject
-                                </button>
-                            </div>
+                <Modal
+                    isOpen={showRejectModal}
+                    onClose={() => {
+                        setShowRejectModal(false);
+                        setRejectionReason("");
+                        setSelectedPO(null);
+                    }}
+                    title="Reject Purchase Order"
+                    size="sm"
+                    footer={
+                        <div className="flex space-x-3 w-full">
+                            <Button variant="secondary" className="w-full" onClick={() => setShowRejectModal(false)}>Cancel</Button>
+                            <Button variant="danger" className="w-full" onClick={handleReject}>Reject</Button>
                         </div>
-                    </div>
-                )}
-
-                {/* Cancel Modal */}
-                {showCancelModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                            <h3 className="text-lg font-semibold mb-4">Cancel Purchase Order</h3>
-                            <p className="text-gray-600 mb-4">
-                                Cancel PO: <strong>{selectedPO?.poNumber}</strong>
-                            </p>
-                            <textarea
-                                value={cancellationReason}
-                                onChange={(e) => setCancellationReason(e.target.value)}
-                                placeholder="Cancellation reason (required)"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
-                                rows="3"
-                                required
-                            />
-                            <div className="flex gap-2 justify-end">
-                                <button
-                                    onClick={() => {
-                                        setShowCancelModal(false);
-                                        setCancellationReason("");
-                                        setSelectedPO(null);
-                                    }}
-                                    className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-md"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleCancel}
-                                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md"
-                                >
-                                    Confirm Cancellation
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                    }
+                >
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                        Rejecting PO: <strong>{selectedPO?.poNumber}</strong>
+                    </p>
+                    <textarea
+                        value={rejectionReason}
+                        onChange={(e) => setRejectionReason(e.target.value)}
+                        placeholder="Rejection reason (required)..."
+                        className="w-full px-3 py-2 text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl text-gray-900 dark:text-gray-100 focus:outline-none"
+                        rows="3"
+                        required
+                    />
+                </Modal>
             </div>
         </Layout>
     );
 };
 
 export default PurchaseOrderList;
+

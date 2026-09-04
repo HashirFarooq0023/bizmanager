@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from '../../services/api';
 import { toast } from "react-toastify";
@@ -123,14 +123,14 @@ const PaymentReceiptDetail = () => {
                   Receipt Date & Time
                 </div>
                 <div className="font-bold text-[10px] md:text-sm text-main print:text-black">
-                  {new Date(payment.paymentDate).toLocaleDateString("en-IN", {
+                  {new Date(payment.paymentDate).toLocaleDateString("en-PK", {
                     day: "2-digit",
                     month: "short",
                     year: "numeric",
                   })}
                 </div>
                 <div className="text-[8px] md:text-xs text-secondary print:text-gray-700">
-                  {new Date(payment.paymentDate).toLocaleTimeString("en-IN", {
+                  {new Date(payment.paymentDate).toLocaleTimeString("en-PK", {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
@@ -198,7 +198,7 @@ const PaymentReceiptDetail = () => {
                     Amount Received
                   </div>
                   <div className="font-bold text-sm md:text-lg text-green-600 dark:text-green-400 print:text-green-700">
-                    ₹{payment.totalAmount.toFixed(2)}
+                    Rs. {payment.totalAmount.toFixed(2)}
                   </div>
                 </div>
                 {payment.creditApplied > 0 && (
@@ -207,7 +207,7 @@ const PaymentReceiptDetail = () => {
                       + Credit Applied
                     </div>
                     <div className="font-semibold text-[10px] md:text-sm text-orange-600 dark:text-orange-400 print:text-orange-700">
-                      ₹{payment.creditApplied.toFixed(2)}
+                      Rs. {payment.creditApplied.toFixed(2)}
                     </div>
                   </div>
                 )}
@@ -307,7 +307,7 @@ const PaymentReceiptDetail = () => {
                             <div>
                               Date:{" "}
                               {new Date(pm.chequeDate).toLocaleDateString(
-                                "en-IN"
+                                "en-PK"
                               )}
                             </div>
                           )}
@@ -322,7 +322,7 @@ const PaymentReceiptDetail = () => {
                     </div>
                   </div>
                   <div className="font-bold text-blue-600 dark:text-blue-400 print:text-blue-700 text-[10px] md:text-sm ml-1 md:ml-2 flex-shrink-0">
-                    ₹{pm.amount.toFixed(2)}
+                    Rs. {pm.amount.toFixed(2)}
                   </div>
                 </div>
               ))}
@@ -367,12 +367,12 @@ const PaymentReceiptDetail = () => {
                             {allocation.invoice?.invoiceNo || "N/A"}
                           </td>
                           <td className="py-0.5 px-1 md:py-1.5 md:px-2 text-right text-main print:text-black">
-                            ₹
+                            Rs. 
                             {allocation.invoice?.totalAmount?.toFixed(2) ||
                               "0.00"}
                           </td>
                           <td className="py-0.5 px-1 md:py-1.5 md:px-2 text-right font-bold text-green-600 dark:text-green-400 print:text-green-700">
-                            ₹{allocation.allocatedAmount.toFixed(2)}
+                            Rs. {allocation.allocatedAmount.toFixed(2)}
                           </td>
                         </tr>
                       ))}
@@ -392,14 +392,14 @@ const PaymentReceiptDetail = () => {
                       Total Payment Received:
                     </span>
                     <span className="font-bold text-main print:text-black">
-                      ₹{payment.totalAmount.toFixed(2)}
+                      Rs. {payment.totalAmount.toFixed(2)}
                     </span>
                   </div>
 
                   {/* <div className="flex justify-between py-2 text-sm">
                                         <span className="text-gray-900 dark:text-gray-900 print:text-black">Allocated to Invoices:</span>
                                         <span className="font-bold text-gray-900 dark:text-gray-200 print:text-black">
-                                            ₹{(payment.allocatedInvoices?.reduce((sum, inv) => sum + inv.allocatedAmount, 0) || 0).toFixed(2)}
+                                            Rs. {(payment.allocatedInvoices?.reduce((sum, inv) => sum + inv.allocatedAmount, 0) || 0).toFixed(2)}
                                         </span>
                                     </div> */}
 
@@ -409,7 +409,7 @@ const PaymentReceiptDetail = () => {
                         Customer Credit Applied:
                       </span>
                       <span className="font-bold text-main print:text-black">
-                        ₹{payment.creditApplied.toFixed(2)}
+                        Rs. {payment.creditApplied.toFixed(2)}
                       </span>
                     </div>
                   )}
@@ -419,7 +419,7 @@ const PaymentReceiptDetail = () => {
                       Effective Payment:
                     </span>
                     <span className="font-bold text-main print:text-black">
-                      ₹
+                      Rs. 
                       {(payment.totalAmount + payment.creditApplied).toFixed(2)}
                     </span>
                   </div>
@@ -429,7 +429,7 @@ const PaymentReceiptDetail = () => {
                       Allocated to Invoices:
                     </span>
                     <span className="font-bold text-main print:text-black">
-                      ₹
+                      Rs. 
                       {payment.allocatedInvoices
                         .reduce((sum, inv) => sum + inv.allocatedAmount, 0)
                         .toFixed(2)}
@@ -466,7 +466,7 @@ const PaymentReceiptDetail = () => {
                                 Excess Amount Credited
                               </div>
                               <p className="text-[8px] md:text-xs text-emerald-700 dark:text-emerald-400 print:text-emerald-800 leading-relaxed">
-                                ₹{excessAmount.toFixed(2)} added to customer
+                                Rs. {excessAmount.toFixed(2)} added to customer
                                 credit
                               </p>
                             </div>
@@ -529,7 +529,7 @@ const PaymentReceiptDetail = () => {
                                 Partial Payment
                               </div>
                               <p className="text-[8px] md:text-xs text-amber-700 dark:text-amber-400 print:text-amber-800 leading-relaxed">
-                                Remaining balance: ₹{remainingDues.toFixed(2)}
+                                Remaining balance: Rs. {remainingDues.toFixed(2)}
                               </p>
                             </div>
                           </div>
@@ -556,7 +556,7 @@ const PaymentReceiptDetail = () => {
                                 Advance Payment
                               </div>
                               <p className="text-[8px] md:text-xs text-indigo-700 dark:text-indigo-400 print:text-indigo-800 leading-relaxed">
-                                ₹
+                                Rs. 
                                 {(
                                   payment.totalAmount + payment.creditApplied
                                 ).toFixed(2)}{" "}
@@ -596,7 +596,7 @@ const PaymentReceiptDetail = () => {
             </p>
             {payment.createdAt && (
               <p className="text-[8px] md:text-xs text-muted print:text-gray-700 mt-0.5 md:mt-1">
-                Created on {new Date(payment.createdAt).toLocaleString("en-IN")}
+                Created on {new Date(payment.createdAt).toLocaleString("en-PK")}
               </p>
             )}
           </div>

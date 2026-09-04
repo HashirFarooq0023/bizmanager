@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
@@ -187,12 +187,12 @@ const SalesOrderDetail = () => {
                                         <tr key={index}>
                                             <td className="px-4 py-3 font-medium text-main">{item.item?.name}</td>
                                             <td className="px-4 py-3">{item.quantity}</td>
-                                            <td className="px-4 py-3">₹{item.rate}</td>
+                                            <td className="px-4 py-3">Rs. {item.rate}</td>
                                             <td className="px-4 py-3">{item.tax}%</td>
                                             <td className="px-4 py-3 text-blue-600">{item.reservedQty}</td>
                                             <td className="px-4 py-3 text-purple-600">{item.deliveredQty}</td>
                                             <td className="px-4 py-3 text-green-600">{item.invoicedQty}</td>
-                                            <td className="px-4 py-3 font-medium">₹{item.total.toFixed(2)}</td>
+                                            <td className="px-4 py-3 font-medium">Rs. {item.total.toFixed(2)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -216,20 +216,20 @@ const SalesOrderDetail = () => {
                         <div className="space-y-3">
                             <div className="flex justify-between text-sm">
                                 <span className="text-secondary">Subtotal:</span>
-                                <span className="font-medium">₹{order.subtotal.toFixed(2)}</span>
+                                <span className="font-medium">Rs. {order.subtotal.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-secondary">Tax:</span>
-                                <span className="font-medium">₹{order.taxTotal.toFixed(2)}</span>
+                                <span className="font-medium">Rs. {order.taxTotal.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-secondary">Discount:</span>
-                                <span className="font-medium">₹{order.discountTotal.toFixed(2)}</span>
+                                <span className="font-medium">Rs. {order.discountTotal.toFixed(2)}</span>
                             </div>
                             <div className="border-t pt-3">
                                 <div className="flex justify-between items-center">
                                     <span className="text-lg font-bold">Total:</span>
-                                    <span className="text-2xl font-bold text-indigo-600">₹{order.totalAmount.toFixed(2)}</span>
+                                    <span className="text-2xl font-bold text-indigo-600">Rs. {order.totalAmount.toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>

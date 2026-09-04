@@ -196,16 +196,16 @@ const Expenses = () => {
 
     // Format currency
     const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-IN', {
+        return new Intl.NumberFormat('en-PK', {
             style: 'currency',
-            currency: 'INR',
+            currency: 'PKR',
             minimumFractionDigits: 2,
         }).format(amount);
     };
 
     // Format date
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-IN', {
+        return new Date(dateString).toLocaleDateString('en-PK', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',

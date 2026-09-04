@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+﻿import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -134,7 +134,7 @@ const PurchaseOrderDetail = () => {
                         </div>
                         <div>
                             <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Total Amount</p>
-                            <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">₹{currentPO.totalAmount?.toLocaleString()}</p>
+                            <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">Rs. {currentPO.totalAmount?.toLocaleString()}</p>
                         </div>
                         {currentPO.warehouse && (
                             <div>
@@ -169,10 +169,10 @@ const PurchaseOrderDetail = () => {
                                         <td className="px-3 py-2 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">{item.orderedQty}</td>
                                         <td className="px-3 py-2 text-xs text-green-600 dark:text-green-400">{item.receivedQty}</td>
                                         <td className="px-3 py-2 text-xs text-orange-600 dark:text-orange-400">{item.pendingQty}</td>
-                                        <td className="px-3 py-2 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">₹{item.rate}</td>
+                                        <td className="px-3 py-2 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {item.rate}</td>
                                         <td className="px-3 py-2 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">{item.discount}</td>
                                         <td className="px-3 py-2 text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">{item.taxRate}%</td>
-                                        <td className="px-3 py-2 text-xs font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{item.total?.toFixed(2)}</td>
+                                        <td className="px-3 py-2 text-xs font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {item.total?.toFixed(2)}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -186,51 +186,51 @@ const PurchaseOrderDetail = () => {
                     <div className="space-y-1.5 text-xs">
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Subtotal:</span>
-                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{currentPO.subtotal?.toFixed(2)}</span>
+                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {currentPO.subtotal?.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Item Discount:</span>
-                            <span className="font-semibold text-red-600 dark:text-red-400">-₹{currentPO.itemDiscount?.toFixed(2)}</span>
+                            <span className="font-semibold text-red-600 dark:text-red-400">-Rs. {currentPO.itemDiscount?.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Bill Discount:</span>
-                            <span className="font-semibold text-red-600 dark:text-red-400">-₹{currentPO.billDiscount?.toFixed(2)}</span>
+                            <span className="font-semibold text-red-600 dark:text-red-400">-Rs. {currentPO.billDiscount?.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">CGST:</span>
-                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{currentPO.totalCGST?.toFixed(2)}</span>
+                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {currentPO.totalCGST?.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">SGST:</span>
-                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{currentPO.totalSGST?.toFixed(2)}</span>
+                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {currentPO.totalSGST?.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">IGST:</span>
-                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{currentPO.totalIGST?.toFixed(2)}</span>
+                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {currentPO.totalIGST?.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Shipping Charges:</span>
-                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{currentPO.shippingCharges?.toFixed(2)}</span>
+                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {currentPO.shippingCharges?.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Packing Charges:</span>
-                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{currentPO.packingCharges?.toFixed(2)}</span>
+                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {currentPO.packingCharges?.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Other Charges:</span>
-                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{currentPO.otherCharges?.toFixed(2)}</span>
+                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {currentPO.otherCharges?.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">TDS:</span>
-                            <span className="font-semibold text-red-600 dark:text-red-400">-₹{currentPO.tdsAmount?.toFixed(2)}</span>
+                            <span className="font-semibold text-red-600 dark:text-red-400">-Rs. {currentPO.tdsAmount?.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Round Off:</span>
-                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">₹{currentPO.roundOff?.toFixed(2)}</span>
+                            <span className="font-semibold text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {currentPO.roundOff?.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm font-bold border-t dark:border-gray-700 pt-2 mt-2">
                             <span className="text-gray-900 dark:text-[rgb(var(--color-text))]">Total Amount:</span>
-                            <span className="text-blue-600 dark:text-blue-400">₹{currentPO.totalAmount?.toLocaleString()}</span>
+                            <span className="text-blue-600 dark:text-blue-400">Rs. {currentPO.totalAmount?.toLocaleString()}</span>
                         </div>
                     </div>
                 </div>

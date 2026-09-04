@@ -48,7 +48,7 @@ const organizationSchema = new mongoose.Schema(
 
         // Organization settings
         settings: {
-            currency: { type: String, default: 'INR' },
+            currency: { type: String, default: 'PKR' },
             timezone: { type: String, default: 'Asia/Kolkata' },
             dateFormat: { type: String, default: 'DD/MM/YYYY' },
             fiscalYearStart: { type: Number, default: 4 }, // April

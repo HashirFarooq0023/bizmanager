@@ -73,7 +73,7 @@ export const exportToPDF = async (expenses, user, filters = {}) => {
             doc.fillColor(secondaryColor)
                 .fontSize(10)
                 .font('Helvetica')
-                .text(`Generated: ${new Date().toLocaleString('en-IN')}`, 330, 170);
+                .text(`Generated: ${new Date().toLocaleString('en-PK')}`, 330, 170);
 
             if (filters.startDate || filters.endDate) {
                 doc.text(`Period: ${filters.startDate || 'Start'} to ${filters.endDate || 'End'}`, 330, 185, { width: 200 });
@@ -100,7 +100,7 @@ export const exportToPDF = async (expenses, user, filters = {}) => {
 
             doc.fillColor(accentColor)
                 .fontSize(16)
-                .text(`Rs. ${totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 60, 290);
+                .text(`Rs. ${totalAmount.toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 60, 290);
 
             doc.fillColor('#1E293B')
                 .fontSize(11)
@@ -109,7 +109,7 @@ export const exportToPDF = async (expenses, user, filters = {}) => {
 
             doc.fillColor(secondaryColor)
                 .fontSize(14)
-                .text(`Rs. ${avgAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 280, 290);
+                .text(`Rs. ${avgAmount.toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 280, 290);
 
             doc.fillColor('#1E293B')
                 .fontSize(11)
@@ -191,7 +191,7 @@ export const exportToPDF = async (expenses, user, filters = {}) => {
                 doc.fillColor('#1E293B');
                 x = 55;
 
-                doc.text(new Date(expense.date).toLocaleDateString('en-IN'), x, rowY, {
+                doc.text(new Date(expense.date).toLocaleDateString('en-PK'), x, rowY, {
                     width: colWidths.date,
                     lineBreak: false
                 });
@@ -212,7 +212,7 @@ export const exportToPDF = async (expenses, user, filters = {}) => {
                 // Format amount without rupee symbol to avoid encoding issues
                 doc.fillColor(accentColor)
                     .font('Helvetica-Bold')
-                    .text(`Rs. ${expense.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, x, rowY, {
+                    .text(`Rs. ${expense.amount.toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, x, rowY, {
                         width: colWidths.amount,
                         lineBreak: false
                     });
@@ -312,7 +312,7 @@ export const exportToExcel = async (expenses, user, filters = {}) => {
     // Add data rows
     expenses.forEach(expense => {
         worksheet.addRow({
-            date: new Date(expense.date).toLocaleDateString('en-IN'),
+            date: new Date(expense.date).toLocaleDateString('en-PK'),
             expenseNo: expense.expenseNo,
             category: expense.category,
             description: expense.description || '',
@@ -366,7 +366,7 @@ export const exportToExcel = async (expenses, user, filters = {}) => {
  */
 export const exportToCSV = (expenses) => {
     const fields = [
-        { label: 'Date', value: (row) => new Date(row.date).toLocaleDateString('en-IN') },
+        { label: 'Date', value: (row) => new Date(row.date).toLocaleDateString('en-PK') },
         { label: 'Expense Number', value: 'expenseNo' },
         { label: 'Category', value: 'category' },
         { label: 'Description', value: 'description' },

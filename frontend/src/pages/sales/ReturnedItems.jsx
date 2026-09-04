@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import Layout from '../../components/Layout';
@@ -146,7 +146,7 @@ const ReturnedItems = () => {
                     <div className="bg-card rounded-lg shadow-sm p-4">
                         <p className="text-sm text-secondary">Total Amount</p>
                         <p className="text-2xl font-bold text-red-600">
-                            ₹{filteredReturns.reduce((sum, ret) => sum + ret.totalReturnAmount, 0).toFixed(2)}
+                            Rs. {filteredReturns.reduce((sum, ret) => sum + ret.totalReturnAmount, 0).toFixed(2)}
                         </p>
                     </div>
                     <div className="bg-card rounded-lg shadow-sm p-4">
@@ -287,7 +287,7 @@ const ReturnedItems = () => {
                                                     {returnItem.items.length}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-main">
-                                                    ₹{returnItem.totalReturnAmount.toFixed(2)}
+                                                    Rs. {returnItem.totalReturnAmount.toFixed(2)}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-main capitalize">
                                                     {returnItem.refundMethod.replace('_', ' ')}
@@ -331,7 +331,7 @@ const ReturnedItems = () => {
                                                                                 <td className="px-4 py-2 text-sm text-main">{item.productName}</td>
                                                                                 <td className="px-4 py-2 text-sm text-main">{item.originalQty}</td>
                                                                                 <td className="px-4 py-2 text-sm text-main">{item.returnedQty}</td>
-                                                                                <td className="px-4 py-2 text-sm text-main">₹{item.rate.toFixed(2)}</td>
+                                                                                <td className="px-4 py-2 text-sm text-main">Rs. {item.rate.toFixed(2)}</td>
                                                                                 <td className="px-4 py-2 text-sm">
                                                                                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${item.condition === 'damaged' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
                                                                                         }`}>
@@ -346,7 +346,7 @@ const ReturnedItems = () => {
                                                                                         <span className="text-muted">✗ No</span>
                                                                                     )}
                                                                                 </td>
-                                                                                <td className="px-4 py-2 text-sm font-medium text-main">₹{item.lineTotal.toFixed(2)}</td>
+                                                                                <td className="px-4 py-2 text-sm font-medium text-main">Rs. {item.lineTotal.toFixed(2)}</td>
                                                                             </tr>
                                                                         ))}
                                                                     </tbody>

@@ -1,4 +1,4 @@
-import Purchase from "../models/Purchase.js";
+﻿import Purchase from "../models/Purchase.js";
 import GoodsReceivedNote from "../models/GoodsReceivedNote.js";
 import PurchaseReturn from "../models/PurchaseReturn.js";
 import { error as logError } from "./logger.js";
@@ -177,7 +177,7 @@ export const validateReturnDates = (returnDate, purchaseDate, maxDaysAllowed = n
  */
 export const validateApprovalRequired = (amount, approvalMatrix = null) => {
     try {
-        // Default threshold: ₹10,000
+        // Default threshold: Rs. 10,000
         const defaultThreshold = 10000;
 
         if (approvalMatrix && approvalMatrix.minAmount !== undefined) {
