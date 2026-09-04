@@ -4,8 +4,8 @@
   "private": true,
   "description": "BizManager Root project script runner (Developed by MegaTrix)",
   "scripts": {
-    "build": "npm --prefix frontend run build",
-    "vercel-build": "npm --prefix frontend run build",
+    "build": "cd frontend && npm install && npm run build",
+    "vercel-build": "cd frontend && npm install && npm run build",
     "dev": "concurrently -k -n \"backend,frontend\" -c \"cyan,magenta\" \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
     "dev:backend": "npm --prefix backend run dev",
     "dev:frontend": "npm --prefix frontend run dev",
