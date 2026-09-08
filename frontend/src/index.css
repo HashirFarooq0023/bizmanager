@@ -53,6 +53,69 @@
   animation: bounce-arrow 1s infinite;
 }
 
+@keyframes ambient-glow {
+  0%, 100% {
+    opacity: 0.45;
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.08) translate3d(12px, -15px, 0);
+  }
+}
+
+@keyframes subtle-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes shimmer-sheen {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.animate-ambient-glow {
+  animation: ambient-glow 9s ease-in-out infinite;
+}
+
+.animate-subtle-float {
+  animation: subtle-float 6s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer-sheen 3.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* Zero-jank CSS Grid Accordion expansion */
+.grid-accordion {
+  display: grid;
+  transition: grid-template-rows 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.grid-accordion-collapsed {
+  grid-template-rows: 0fr;
+}
+.grid-accordion-expanded {
+  grid-template-rows: 1fr;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ambient-glow,
+  .animate-subtle-float,
+  .animate-shimmer,
+  .animate-bounce-arrow {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 .group:hover .group-hover\:scale-105 {
   transform: scale(1.05);
 }
