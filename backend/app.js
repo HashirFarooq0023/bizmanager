@@ -114,8 +114,9 @@ app.use(requestTimeout(30000));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Cookie parsing with signed cookie support
-app.use(cookieParser(process.env.COOKIE_SECRET));
+// Cookie parsing with signed cookie support (safe fallback ensures signed cookies never throw)
+const cookieSecret = process.env.COOKIE_SECRET || process.env.JWT_SECRET || "bizzai-dev-cookie-secret-key-minimum-32-characters-long";
+app.use(cookieParser(cookieSecret));
 
 // =======================
 // CORS Configuration

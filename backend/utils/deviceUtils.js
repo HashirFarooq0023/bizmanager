@@ -73,10 +73,13 @@ export const setDeviceIdCookie = (res, deviceId) => {
         path: '/', // Explicitly set path to root
     };
 
-    // Don't set domain - let browser handle it automatically
-    // This ensures cookies work on both localhost and deployed domains
-
-    res.cookie("deviceId", deviceId, cookieOptions);
+    // Safely attempt signed cookie, fall back to unsigned if cookieParser secret isn't available
+    try {
+        res.cookie("deviceId", deviceId, cookieOptions);
+    } catch (cookieErr) {
+        warn("Signed cookie failed, using standard cookie:", cookieErr.message);
+        res.cookie("deviceId", deviceId, { ...cookieOptions, signed: false });
+    }
 
     // Production logging for diagnostics (protect sensitive data)
     if (isProduction) {
@@ -106,22 +109,28 @@ export const clearDeviceIdCookie = (res) => {
     const isProduction = isProductionEnvironment();
     const sameSite = getSameSiteSetting();
 
-    res.clearCookie("deviceId", {
+    const clearOptions = {
         httpOnly: true,
         secure: isProduction,
-        sameSite, // Must match the setting used when cookie was set
+        sameSite,
         signed: true,
-        path: '/', // Must match the path used when cookie was set
-    });
+        path: '/',
+    };
+
+    try {
+        res.clearCookie("deviceId", clearOptions);
+    } catch {
+        res.clearCookie("deviceId", { ...clearOptions, signed: false });
+    }
 };
 
 /**
- * Get deviceId from signed cookie
+ * Get deviceId from signed or plain cookie
  * @param {object} req - Express request object
  * @returns {string|null} Device ID or null if not present/invalid
  */
 export const getDeviceIdFromCookie = (req) => {
-    const deviceId = req.signedCookies?.deviceId || null;
+    const deviceId = req.signedCookies?.deviceId || req.cookies?.deviceId || null;
     const isProduction = isProductionEnvironment();
 
     // Production logging for diagnostics
