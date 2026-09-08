@@ -2,17 +2,49 @@
   "name": "bizmanager-root",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "BizManager Root project script runner (Developed by MegaTrix)",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "scripts": {
     "build": "cd frontend && npm install && npm run build",
-    "vercel-build": "cd frontend && npm install && npm run build",
+    "vercel-build": "npm install --prefix backend && cd frontend && npm install && npm run build",
     "dev": "concurrently -k -n \"backend,frontend\" -c \"cyan,magenta\" \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
     "dev:backend": "npm --prefix backend run dev",
     "dev:frontend": "npm --prefix frontend run dev",
     "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend",
     "start": "concurrently -k -n \"backend,frontend\" -c \"cyan,magenta\" \"npm --prefix backend start\" \"npm --prefix frontend run dev\""
   },
+  "dependencies": {
+    "@sentry/node": "^7.99.0",
+    "bcryptjs": "^3.0.2",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "exceljs": "^4.4.0",
+    "express": "^4.21.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "ioredis": "^5.9.2",
+    "json2csv": "^6.0.0-alpha.2",
+    "jsonwebtoken": "^9.0.2",
+    "jspdf": "^4.0.0",
+    "mongoose": "^8.19.1",
+    "morgan": "^1.10.1",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^7.0.9",
+    "pdfkit": "^0.17.2",
+    "ua-parser-js": "^2.0.8",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0"
+  },
   "devDependencies": {
     "concurrently": "^9.1.2"
   }
 }
+

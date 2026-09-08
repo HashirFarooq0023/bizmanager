@@ -7,6 +7,8 @@ const allowedOrigins = [
     "http://localhost:5174",
     "http://127.0.0.1:5173",
     "http://127.0.0.1:5174",
+    "https://bizmanager-orpin.vercel.app",
+    "https://bizmanager.vercel.app",
 ];
 
 // Add production origins from environment
@@ -24,7 +26,7 @@ if (process.env.ALLOWED_ORIGINS) {
  * Check if origin is allowed
  */
 const isAllowedOrigin = (origin) => {
-    // Allow requests with no origin (mobile apps, curl, etc.)
+    // Allow requests with no origin (mobile apps, curl, same-origin, etc.)
     if (!origin) return true;
 
     // In development, allow any localhost
@@ -33,6 +35,16 @@ const isAllowedOrigin = (origin) => {
         (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:"))
     ) {
         return true;
+    }
+
+    // Automatically allow any Vercel deployment (*.vercel.app)
+    try {
+        const parsed = new URL(origin);
+        if (parsed.hostname.endsWith(".vercel.app") || parsed.hostname === "localhost") {
+            return true;
+        }
+    } catch {
+        // Fallback if URL parsing fails
     }
 
     // Allow Vercel preview deployments if prefix is configured

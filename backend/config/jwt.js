@@ -36,13 +36,16 @@ const validateJWTSecrets = () => {
   if (errors.length > 0) {
     const errorMsg = `JWT Configuration Error:\n${errors.map(e => `  - ${e}`).join('\n')}`;
     console.error(errorMsg);
-    throw new Error(errorMsg);
+    // In serverless environments, don't crash module evaluation so health checks and error responses can function
+    if (!process.env.VERCEL) {
+      throw new Error(errorMsg);
+    }
   }
 };
 
 // Validate secrets on module load (except in development where dotenv may not be loaded yet)
 // In development, validation happens in validateEnv.js after dotenv.config()
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
   validateJWTSecrets();
 }
 

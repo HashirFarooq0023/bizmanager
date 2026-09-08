@@ -17,6 +17,8 @@ import Redis from 'ioredis';
 import crypto from 'crypto';
 import { error as logError, warn } from '../utils/logger.js';
 
+const hasRedisConfig = Boolean(process.env.REDIS_HOST || process.env.REDIS_URL);
+
 // Redis client for distributed rate limiting
 const redisClient = new Redis({
     host: process.env.REDIS_HOST || 'localhost',
@@ -43,23 +45,23 @@ redisClient.on('connect', () => {
 redisClient.on('error', (err) => {
     // Only log the first Redis error to prevent log spam
     if (!redisErrorLogged && process.env.NODE_ENV !== 'test') {
-        // In production, log as error since Redis should be available
-        if (process.env.NODE_ENV === 'production') {
+        if (hasRedisConfig && process.env.NODE_ENV === 'production') {
             logError('Redis error (rate limiting):', err.message);
             warn('Redis unavailable - rate limiting will use in-memory fallback');
         } else {
-            // In development, just a friendly info message
-            console.log('ℹ️  Redis not available - using in-memory rate limiting (development mode)');
+            console.log('ℹ️  Redis not configured - using in-memory rate limiting');
         }
         redisErrorLogged = true;
     }
     isRedisAvailable = false;
 });
 
-// Attempt connection (non-blocking)
-redisClient.connect().catch((err) => {
-    // Error will be logged by the 'error' event handler
-});
+// Attempt connection (non-blocking) only if Redis is configured
+if (hasRedisConfig) {
+    redisClient.connect().catch((err) => {
+        // Error will be logged by the 'error' event handler
+    });
+}
 
 // In-memory fallback store (per-instance only)
 const memoryStore = new Map();

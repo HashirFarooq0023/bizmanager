@@ -11,12 +11,17 @@ pnpm-lock.yaml
 
 # Environment Variables
 .env
+.env*
 .env.local
+.env.development
 .env.development.local
+.env.test
 .env.test.local
+.env.production
 .env.production.local
-.env.*.local
+.env.*
 *.env
+*.env*
 
 # Logs
 logs/

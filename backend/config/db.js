@@ -13,19 +13,30 @@ const connectDB = async (retryCount = 0) => {
   try {
     // Clean the connection string to remove any BOM or encoding issues
     let mongoUri = process.env.MONGO_URI || "";
-    // Remove BOM characters and other encoding artifacts
     mongoUri = mongoUri.replace(/^\?o/g, "").replace(/\?\?$/g, "").trim();
+
+    if (!mongoUri) {
+      logError("❌ MONGO_URI environment variable is missing!");
+      if (process.env.VERCEL) {
+        return;
+      }
+      throw new Error("MONGO_URI environment variable is missing");
+    }
 
     // Ensure it starts with mongodb:// or mongodb+srv://
     if (
       !mongoUri.startsWith("mongodb://") &&
       !mongoUri.startsWith("mongodb+srv://")
     ) {
+      logError("❌ Invalid MongoDB connection string format");
+      if (process.env.VERCEL) {
+        return;
+      }
       throw new Error("Invalid MongoDB connection string format");
     }
 
-    // Set fallback public DNS servers for SRV record lookup (fixes Windows local DNS querySrv ECONNREFUSED)
-    if (mongoUri.startsWith("mongodb+srv://")) {
+    // Only set fallback DNS on Windows local development (fixes querySrv ECONNREFUSED)
+    if (process.platform === "win32" && mongoUri.startsWith("mongodb+srv://")) {
       try {
         dns.setServers(["8.8.8.8", "1.1.1.1"]);
       } catch (dnsErr) {
@@ -34,11 +45,12 @@ const connectDB = async (retryCount = 0) => {
     }
 
     // Connection options with pooling
+    const isServerless = Boolean(process.env.VERCEL);
     const options = {
-      maxPoolSize: 50, // Maximum number of connections in the pool
-      minPoolSize: 10, // Minimum number of connections in the pool
-      serverSelectionTimeoutMS: 30000, // 30 seconds
-      socketTimeoutMS: 45000, // 45 seconds
+      maxPoolSize: isServerless ? 10 : 50,
+      minPoolSize: isServerless ? 1 : 10,
+      serverSelectionTimeoutMS: isServerless ? 5000 : 30000,
+      socketTimeoutMS: isServerless ? 15000 : 45000,
       family: 4, // Use IPv4, skip trying IPv6
     };
 
@@ -78,7 +90,12 @@ const connectDB = async (retryCount = 0) => {
       retryCount,
     });
 
-    // Retry logic with exponential backoff
+    if (process.env.VERCEL) {
+      // In serverless environments, do not run blocking retry sleep loops and NEVER call process.exit(1)
+      throw err;
+    }
+
+    // Retry logic with exponential backoff for standalone servers
     if (retryCount < MAX_RETRIES) {
       const delay = RETRY_DELAY * Math.pow(2, retryCount);
       info(`Retrying connection in ${delay / 1000} seconds... (Attempt ${retryCount + 1}/${MAX_RETRIES})`);

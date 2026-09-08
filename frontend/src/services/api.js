@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-// Create axios instance
+// Create axios instance (empty baseURL defaults to same-origin relative requests)
 const api = axios.create({
-    baseURL: import.meta.env.VITE_BACKEND_URL,
+    baseURL: import.meta.env.VITE_BACKEND_URL || '',
     withCredentials: true, // CRITICAL: Send cookies with every request
 });
 
