@@ -9,6 +9,8 @@ const allowedOrigins = [
     "http://127.0.0.1:5174",
     "https://bizmanager-orpin.vercel.app",
     "https://bizmanager.vercel.app",
+    "https://bizmanager.megatrixai.com",
+    "https://megatrixai.com",
 ];
 
 // Add production origins from environment
@@ -37,10 +39,15 @@ const isAllowedOrigin = (origin) => {
         return true;
     }
 
-    // Automatically allow any Vercel deployment (*.vercel.app)
+    // Automatically allow any Vercel deployment or megatrixai.com domain
     try {
         const parsed = new URL(origin);
-        if (parsed.hostname.endsWith(".vercel.app") || parsed.hostname === "localhost") {
+        if (
+            parsed.hostname.endsWith(".vercel.app") ||
+            parsed.hostname.endsWith(".megatrixai.com") ||
+            parsed.hostname === "megatrixai.com" ||
+            parsed.hostname === "localhost"
+        ) {
             return true;
         }
     } catch {
