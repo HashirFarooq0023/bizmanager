@@ -13,7 +13,7 @@ const GoogleProfile = () => {
         businessName: 'BizManager Solutions',
         address: 'Lahore, Punjab, Pakistan',
         phone: '0325-4567318',
-        email: 'admin.megatrix@gmail.com',
+        email: 'support@megatrixai.com',
         website: 'www.megatrixai.com',
         category: 'Software Company',
         description: 'Complete billing and inventory management solution for businesses',

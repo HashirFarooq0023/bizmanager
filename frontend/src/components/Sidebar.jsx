@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout, reset } from '../redux/slices/authSlice';
 import { useTheme } from '../contexts/ThemeContext';
@@ -301,10 +301,12 @@ const Sidebar = ({
           }`}
       >
         {/* Header Branding */}
-        <div className="p-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div className="p-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between min-h-[60px]">
           {isEffectivelyExpanded ? (
             <>
-              <Logo size="sm" showText={true} showSubtitle={true} />
+              <Link to="/dashboard" className="flex items-center">
+                <Logo size="lg" hoverSlide={true} />
+              </Link>
               <button
                 type="button"
                 onClick={onClose}
@@ -317,9 +319,9 @@ const Sidebar = ({
               </button>
             </>
           ) : (
-            <div className="flex items-center justify-center w-full" title="BizManager by MegaTrix">
-              <Logo size="xs" showText={false} />
-            </div>
+            <Link to="/dashboard" className="flex items-center justify-center w-full py-1" title="BizManager by MegaTrix">
+              <Logo size="md" noContainer={true} showText={false} />
+            </Link>
           )}
         </div>
 
@@ -554,8 +556,8 @@ const Sidebar = ({
               <p className="text-[9px] text-slate-500 dark:text-slate-400">
                 Support: <a href="tel:03254567318" className="hover:underline text-slate-700 dark:text-slate-200 font-medium">0325-4567318</a>
               </p>
-              <p className="text-[9px] text-slate-500 dark:text-slate-400 truncate" title="admin.megatrix@gmail.com">
-                <a href="mailto:admin.megatrix@gmail.com" className="hover:underline text-slate-600 dark:text-slate-300">admin.megatrix@gmail.com</a>
+              <p className="text-[9px] text-slate-500 dark:text-slate-400 truncate" title="support@megatrixai.com">
+                <a href="mailto:support@megatrixai.com" className="hover:underline text-slate-600 dark:text-slate-300">support@megatrixai.com</a>
               </p>
             </div>
           )}

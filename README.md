@@ -426,7 +426,7 @@ This project is licensed under the Apache License - see the [LICENSE](LICENSE) f
 
 Developed and maintained by **MegaTrix**.
 
-- **Email**: `admin.megatrix@gmail.com`
+- **Email**: `support@megatrixai.com`
 - **Phone / WhatsApp**: `0325-4567318` (`+92 325-4567318`)
 - **Website**: [www.megatrixai.com](https://www.megatrixai.com)
 - **Location**: Lahore, Punjab, Pakistan

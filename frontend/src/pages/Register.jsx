@@ -118,8 +118,8 @@ const Register = () => {
 
         {/* Top Action Header Bar */}
         <header className="flex items-center justify-between w-full pb-6">
-          <Link to="/" className="flex items-center gap-2 group">
-            <Logo size="lg" showText={true} showSubtitle={true} />
+          <Link to="/" className="flex items-center gap-3.5 group">
+            <Logo size="2xl" showText={true} showSubtitle={true} />
           </Link>
 
           <div className="flex items-center gap-3">
@@ -211,7 +211,7 @@ const Register = () => {
 
               {/* Mobile Header */}
               <div className="lg:hidden flex flex-col items-center text-center mb-4">
-                <Logo size="xl" showText={true} showSubtitle={true} className="mb-3" />
+                <Logo size="2xl" showText={true} showSubtitle={true} className="mb-3" />
               </div>
 
               <div className="space-y-1 text-center sm:text-left">
@@ -421,7 +421,7 @@ const Register = () => {
             <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">v2.4 Production</span>
           </div>
           <div>
-            Support: <a href="tel:03254567318" className="font-semibold hover:underline text-slate-700 dark:text-slate-300">0325-4567318</a> • <a href="mailto:admin.megatrix@gmail.com" className="font-semibold hover:underline text-slate-700 dark:text-slate-300">admin.megatrix@gmail.com</a>
+            Support: <a href="tel:03254567318" className="font-semibold hover:underline text-slate-700 dark:text-slate-300">0325-4567318</a> • <a href="mailto:support@megatrixai.com" className="font-semibold hover:underline text-slate-700 dark:text-slate-300">support@megatrixai.com</a>
           </div>
         </footer>
 

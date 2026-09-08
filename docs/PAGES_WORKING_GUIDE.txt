@@ -408,7 +408,7 @@ TABLE OF CONTENTS
 -----------------------------------------------
 - Purpose: Integrates local business information for Google search visibility.
 - Step-by-Step Working:
-  1. Displays Business Name, Location (Lahore, Punjab, Pakistan), Contact Phone (0325-4567318), Email (admin.megatrix@gmail.com), and Website (www.megatrixai.com).
+  1. Displays Business Name, Location (Lahore, Punjab, Pakistan), Contact Phone (0325-4567318), Email (support@megatrixai.com), and Website (www.megatrixai.com).
   2. Allows updating business operating hours and photos.
 
 9.2 WhatsApp Marketing (WhatsAppMarketing.jsx)

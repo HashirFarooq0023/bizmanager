@@ -97,7 +97,7 @@ const LandingPage = () => {
 
           {/* Logo & Brand */}
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
-            <Logo size="md" showText={true} showSubtitle={true} />
+            <Logo size="lg" hoverSlide={true} />
           </div>
 
           {/* Desktop Links */}
@@ -668,8 +668,8 @@ const LandingPage = () => {
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 font-bold uppercase">Official Support Email</p>
-                  <a href="mailto:admin.megatrix@gmail.com" className="text-base font-bold text-slate-900 dark:text-white hover:text-violet-600 transition">
-                    admin.megatrix@gmail.com
+                  <a href="mailto:support@megatrixai.com" className="text-base font-bold text-slate-900 dark:text-white hover:text-violet-600 transition">
+                    support@megatrixai.com
                   </a>
                   <p className="text-[11px] text-slate-500">Guaranteed response within 2 hours</p>
                 </div>
@@ -776,7 +776,7 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
-              <Logo size="sm" showText={true} showSubtitle={true} />
+              <Logo size="md" hoverSlide={true} />
             </div>
 
             <div className="flex items-center space-x-6 text-xs text-slate-500 dark:text-slate-400">
@@ -789,7 +789,7 @@ const LandingPage = () => {
 
           <div className="pt-6 border-t border-slate-200/80 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-2">
             <p>© 2026 BizManager by MegaTrix. All rights reserved.</p>
-            <p>Support: <a href="tel:03254567318" className="font-semibold hover:underline">0325-4567318</a> • <a href="mailto:admin.megatrix@gmail.com" className="font-semibold hover:underline">admin.megatrix@gmail.com</a></p>
+            <p>Support: <a href="tel:03254567318" className="font-semibold hover:underline">0325-4567318</a> • <a href="mailto:support@megatrixai.com" className="font-semibold hover:underline">support@megatrixai.com</a></p>
           </div>
         </div>
       </footer>

@@ -67,7 +67,7 @@ const Layout = ({ children }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <Logo size="xs" showText={true} showSubtitle={false} />
+          <Logo size="sm" noContainer={true} showText={true} showSubtitle={false} />
           <button
             type="button"
             onClick={toggleTheme}

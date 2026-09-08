@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../redux/slices/authSlice';
+import { ThemeProvider } from '../contexts/ThemeContext';
 import Login from './Login';
 
 // Create a mock store for testing
@@ -28,9 +29,11 @@ describe('Login Component', () => {
 
         render(
             <Provider store={store}>
-                <BrowserRouter>
-                    <Login />
-                </BrowserRouter>
+                <ThemeProvider>
+                    <BrowserRouter>
+                        <Login />
+                    </BrowserRouter>
+                </ThemeProvider>
             </Provider>
         );
 

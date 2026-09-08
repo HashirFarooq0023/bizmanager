@@ -101,7 +101,11 @@ const Logo = ({
   showSubtitle = true,
   className = '',
   textClassName = '',
-  badgeVariant = 'black'
+  badgeVariant = 'none',
+  noContainer = true,
+  colorClassName = 'text-violet-600 dark:text-violet-500',
+  hoverSlide = false,
+  onClick
 }) => {
   // Sizing configurations matching the ~1.89:1 aspect ratio of MT logo
   const badgeSizeMap = {
@@ -113,11 +117,13 @@ const Logo = ({
   };
 
   const svgSizeMap = {
-    xs: 'h-3.5 w-auto',
-    sm: 'h-4 w-auto',
-    md: 'h-5 w-auto',
-    lg: 'h-6 w-auto',
-    xl: 'h-7 w-auto'
+    xs: 'h-4 w-auto',
+    sm: 'h-5 w-auto',
+    md: 'h-6 w-auto',
+    lg: 'h-8 sm:h-9 w-auto',
+    xl: 'h-10 sm:h-12 w-auto',
+    '2xl': 'h-14 sm:h-16 w-auto',
+    '3xl': 'h-20 sm:h-24 w-auto'
   };
 
   const titleSizeMap = {
@@ -125,7 +131,9 @@ const Logo = ({
     sm: 'text-sm',
     md: 'text-base',
     lg: 'text-lg',
-    xl: 'text-xl'
+    xl: 'text-xl sm:text-2xl',
+    '2xl': 'text-2xl sm:text-3xl',
+    '3xl': 'text-3xl sm:text-4xl'
   };
 
   const subSizeMap = {
@@ -133,22 +141,75 @@ const Logo = ({
     sm: 'text-[10px]',
     md: 'text-[11px]',
     lg: 'text-xs',
-    xl: 'text-xs'
+    xl: 'text-xs sm:text-sm',
+    '2xl': 'text-xs sm:text-sm',
+    '3xl': 'text-sm sm:text-base'
   };
 
-  const badgeClasses = badgeVariant === 'transparent'
-    ? 'text-slate-900 dark:text-white flex items-center justify-center'
-    : `${badgeSizeMap[size] || badgeSizeMap.md} flex items-center justify-center ring-1 ring-slate-800/80 hover:ring-slate-700 transition-all`;
+  const isStandalone = noContainer || badgeVariant === 'none' || badgeVariant === 'transparent' || hoverSlide;
+
+  // Slide-out on hover variant (based on D:\MegaTrix\leadhunter)
+  if (hoverSlide) {
+    return (
+      <div 
+        onClick={onClick}
+        className={`group flex items-center gap-3 cursor-pointer select-none py-1 ${className}`}
+      >
+        <MtPixelSvg 
+          className={`${svgSizeMap[size] || svgSizeMap.lg} ${colorClassName} shrink-0 transition-transform duration-300 group-hover:scale-105`} 
+        />
+        <div className={`flex flex-col justify-center max-w-0 overflow-hidden opacity-0 group-hover:max-w-[450px] group-hover:opacity-100 transition-all duration-300 ease-out whitespace-nowrap ${textClassName}`}>
+          <span className={`font-bold tracking-tight text-slate-900 dark:text-white leading-none ${titleSizeMap[size] || titleSizeMap.lg}`}>
+            BizManager
+          </span>
+          {showSubtitle && (
+            <span className={`font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase leading-tight mt-0.5 ${subSizeMap[size] || subSizeMap.sm}`}>
+              BY MEGATRIX
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Standalone large MT. logo without container
+  if (isStandalone) {
+    return (
+      <div 
+        onClick={onClick}
+        className={`inline-flex items-center gap-2.5 ${onClick ? 'cursor-pointer select-none' : ''} ${className}`}
+      >
+        <MtPixelSvg className={`${svgSizeMap[size] || svgSizeMap.md} ${colorClassName} shrink-0 transition-transform duration-200`} />
+
+        {showText && !badgeOnly && (
+          <div className={`flex flex-col justify-center ${textClassName}`}>
+            <span className={`font-bold tracking-tight text-slate-900 dark:text-white leading-none ${titleSizeMap[size] || titleSizeMap.md}`}>
+              BizManager
+            </span>
+            {showSubtitle && (
+              <span className={`font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase leading-tight mt-0.5 ${subSizeMap[size] || subSizeMap.md}`}>
+                BY MEGATRIX
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Legacy boxed container variant
+  const badgeClasses = `${badgeSizeMap[size] || badgeSizeMap.md} flex items-center justify-center ring-1 ring-slate-800/80 hover:ring-slate-700 transition-all`;
 
   return (
-    <div className={`inline-flex items-center gap-2.5 ${className}`}>
-      {/* Black sleek pill badge with vector MT logo */}
+    <div 
+      onClick={onClick}
+      className={`inline-flex items-center gap-2.5 ${onClick ? 'cursor-pointer select-none' : ''} ${className}`}
+    >
       <div className={badgeClasses}>
         <MtPixelSvg className={svgSizeMap[size] || svgSizeMap.md} />
       </div>
 
-      {/* Brand Text */}
-      {showText && (
+      {showText && !badgeOnly && (
         <div className={`flex flex-col justify-center ${textClassName}`}>
           <span className={`font-bold tracking-tight text-slate-900 dark:text-white leading-none ${titleSizeMap[size] || titleSizeMap.md}`}>
             BizManager

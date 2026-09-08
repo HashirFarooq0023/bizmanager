@@ -1,4 +1,4 @@
-﻿import { jsPDF } from 'jspdf';
+import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 
 export const generatePurchaseReturnPDF = (returnData) => {
@@ -52,7 +52,7 @@ export const generatePurchaseReturnPDF = (returnData) => {
         yPos += 6;
         addText('Inventory Management System (by MegaTrix)', 15, yPos, { fontSize: 9 });
         yPos += 5;
-        addText('Email: admin.megatrix@gmail.com', 15, yPos, { fontSize: 9 });
+        addText('Email: support@megatrixai.com', 15, yPos, { fontSize: 9 });
         yPos += 5;
         addText('Phone: 0325-4567318 | www.megatrixai.com', 15, yPos, { fontSize: 9 });
 
