@@ -363,25 +363,7 @@ const LandingPage = () => {
             </button>
           </div>
 
-          {/* Trust & Social Proof Strip (The Impactable Social Proof) */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <div className="inline-flex items-center gap-3 py-1.5 px-3.5 rounded-full bg-white/70 dark:bg-white/[0.04] backdrop-blur-md border border-slate-200/80 dark:border-white/[0.08] shadow-xs">
-              <div className="flex -space-x-2 overflow-hidden">
-                <div className="w-6 h-6 rounded-full bg-violet-600 text-white font-bold text-[10px] flex items-center justify-center border-2 border-white dark:border-[#080B11]">
-                  M
-                </div>
-                <div className="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold text-[10px] flex items-center justify-center border-2 border-white dark:border-[#080B11]">
-                  A
-                </div>
-                <div className="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold text-[10px] flex items-center justify-center border-2 border-white dark:border-[#080B11]">
-                  U
-                </div>
-              </div>
-              <span className="text-xs font-medium text-slate-600 dark:text-zinc-300">
-                Trusted by <strong className="font-semibold text-slate-900 dark:text-white font-mono tabular-nums">1,200+</strong> business owners across Pakistan
-              </span>
-            </div>
-          </div>
+
 
           {/* Quick Pillar Checklist */}
           <div className="mt-8 flex flex-wrap justify-center items-center gap-y-2 gap-x-7 text-xs sm:text-sm font-medium text-slate-500 dark:text-zinc-400">
