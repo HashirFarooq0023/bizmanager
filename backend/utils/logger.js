@@ -22,45 +22,54 @@ const consoleFormat = winston.format.combine(
   })
 );
 
-// Create Winston logger
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || "info",
-  format: logFormat,
-  defaultMeta: { service: "bizmanager-backend" },
-  transports: [
-    // Write all logs to combined.log
-    new winston.transports.File({
-      filename: path.join("logs", "combined.log"),
-      maxsize: 10485760, // 10MB
-      maxFiles: 30,
-      tailable: true,
-    }),
-    // Write errors to error.log
-    new winston.transports.File({
-      filename: path.join("logs", "error.log"),
-      level: "error",
-      maxsize: 10485760, // 10MB
-      maxFiles: 30,
-      tailable: true,
-    }),
-  ],
-});
+const transports = [];
 
-// Add console transport in development
+// Only add file transports on traditional servers (not in serverless environments like Vercel where filesystem is read-only)
+if (!process.env.VERCEL) {
+  try {
+    transports.push(
+      new winston.transports.File({
+        filename: path.join("logs", "combined.log"),
+        maxsize: 10485760, // 10MB
+        maxFiles: 30,
+        tailable: true,
+      }),
+      new winston.transports.File({
+        filename: path.join("logs", "error.log"),
+        level: "error",
+        maxsize: 10485760, // 10MB
+        maxFiles: 30,
+        tailable: true,
+      })
+    );
+  } catch (err) {
+    // Silently fall back to console logging
+  }
+}
+
+// Add console transport
 if (process.env.NODE_ENV !== "production") {
-  logger.add(
+  transports.push(
     new winston.transports.Console({
       format: consoleFormat,
     })
   );
 } else {
-  // In production, use JSON format for console (for log aggregation)
-  logger.add(
+  // In production, use JSON format for console (for log aggregation/Vercel)
+  transports.push(
     new winston.transports.Console({
       format: logFormat,
     })
   );
 }
+
+// Create Winston logger
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || "info",
+  format: logFormat,
+  defaultMeta: { service: "bizmanager-backend" },
+  transports,
+});
 
 // Create a stream object for Morgan HTTP logger
 logger.stream = {
