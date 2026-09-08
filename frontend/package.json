@@ -15,10 +15,13 @@
     "@reduxjs/toolkit": "^2.9.0",
     "@sentry/react": "^10.34.0",
     "@tailwindcss/vite": "^4.1.14",
+    "@vitejs/plugin-react": "^5.0.4",
+    "autoprefixer": "^10.4.21",
     "axios": "^1.12.2",
     "jsbarcode": "^3.12.3",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^5.0.7",
+    "postcss": "^8.5.6",
     "prop-types": "^15.8.1",
     "qrcode.react": "^4.2.0",
     "react": "^19.1.1",
@@ -29,6 +32,8 @@
     "react-router-dom": "^7.9.4",
     "react-toastify": "^11.0.5",
     "recharts": "^3.7.0",
+    "tailwindcss": "^4.1.14",
+    "vite": "^7.1.7",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
@@ -38,16 +43,11 @@
     "@testing-library/react": "^16.3.1",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
-    "@vitejs/plugin-react": "^5.0.4",
-    "autoprefixer": "^10.4.21",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.22",
     "globals": "^16.4.0",
     "jsdom": "^27.0.1",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.14",
-    "vite": "^7.1.7",
     "vitest": "^3.2.4"
   }
 }
