@@ -6,11 +6,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google" content="notranslate" />
     <title>BizManager — A Product of MegaTrix Technologies</title>
+
+    <!-- SEO & Metadata -->
+    <meta name="description" content="BizManager by MegaTrix Technologies — Modern dual-language (Urdu &amp; English) Point of Sale, Inventory Management, and Udhaar Ledger system for retail, wholesale, and supermarket businesses." />
+    <meta name="keywords" content="BizManager, MegaTrix Technologies, POS Pakistan, Point of Sale, Urdu Billing, Udhaar Khata, Retail ERP, Inventory Management, Thermal Receipt" />
+    <meta name="author" content="MegaTrix Technologies" />
+    <link rel="canonical" href="https://bizmanager.megatrixai.com/" />
+
+    <!-- Favicon & PWA Icons -->
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#7C3AED" />
+
+    <!-- Open Graph Social Sharing -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="BizManager by MegaTrix" />
+    <meta property="og:title" content="BizManager — Retail POS, Udhaar &amp; Inventory ERP by MegaTrix" />
+    <meta property="og:description" content="Fast dual-language (Urdu &amp; English) Point of Sale, Udhaar Ledger, and Inventory ERP system for modern retailers." />
+    <meta property="og:url" content="https://bizmanager.megatrixai.com/" />
+    <meta property="og:image" content="https://bizmanager.megatrixai.com/og-image.png" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="ur_PK" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="BizManager — A Product of MegaTrix Technologies" />
+    <meta name="twitter:description" content="Fast dual-language (Urdu &amp; English) Point of Sale, Udhaar Ledger, and Inventory ERP system." />
+    <meta name="twitter:image" content="https://bizmanager.megatrixai.com/og-image.png" />
+
     <!-- Preload Urdu Nastaliq font immediately so it is ready without delay -->
     <link rel="preload" href="/fonts/JameelNooriNastaliq.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Privacy-respecting Analytics Initialization Script (Configurable via VITE_GA_TRACKING_ID) -->
+    <script>
+      (function() {
+        const gaId = window.__VITE_GA_ID__ || '';
+        if (gaId && navigator.doNotTrack !== '1') {
+          const s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+          document.head.appendChild(s);
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaId);
+        }
+      })();
+    </script>
   </head>
   <body class="notranslate">
     <div id="root"></div>

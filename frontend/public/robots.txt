@@ -1,0 +1,35 @@
+# BizManager Robots.txt
+# A Product of MegaTrix Technologies (https://bizmanager.megatrixai.com)
+
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /forgot-password
+Allow: /reset-password
+Allow: /privacy-policy
+Allow: /terms
+
+# Disallow private user data, accounting registers, and POS checkout
+Disallow: /dashboard/
+Disallow: /dashboard
+Disallow: /pos/
+Disallow: /pos
+Disallow: /udhaar/
+Disallow: /udhaar
+Disallow: /inventory/
+Disallow: /inventory
+Disallow: /customers/
+Disallow: /customers
+Disallow: /suppliers/
+Disallow: /suppliers
+Disallow: /sales/
+Disallow: /purchase/
+Disallow: /cashbank/
+Disallow: /reports/
+Disallow: /utilities/
+Disallow: /approvals/
+Disallow: /profile-settings/
+Disallow: /api/
+
+Sitemap: https://bizmanager.megatrixai.com/sitemap.xml

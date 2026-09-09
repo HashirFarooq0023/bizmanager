@@ -150,7 +150,7 @@
   html[lang="ur"],
   html.urdu-active,
   html[dir="rtl"] {
-    font-size: 17px;
+    font-size: 16px;
   }
 
   /* English Mode Default Typography — Clean Inter font, tight letter-spacing, normal word spacing */
@@ -247,61 +247,118 @@
     paint-order: stroke fill;
   }
 
-  /* When in Urdu mode or using font-urdu, scale font sizes appropriately for Nastaliq (EXCLUDING English font-sans and Logo) */
+  /* ==========================================================================
+     URDU MODE BALANCED TYPOGRAPHY (Tool: Asan Mode & Pro Mode)
+     Comfortably legible Jameel Noori Nastaleeq without layout interference.
+     ========================================================================== */
+
+  /* Micro text: badges, tags, pill indicators (text-[10px], text-[11px], text-xs) */
   html.urdu-active .text-\[10px\]:not(.font-sans):not(.bizmanager-logo *),
   html.urdu-active .text-\[11px\]:not(.font-sans):not(.bizmanager-logo *),
-  html.urdu-active .font-urdu .text-\[10px\]:not(.font-sans):not(.bizmanager-logo *),
-  html.urdu-active .font-urdu .text-\[11px\]:not(.font-sans):not(.bizmanager-logo *) {
-    font-size: 0.85rem !important;
-    line-height: 1.95 !important;
-  }
-
   html.urdu-active .text-xs:not(.font-sans):not(.bizmanager-logo *),
-  html.urdu-active .font-urdu .text-xs:not(.font-sans):not(.bizmanager-logo *) {
-    font-size: 0.975rem !important; /* ~16.5px instead of 12px */
-    line-height: 2.05 !important;
+  html.urdu-active [class*="text-xs"]:not(.font-sans):not(.bizmanager-logo *),
+  html.urdu-active [class*="sm:text-xs"]:not(.font-sans):not(.bizmanager-logo *) {
+    font-size: 0.875rem !important; /* ~14px in Nastaliq: clear, sharp, compact */
+    line-height: 1.65 !important;
   }
 
+  /* Small text: descriptions, secondary card texts, table cells, form labels (text-sm) */
   html.urdu-active .text-sm:not(.font-sans):not(.bizmanager-logo *),
-  html.urdu-active .font-urdu .text-sm:not(.font-sans):not(.bizmanager-logo *) {
-    font-size: 1.1rem !important; /* ~18.7px instead of 14px */
-    line-height: 2.15 !important;
+  html.urdu-active [class*="text-sm"]:not(.font-sans):not(.bizmanager-logo *),
+  html.urdu-active [class*="sm:text-sm"]:not(.font-sans):not(.bizmanager-logo *),
+  html.urdu-active [class*="md:text-sm"]:not(.font-sans):not(.bizmanager-logo *) {
+    font-size: 1.0rem !important; /* ~16px in Nastaliq: readable, fits card layout */
+    line-height: 1.7 !important;
   }
 
+  /* Base text: body copy, standard buttons, tabs, normal copy (text-base) */
   html.urdu-active .text-base:not(.font-sans):not(.bizmanager-logo *),
-  html.urdu-active .font-urdu .text-base:not(.font-sans):not(.bizmanager-logo *) {
-    font-size: 1.25rem !important; /* ~21.2px instead of 16px */
-    line-height: 2.2 !important;
+  html.urdu-active [class*="text-base"]:not(.font-sans):not(.bizmanager-logo *),
+  html.urdu-active [class*="sm:text-base"]:not(.font-sans):not(.bizmanager-logo *) {
+    font-size: 1.125rem !important; /* ~18px in Nastaliq */
+    line-height: 1.75 !important;
   }
 
+  /* Large text: card headings, primary sections (text-lg) */
   html.urdu-active .text-lg:not(.font-sans):not(.bizmanager-logo *),
-  html.urdu-active .font-urdu .text-lg:not(.font-sans):not(.bizmanager-logo *) {
-    font-size: 1.45rem !important;
-    line-height: 2.25 !important;
+  html.urdu-active [class*="text-lg"]:not(.font-sans):not(.bizmanager-logo *),
+  html.urdu-active [class*="sm:text-lg"]:not(.font-sans):not(.bizmanager-logo *) {
+    font-size: 1.25rem !important; /* ~20px in Nastaliq */
+    line-height: 1.75 !important;
   }
 
+  /* Extra Large text: modal titles, section headers (text-xl) */
   html.urdu-active .text-xl:not(.font-sans):not(.bizmanager-logo *),
-  html.urdu-active .font-urdu .text-xl:not(.font-sans):not(.bizmanager-logo *) {
-    font-size: 1.7rem !important;
-    line-height: 2.3 !important;
+  html.urdu-active [class*="text-xl"]:not(.font-sans):not(.bizmanager-logo *),
+  html.urdu-active [class*="sm:text-xl"]:not(.font-sans):not(.bizmanager-logo *) {
+    font-size: 1.4rem !important; /* ~22.5px in Nastaliq */
+    line-height: 1.8 !important;
   }
 
+  /* Heading 2: page titles e.g. "بلنگ کاؤنٹر (POS)", "ادھار کھاتہ" (text-2xl) */
   html.urdu-active .text-2xl:not(.font-sans):not(.bizmanager-logo *),
-  html.urdu-active .font-urdu .text-2xl:not(.font-sans):not(.bizmanager-logo *) {
-    font-size: 2.05rem !important;
-    line-height: 2.35 !important;
+  html.urdu-active [class*="text-2xl"]:not(.font-sans):not(.bizmanager-logo *),
+  html.urdu-active [class*="sm:text-2xl"]:not(.font-sans):not(.bizmanager-logo *) {
+    font-size: 1.6rem !important; /* ~25.5px in Nastaliq: fits neatly in header */
+    line-height: 1.8 !important;
   }
 
+  /* Heading 3 / Large display headers (text-3xl) */
   html.urdu-active .text-3xl:not(.font-sans):not(.bizmanager-logo *),
-  html.urdu-active .font-urdu .text-3xl:not(.font-sans):not(.bizmanager-logo *) {
-    font-size: 2.45rem !important;
-    line-height: 2.4 !important;
+  html.urdu-active [class*="text-3xl"]:not(.font-sans):not(.bizmanager-logo *) {
+    font-size: 1.95rem !important;
+    line-height: 1.85 !important;
   }
 
+  /* Huge titles (text-4xl) */
   html.urdu-active .text-4xl:not(.font-sans):not(.bizmanager-logo *),
-  html.urdu-active .font-urdu .text-4xl:not(.font-sans):not(.bizmanager-logo *) {
-    font-size: 2.95rem !important;
-    line-height: 2.45 !important;
+  html.urdu-active [class*="text-4xl"]:not(.font-sans):not(.bizmanager-logo *) {
+    font-size: 2.35rem !important;
+    line-height: 1.9 !important;
+  }
+
+  /* Form Elements: Inputs, Textareas, Selects & Placeholders in Urdu Mode */
+  html.urdu-active input:not(.font-sans):not(.font-mono),
+  html.urdu-active textarea:not(.font-sans):not(.font-mono),
+  html.urdu-active select:not(.font-sans):not(.font-mono) {
+    font-size: 1.025rem !important;
+    line-height: 1.7 !important;
+    font-family: var(--font-ur);
+  }
+
+  html.urdu-active input::placeholder,
+  html.urdu-active textarea::placeholder {
+    font-size: 0.975rem !important;
+    line-height: 1.7 !important;
+    font-family: var(--font-ur);
+  }
+
+  /* Form Labels & Help Texts in Urdu Mode */
+  html.urdu-active label:not(.font-sans) {
+    font-size: 1.05rem !important;
+    font-weight: 700;
+    line-height: 1.7 !important;
+  }
+
+  /* Tables: Headers and Data Rows across all tool pages */
+  html.urdu-active th:not(.font-sans) {
+    font-size: 1.0rem !important;
+    font-weight: 700 !important;
+    line-height: 1.7 !important;
+  }
+
+  html.urdu-active td:not(.font-sans) {
+    font-size: 1.025rem !important;
+    line-height: 1.75 !important;
+  }
+
+  /* Sidebar Navigation: Clean, distinct, fits perfectly inside sidebar width */
+  html.urdu-active aside nav a,
+  html.urdu-active aside nav button,
+  html.urdu-active aside nav span {
+    font-size: 1.025rem !important;
+    font-weight: 600;
+    line-height: 1.65 !important;
   }
 
   /* RTL Breadcrumb and icon flips */

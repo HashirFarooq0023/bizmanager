@@ -65,11 +65,11 @@ const Layout = ({ children }) => {
         className={`flex flex-col min-h-screen transition-[margin] duration-300 ease-in-out ${
           isRtl
             ? isCollapsed
-              ? 'lg:mr-14'
-              : 'lg:mr-56'
+              ? 'lg:mr-16'
+              : 'lg:mr-60'
             : isCollapsed
-            ? 'lg:ml-14'
-            : 'lg:ml-56'
+            ? 'lg:ml-16'
+            : 'lg:ml-60'
         }`}
       >
         <header className="flex items-center justify-between border-b border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 shadow-xs lg:hidden print:hidden sticky top-0 z-30">

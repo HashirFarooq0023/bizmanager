@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
@@ -159,6 +159,14 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#080B11] text-slate-900 dark:text-slate-100 font-sans selection:bg-violet-600 selection:text-white transition-colors duration-300 relative overflow-x-hidden">
+
+      {/* Accessibility Skip Link */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-violet-600 focus:text-white focus:rounded-xl focus:shadow-xl focus:outline-none"
+      >
+        {language === 'ur' ? 'مرکزی مواد پر جائیں' : 'Skip to main content'}
+      </a>
 
       {/* Ambient Lighting Spotlights (The Impactable UI) */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[700px] sm:w-[900px] h-[450px] bg-gradient-to-b from-violet-600/15 via-indigo-500/10 to-transparent blur-[140px] pointer-events-none -z-10 animate-ambient-glow max-w-[100vw]" />
@@ -343,7 +351,7 @@ const LandingPage = () => {
       </header>
 
       {/* Hero Section (The Impactable Visual Anchor) */}
-      <section className="relative pt-16 sm:pt-24 pb-20 sm:pb-28 overflow-hidden">
+      <section id="main-content" className="relative pt-16 sm:pt-24 pb-20 sm:pb-28 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
 
           {/* Product Announcement Pill */}
@@ -1084,11 +1092,21 @@ const LandingPage = () => {
             </p>
 
             {contactSubmitted && (
-              <div className="mb-5 p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl flex items-center gap-2.5 animate-fade-in">
-                <FiCheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-                <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">
-                  {t('landing:contact.thankYou')}
-                </p>
+              <div className="mb-5 p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-xl flex items-start gap-2.5 animate-fade-in" role="alert">
+                <FiCheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+                <div className="text-xs space-y-1">
+                  <p className="font-semibold text-emerald-800 dark:text-emerald-300">
+                    {t('landing:contact.thankYou')}
+                  </p>
+                  <a
+                    href="https://wa.me/923254567318?text=Hello%20MegaTrix%20Team%2C%20I%20would%20like%20to%20inquire%20about%20BizManager%20for%20my%20store."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold underline cursor-pointer"
+                  >
+                    <span>{language === 'ur' ? 'فوری جواب کے لیے واٹس ایپ پر پیغام بھیجیں' : 'Need instant assistance? Chat directly on WhatsApp →'}</span>
+                  </a>
+                </div>
               </div>
             )}
 
@@ -1211,6 +1229,47 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Pre-Footer Conversion CTA Banner (Item 3) */}
+      <section className="py-12 sm:py-16 bg-gradient-to-b from-transparent via-violet-600/5 to-violet-600/10 dark:via-violet-950/20 dark:to-violet-950/40 border-t border-slate-200/70 dark:border-white/[0.06] font-urdu">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="p-8 sm:p-12 rounded-3xl bg-white/90 dark:bg-[#0C0F1A]/90 border border-slate-200/90 dark:border-white/[0.1] shadow-xl backdrop-blur-xl relative overflow-hidden">
+            <div className="relative z-10 max-w-2xl mx-auto space-y-4">
+              <span className="inline-block px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                {language === 'ur' ? 'بغیر کریڈٹ کارڈ — فوری سیٹ اپ' : 'No Credit Card Required — Instant Setup'}
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                {language === 'ur'
+                  ? 'کیا آپ اپنے اسٹور کا نظام جدید اور خودکار بنانا چاہتے ہیں؟'
+                  : 'Ready to Modernize & Grow Your Retail Store?'}
+              </h2>
+              <p className="text-xs sm:text-base text-slate-600 dark:text-zinc-300 leading-relaxed">
+                {language === 'ur'
+                  ? 'بز مینیجر کے ساتھ تیز ترین بلنگ، انوینٹری کنٹرول، اور ادھار کھاتہ کا انتظام آسان اور محفوظ بنائیں۔ آج ہی اپنا مفت ٹرائل حاصل کریں۔'
+                  : 'Join modern store owners across Pakistan. Get instant billing, inventory management, and customer credit ledger in one fast, reliable platform.'}
+              </p>
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button
+                  onClick={() => navigate(user ? '/dashboard' : '/register')}
+                  className="w-full sm:w-auto px-7 py-3.5 bg-violet-600 hover:bg-violet-500 text-white font-bold text-sm sm:text-base rounded-xl shadow-lg shadow-violet-600/25 flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer"
+                >
+                  <span>{user ? t('landing:nav.dashboard') : (language === 'ur' ? '۱۴ دن کا مفت ٹرائل شروع کریں' : 'Start 14-Day Free Trial')}</span>
+                  <FiArrowRight className="w-4 h-4" />
+                </button>
+                <a
+                  href="https://wa.me/923254567318"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto px-6 py-3.5 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-600/30 text-emerald-700 dark:text-emerald-300 font-bold text-sm sm:text-base rounded-xl flex items-center justify-center gap-2 active:scale-95 transition"
+                >
+                  <FiPhone className="w-4 h-4" />
+                  <span>{language === 'ur' ? 'واٹس ایپ پر رابطہ کریں' : 'Chat on WhatsApp'}</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer Bar */}
       <footer className="bg-white dark:bg-[#06080E] border-t border-slate-200/80 dark:border-white/[0.08] py-8 sm:py-10 transition-colors font-urdu">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -1224,6 +1283,20 @@ const LandingPage = () => {
               <button onClick={() => scrollToSection('demo')} className="hover:underline cursor-pointer">{t('landing:footer.demo')}</button>
               <button onClick={() => scrollToSection('faq')} className="hover:underline cursor-pointer">{t('landing:footer.faq')}</button>
               <button onClick={() => scrollToSection('contact')} className="hover:underline cursor-pointer">{t('landing:footer.contact')}</button>
+              <Link to="/privacy-policy" className="hover:underline cursor-pointer text-slate-700 dark:text-zinc-300 font-medium">
+                {language === 'ur' ? 'پرائیویسی پالیسی' : 'Privacy Policy'}
+              </Link>
+              <Link to="/terms" className="hover:underline cursor-pointer text-slate-700 dark:text-zinc-300 font-medium">
+                {language === 'ur' ? 'شرائط و ضوابط' : 'Terms'}
+              </Link>
+              <a
+                href="https://wa.me/923254567318"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1"
+              >
+                <span>{language === 'ur' ? 'واٹس ایپ' : 'WhatsApp'}</span>
+              </a>
             </div>
           </div>
 
