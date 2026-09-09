@@ -328,15 +328,33 @@ const POS = () => {
   // Customer management
   const handleAddCustomer = async (e) => {
     e.preventDefault();
-    const result = await dispatch(addCustomer(newCustomer));
+    if (!newCustomer.name || !newCustomer.name.trim()) {
+      toast.error(t('pos:nameRequired', 'Customer name is required'));
+      return;
+    }
+    if (!newCustomer.phone || !newCustomer.phone.trim()) {
+      toast.error(t('pos:phoneRequired', 'Customer phone number is required'));
+      return;
+    }
 
-    // Only refresh customer list if successful
-    if (result.type.includes('fulfilled')) {
+    try {
+      const payload = {
+        name: newCustomer.name.trim(),
+        phone: newCustomer.phone.trim(),
+        email: newCustomer.email?.trim() || '',
+        address: newCustomer.address?.trim() || '',
+      };
+      const createdCustomer = await dispatch(addCustomer(payload)).unwrap();
+      toast.success(t('pos:customerAddedSuccess', 'Customer added successfully!'));
       await dispatch(getAllCustomers());
+      if (createdCustomer) {
+        selectCustomer(createdCustomer);
+      }
       setNewCustomer({ name: '', phone: '', email: '', address: '' });
       setShowAddCustomer(false);
-      // Immediately reset to prevent other components from reacting
       dispatch(resetCustomer());
+    } catch (err) {
+      toast.error(typeof err === 'string' ? err : err?.message || 'Failed to add new customer');
     }
   };
 
@@ -851,30 +869,50 @@ const POS = () => {
             <div className="bg-card rounded-xl shadow-sm p-4">
               {/* Barcode Scanner Input */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-secondary mb-2">
-                  {t('pos:barcodeScanner')}
+                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
+                  <span className="flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                    </svg>
+                    <span>Barcode Scanner</span>
+                  </span>
+                  <span className="text-xs text-muted font-urdu">بارکوڈ اسکینر</span>
                 </label>
                 <input
                   type="text"
+                  dir="ltr"
                   value={barcodeInput}
                   onChange={(e) => setBarcodeInput(e.target.value)}
                   onKeyPress={handleBarcodeInput}
-                  placeholder={t('pos:scanBarcodePlaceholder')}
-                  className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder={t('pos:scanBarcodePlaceholder', 'Scan barcode or type SKU and press Enter...')}
+                  className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent font-mono text-left"
                 />
               </div>
 
-              <div className="relative mb-4">
-                <input
-                  type="text"
-                  placeholder={t('pos:searchProductsPlaceholder')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent"
-                />
-                <svg className="absolute left-3 top-2.5 w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+              {/* Item Search Input */}
+              <div className="mb-4">
+                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
+                  <span className="flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span>Search Products</span>
+                  </span>
+                  <span className="text-xs text-muted font-urdu">سامان تلاش کریں</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    dir="ltr"
+                    placeholder={t('pos:searchProductsPlaceholder', 'Search by product name or SKU...')}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent text-left"
+                  />
+                  <svg className="absolute left-3 top-2.5 w-5 h-5 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
               </div>
 
               {/* Products Grid */}
@@ -946,15 +984,19 @@ const POS = () => {
 
               {/* Discount */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-secondary mb-2">{t('pos:discountLabel')}</label>
+                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-2">
+                  <span>{t('pos:discountLabel', 'Discount (Rs.)')}</span>
+                  <span className="text-xs text-muted font-urdu">رعایت (روپے)</span>
+                </label>
                 <input
                   type="number"
+                  dir="ltr"
                   value={activeTab.discount === 0 ? '' : activeTab.discount}
                   onChange={(e) => updateTabData({ discount: parseFloat(e.target.value) || 0 })}
                   min="0"
                   step="0.01"
-                  className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder={t('pos:enterDiscount')}
+                  className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent font-mono text-left"
+                  placeholder={t('pos:enterDiscount', '0.00')}
                 />
               </div>
 
@@ -1079,15 +1121,19 @@ const POS = () => {
 
               {/* Paid Amount */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-secondary mb-2">{t('pos:amountPaidLabel')}</label>
+                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-2">
+                  <span>{t('pos:amountPaidLabel', 'Amount Paid (Rs.)')}</span>
+                  <span className="text-xs text-muted font-urdu">ادا شدہ رقم</span>
+                </label>
                 <input
                   type="number"
+                  dir="ltr"
                   value={activeTab.paidAmount}
                   onChange={(e) => updateTabData({ paidAmount: e.target.value })}
                   min="0"
                   step="0.01"
-                  className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder={t('pos:enterAmount')}
+                  className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent font-mono text-left"
+                  placeholder={t('pos:enterAmount', '0.00')}
                 />
               </div>
 
@@ -1130,18 +1176,20 @@ const POS = () => {
               {/* Change Returned Input - only show if customer paid MORE than total */}
               {balance > 0 && (
                 <div className="mt-3 pt-3 border-t border-green-200">
-                  <label className="block text-sm font-medium text-secondary mb-2">
-                    {t('pos:changeReturnedLabel')}
+                  <label className="flex items-center justify-between text-sm font-medium text-secondary mb-2">
+                    <span>{t('pos:changeReturnedLabel', 'Change Returned (Rs.)')}</span>
+                    <span className="text-xs text-muted font-urdu">واپس کی گئی رقم</span>
                   </label>
                   <input
                     type="number"
+                    dir="ltr"
                     value={activeTab.changeReturned}
                     onChange={(e) => updateTabData({ changeReturned: e.target.value })}
                     min="0"
                     max={balance}
                     step="0.01"
-                    className="w-full px-3 py-2 border border-default rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder={t('pos:enterChangeReturned')}
+                    className="w-full px-3 py-2 border border-default rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent font-mono text-left"
+                    placeholder={t('pos:enterChangeReturned', '0.00')}
                   />
 
                   {/* Remaining Change/Credit */}
@@ -1243,40 +1291,58 @@ const POS = () => {
                 <h3 className="text-lg font-bold text-main mb-4">{t('pos:addNewCustomerTitle')}</h3>
                 <form onSubmit={handleAddCustomer} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-secondary mb-1">{t('pos:name')} *</label>
+                    <label className="block text-sm font-medium text-secondary mb-1 flex items-center justify-between">
+                      <span>{t('pos:name', 'Name')} *</span>
+                      <span className="text-xs text-muted font-urdu">نام</span>
+                    </label>
                     <input
                       type="text"
                       value={newCustomer.name}
                       onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
                       required
+                      placeholder={t('pos:customerNamePlaceholder', 'Customer full name')}
                       className="w-full px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-secondary mb-1">{t('pos:phone')} *</label>
+                    <label className="block text-sm font-medium text-secondary mb-1 flex items-center justify-between">
+                      <span>{t('pos:phone', 'Phone')} *</span>
+                      <span className="text-xs text-muted font-urdu">فون نمبر</span>
+                    </label>
                     <input
                       type="tel"
+                      dir="ltr"
                       value={newCustomer.phone}
                       onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
                       required
-                      className="w-full px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary"
+                      placeholder="03001234567"
+                      className="w-full px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary font-mono text-left"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-secondary mb-1">{t('pos:email')}</label>
+                    <label className="block text-sm font-medium text-secondary mb-1 flex items-center justify-between">
+                      <span>{t('pos:email', 'Email')} <span className="text-xs text-muted font-normal">({t('common:optional', 'Optional')})</span></span>
+                      <span className="text-xs text-muted font-urdu">ای میل (اختیاری)</span>
+                    </label>
                     <input
                       type="email"
+                      dir="ltr"
                       value={newCustomer.email}
                       onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
-                      className="w-full px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary"
+                      placeholder="customer@example.com"
+                      className="w-full px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary font-mono text-left"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-secondary mb-1">{t('pos:address')}</label>
+                    <label className="block text-sm font-medium text-secondary mb-1 flex items-center justify-between">
+                      <span>{t('pos:address', 'Address')} <span className="text-xs text-muted font-normal">({t('common:optional', 'Optional')})</span></span>
+                      <span className="text-xs text-muted font-urdu">پتہ (اختیاری)</span>
+                    </label>
                     <textarea
                       value={newCustomer.address}
                       onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
                       rows={2}
+                      placeholder={t('pos:addressPlaceholder', 'Shop / street address, city...')}
                       className="w-full px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary"
                     />
                   </div>
@@ -1293,7 +1359,7 @@ const POS = () => {
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover"
+                      className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-semibold"
                     >
                       {t('pos:addCustomerBtn')}
                     </button>
@@ -1442,10 +1508,11 @@ const POS = () => {
                       </select>
                       <input
                         type="number"
+                        dir="ltr"
                         value={payment.amount}
                         onChange={(e) => updateSplitPayment(index, 'amount', e.target.value)}
-                        placeholder={t('pos:enterAmount')}
-                        className="flex-1 px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary"
+                        placeholder={t('pos:enterAmount', '0.00')}
+                        className="flex-1 px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary font-mono text-left"
                       />
                       {splitPayments.length > 1 && (
                         <button

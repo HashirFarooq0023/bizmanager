@@ -1,6 +1,8 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const SalesReportTable = ({ data, pagination, isLoading, onPageChange }) => {
+    const { t } = useTranslation(['reports', 'common']);
     const [visibleColumns, setVisibleColumns] = useState({
         invoiceDate: true,
         invoiceNo: true,
@@ -64,8 +66,8 @@ const SalesReportTable = ({ data, pagination, isLoading, onPageChange }) => {
         return (
             <div className="bg-card rounded-xl border border-border p-12 text-center">
                 <div className="text-6xl mb-4">📊</div>
-                <h3 className="text-xl font-bold text-main mb-2">No Sales Data Found</h3>
-                <p className="text-secondary">Try adjusting your filters to see results.</p>
+                <h3 className="text-xl font-bold text-main mb-2">{t('reports:noSalesFound')}</h3>
+                <p className="text-secondary">{t('reports:adjustFiltersPrompt')}</p>
             </div>
         );
     }
@@ -74,13 +76,13 @@ const SalesReportTable = ({ data, pagination, isLoading, onPageChange }) => {
         <div className="bg-card rounded-xl border border-border overflow-hidden">
             {/* Table Header with Column Toggle */}
             <div className="p-4 border-b border-border flex justify-between items-center">
-                <h3 className="text-lg font-bold text-main">Sales Transactions</h3>
+                <h3 className="text-lg font-bold text-main">{t('reports:salesTransactions')}</h3>
                 <div className="relative">
                     <button
                         onClick={() => setShowColumnDropdown(!showColumnDropdown)}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                     >
-                        Columns
+                        {t('reports:columns')}
                     </button>
                     {showColumnDropdown && (
                         <>
@@ -118,85 +120,85 @@ const SalesReportTable = ({ data, pagination, isLoading, onPageChange }) => {
                             {visibleColumns.invoiceDate && (
                                 <th
                                     onClick={() => handleSort('invoiceDate')}
-                                    className="px-4 py-3 text-left text-xs font-medium text-secondary uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                                    className="px-4 py-3 ltr:text-left rtl:text-right text-xs font-medium text-secondary uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
                                 >
-                                    Date {sortField === 'invoiceDate' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                    {t('reports:date')} {sortField === 'invoiceDate' && (sortDirection === 'asc' ? '↑' : '↓')}
                                 </th>
                             )}
                             {visibleColumns.invoiceNo && (
-                                <th className="px-4 py-3 text-left text-xs font-medium text-secondary uppercase tracking-wider">
-                                    Invoice No
+                                <th className="px-4 py-3 ltr:text-left rtl:text-right text-xs font-medium text-secondary uppercase tracking-wider">
+                                    {t('reports:invoiceNo')}
                                 </th>
                             )}
                             {visibleColumns.customerName && (
-                                <th className="px-4 py-3 text-left text-xs font-medium text-secondary uppercase tracking-wider">
-                                    Customer
+                                <th className="px-4 py-3 ltr:text-left rtl:text-right text-xs font-medium text-secondary uppercase tracking-wider">
+                                    {t('reports:customer')}
                                 </th>
                             )}
                             {visibleColumns.itemsCount && (
-                                <th className="px-4 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider">
-                                    Items
+                                <th className="px-4 py-3 ltr:text-right rtl:text-left text-xs font-medium text-secondary uppercase tracking-wider">
+                                    {t('reports:items')}
                                 </th>
                             )}
                             {visibleColumns.quantitySold && (
-                                <th className="px-4 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider">
-                                    Qty
+                                <th className="px-4 py-3 ltr:text-right rtl:text-left text-xs font-medium text-secondary uppercase tracking-wider">
+                                    {t('reports:qty')}
                                 </th>
                             )}
                             {visibleColumns.grossAmount && (
                                 <th
                                     onClick={() => handleSort('grossAmount')}
-                                    className="px-4 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                                    className="px-4 py-3 ltr:text-right rtl:text-left text-xs font-medium text-secondary uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
                                 >
-                                    Gross {sortField === 'grossAmount' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                    {t('reports:gross')} {sortField === 'grossAmount' && (sortDirection === 'asc' ? '↑' : '↓')}
                                 </th>
                             )}
                             {visibleColumns.discount && (
-                                <th className="px-4 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider">
-                                    Discount
+                                <th className="px-4 py-3 ltr:text-right rtl:text-left text-xs font-medium text-secondary uppercase tracking-wider">
+                                    {t('reports:discount')}
                                 </th>
                             )}
                             {visibleColumns.taxableAmount && (
-                                <th className="px-4 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider">
-                                    Taxable
+                                <th className="px-4 py-3 ltr:text-right rtl:text-left text-xs font-medium text-secondary uppercase tracking-wider">
+                                    {t('reports:taxable')}
                                 </th>
                             )}
                             {visibleColumns.cgst && (
-                                <th className="px-4 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider">
-                                    CGST
+                                <th className="px-4 py-3 ltr:text-right rtl:text-left text-xs font-medium text-secondary uppercase tracking-wider">
+                                    {t('reports:cgst')}
                                 </th>
                             )}
                             {visibleColumns.sgst && (
-                                <th className="px-4 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider">
-                                    SGST
+                                <th className="px-4 py-3 ltr:text-right rtl:text-left text-xs font-medium text-secondary uppercase tracking-wider">
+                                    {t('reports:sgst')}
                                 </th>
                             )}
                             {visibleColumns.igst && (
-                                <th className="px-4 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider">
-                                    IGST
+                                <th className="px-4 py-3 ltr:text-right rtl:text-left text-xs font-medium text-secondary uppercase tracking-wider">
+                                    {t('reports:igst')}
                                 </th>
                             )}
                             {visibleColumns.totalTax && (
-                                <th className="px-4 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider">
-                                    Total Tax
+                                <th className="px-4 py-3 ltr:text-right rtl:text-left text-xs font-medium text-secondary uppercase tracking-wider">
+                                    {t('reports:totalTax')}
                                 </th>
                             )}
                             {visibleColumns.netAmount && (
                                 <th
                                     onClick={() => handleSort('netAmount')}
-                                    className="px-4 py-3 text-right text-xs font-medium text-secondary uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                                    className="px-4 py-3 ltr:text-right rtl:text-left text-xs font-medium text-secondary uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
                                 >
-                                    Net Amount {sortField === 'netAmount' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                    {t('reports:netAmount')} {sortField === 'netAmount' && (sortDirection === 'asc' ? '↑' : '↓')}
                                 </th>
                             )}
                             {visibleColumns.paymentStatus && (
                                 <th className="px-4 py-3 text-center text-xs font-medium text-secondary uppercase tracking-wider">
-                                    Status
+                                    {t('reports:paymentStatus')}
                                 </th>
                             )}
                             {visibleColumns.paymentMethod && (
                                 <th className="px-4 py-3 text-center text-xs font-medium text-secondary uppercase tracking-wider">
-                                    Method
+                                    {t('reports:paymentMethod')}
                                 </th>
                             )}
                         </tr>

@@ -1,4 +1,8 @@
-﻿const SalesReportSummaryCards = ({ summary, isLoading }) => {
+import { useTranslation } from 'react-i18next';
+
+const SalesReportSummaryCards = ({ summary, isLoading }) => {
+    const { t } = useTranslation(['reports', 'common']);
+
     if (isLoading || !summary) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -14,7 +18,7 @@
 
     const cards = [
         {
-            label: 'Total Sales',
+            label: t('reports:totalSales'),
             value: `Rs. ${summary.totalSales.toLocaleString('en-PK')}`,
             change: summary.comparison?.salesChange,
             icon: '💰',
@@ -22,7 +26,7 @@
             textColor: 'text-green-700 dark:text-green-300',
         },
         {
-            label: 'Total Invoices',
+            label: t('reports:totalInvoices'),
             value: summary.totalInvoices.toLocaleString('en-PK'),
             change: summary.comparison?.invoicesChange,
             icon: '📄',
@@ -30,7 +34,7 @@
             textColor: 'text-blue-700 dark:text-blue-300',
         },
         {
-            label: 'Total Quantity',
+            label: t('reports:totalQuantity'),
             value: summary.totalQuantity.toLocaleString('en-PK'),
             change: summary.comparison?.quantityChange,
             icon: '📦',
@@ -38,28 +42,28 @@
             textColor: 'text-purple-700 dark:text-purple-300',
         },
         {
-            label: 'Total Tax',
+            label: t('reports:totalTax'),
             value: `Rs. ${summary.totalTax.toLocaleString('en-PK')}`,
             icon: '🏛️',
             color: 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800',
             textColor: 'text-orange-700 dark:text-orange-300',
         },
         {
-            label: 'Total Discount',
+            label: t('reports:totalDiscount'),
             value: `Rs. ${summary.totalDiscount.toLocaleString('en-PK')}`,
             icon: '🎁',
             color: 'bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-800',
             textColor: 'text-pink-700 dark:text-pink-300',
         },
         {
-            label: 'Gross Profit',
+            label: t('reports:grossProfit'),
             value: `Rs. ${summary.grossProfit.toLocaleString('en-PK')}`,
             icon: '📈',
             color: 'bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800',
             textColor: 'text-teal-700 dark:text-teal-300',
         },
         {
-            label: 'Net Profit',
+            label: t('reports:netProfit'),
             value: `Rs. ${summary.netProfit.toLocaleString('en-PK')}`,
             change: summary.comparison?.profitChange,
             icon: '💎',
@@ -67,7 +71,7 @@
             textColor: 'text-indigo-700 dark:text-indigo-300',
         },
         {
-            label: 'Avg Order Value',
+            label: t('reports:avgOrderValue'),
             value: `Rs. ${summary.averageOrderValue.toLocaleString('en-PK')}`,
             icon: '📊',
             color: 'bg-cyan-50 dark:bg-cyan-900/20 border-cyan-200 dark:border-cyan-800',
@@ -96,9 +100,9 @@
                         )}
                     </div>
                     <p className="text-sm text-secondary mb-1">{card.label}</p>
-                    <p className={`text-2xl font-bold ${card.textColor}`}>{card.value}</p>
+                    <p className={`text-2xl font-bold font-mono ${card.textColor}`} dir="ltr">{card.value}</p>
                     {card.change !== undefined && card.change !== null && (
-                        <p className="text-xs text-secondary mt-1">vs previous period</p>
+                        <p className="text-xs text-secondary mt-1">{t('reports:vsPreviousPeriod')}</p>
                     )}
                 </div>
             ))}

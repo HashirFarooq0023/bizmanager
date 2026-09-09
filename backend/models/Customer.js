@@ -15,10 +15,13 @@ const customerSchema = new mongoose.Schema(
       default: "",
       lowercase: true,
       trim: true,
-      match: [
-        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-        "Please fill a valid email address",
-      ],
+      validate: {
+        validator: function (v) {
+          if (!v || v.trim() === "") return true;
+          return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v);
+        },
+        message: "Please fill a valid email address",
+      },
     },
     address: {
       type: String,
@@ -41,6 +44,11 @@ const customerSchema = new mongoose.Schema(
       default: null,
     },
     // Link customer to shop owner
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      index: true,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -50,7 +58,7 @@ const customerSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Organization",
       index: true,
-      required: true,
+      required: false,
     },
   },
   { timestamps: true }

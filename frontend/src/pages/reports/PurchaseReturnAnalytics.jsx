@@ -1,10 +1,12 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
 import PageHeader from '../../components/PageHeader';
 import api from '../../services/api';
 
 const PurchaseReturnAnalytics = () => {
+    const { t } = useTranslation(['reports', 'common']);
     const [analytics, setAnalytics] = useState(null);
     const [loading, setLoading] = useState(true);
     const [dateRange, setDateRange] = useState({
@@ -35,7 +37,7 @@ const PurchaseReturnAnalytics = () => {
         return (
             <Layout>
                 <div className="flex items-center justify-center h-64">
-                    <p className="text-gray-500">Loading analytics...</p>
+                    <p className="text-secondary">{t('reports:loadingAnalytics')}</p>
                 </div>
             </Layout>
         );
@@ -44,37 +46,39 @@ const PurchaseReturnAnalytics = () => {
     return (
         <Layout>
             <PageHeader
-                title="Purchase Return Analytics"
-                subtitle="Analyze return trends and patterns"
+                title={t('reports:purchaseReturnAnalytics')}
+                description={t('reports:analyzeReturnTrends')}
             />
 
             {/* Date Range Filter */}
-            <div className="bg-white rounded-lg shadow p-4 mb-6">
+            <div className="bg-card rounded-xl border border-border p-6 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                        <label className="block text-sm font-medium text-main mb-1">{t('reports:startDate')}</label>
                         <input
                             type="date"
+                            dir="ltr"
                             value={dateRange.startDate}
                             onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 bg-card border border-border rounded-lg text-main focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                        <label className="block text-sm font-medium text-main mb-1">{t('reports:endDate')}</label>
                         <input
                             type="date"
+                            dir="ltr"
                             value={dateRange.endDate}
                             onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 bg-card border border-border rounded-lg text-main focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
                         />
                     </div>
                     <div className="flex items-end">
                         <button
                             onClick={fetchAnalytics}
-                            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
                         >
-                            Apply Filter
+                            {t('reports:applyFilter')}
                         </button>
                     </div>
                 </div>
@@ -84,57 +88,57 @@ const PurchaseReturnAnalytics = () => {
                 <>
                     {/* Summary Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <div className="bg-white rounded-lg shadow p-6">
-                            <p className="text-sm text-gray-600 mb-1">Total Returns</p>
-                            <p className="text-3xl font-bold text-gray-900">{analytics.totalReturns || 0}</p>
+                        <div className="bg-card rounded-xl border border-border p-6">
+                            <p className="text-sm text-secondary mb-1">{t('reports:totalReturns')}</p>
+                            <p className="text-3xl font-bold text-main font-mono">{analytics.totalReturns || 0}</p>
                         </div>
-                        <div className="bg-white rounded-lg shadow p-6">
-                            <p className="text-sm text-gray-600 mb-1">Total Value</p>
-                            <p className="text-3xl font-bold text-blue-600">
+                        <div className="bg-card rounded-xl border border-border p-6">
+                            <p className="text-sm text-secondary mb-1">{t('reports:totalValue')}</p>
+                            <p className="text-3xl font-bold text-blue-600 font-mono" dir="ltr">
                                 Rs. {(analytics.totalValue || 0).toFixed(2)}
                             </p>
                         </div>
-                        <div className="bg-white rounded-lg shadow p-6">
-                            <p className="text-sm text-gray-600 mb-1">Avg Return Value</p>
-                            <p className="text-3xl font-bold text-green-600">
+                        <div className="bg-card rounded-xl border border-border p-6">
+                            <p className="text-sm text-secondary mb-1">{t('reports:avgReturnValue')}</p>
+                            <p className="text-3xl font-bold text-green-600 font-mono" dir="ltr">
                                 Rs. {(analytics.avgReturnValue || 0).toFixed(2)}
                             </p>
                         </div>
-                        <div className="bg-white rounded-lg shadow p-6">
-                            <p className="text-sm text-gray-600 mb-1">Return Rate</p>
-                            <p className="text-3xl font-bold text-orange-600">
+                        <div className="bg-card rounded-xl border border-border p-6">
+                            <p className="text-sm text-secondary mb-1">{t('reports:returnRate')}</p>
+                            <p className="text-3xl font-bold text-orange-600 font-mono" dir="ltr">
                                 {(analytics.returnRate || 0).toFixed(2)}%
                             </p>
                         </div>
                     </div>
 
                     {/* Top Suppliers by Return Value */}
-                    <div className="bg-white rounded-lg shadow p-6 mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Suppliers by Return Value</h3>
+                    <div className="bg-card rounded-xl border border-border p-6 mb-6">
+                        <h3 className="text-lg font-semibold text-main mb-4">{t('reports:topSuppliersByReturn')}</h3>
                         <div className="overflow-x-auto">
                             <table className="min-w-full">
-                                <thead className="bg-gray-50">
+                                <thead className="bg-surface border-b border-border">
                                     <tr>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Supplier</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Returns</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total Value</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Return Rate</th>
+                                        <th className="px-4 py-2 ltr:text-left rtl:text-right text-xs font-medium text-secondary uppercase">{t('reports:supplier')}</th>
+                                        <th className="px-4 py-2 ltr:text-left rtl:text-right text-xs font-medium text-secondary uppercase">{t('reports:returns')}</th>
+                                        <th className="px-4 py-2 ltr:text-left rtl:text-right text-xs font-medium text-secondary uppercase">{t('reports:totalValue')}</th>
+                                        <th className="px-4 py-2 ltr:text-left rtl:text-right text-xs font-medium text-secondary uppercase">{t('reports:returnRate')}</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-200">
+                                <tbody className="divide-y divide-border">
                                     {analytics.topSuppliers?.map((supplier, index) => (
                                         <tr key={index}>
-                                            <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                                            <td className="px-4 py-3 text-sm font-medium text-main">
                                                 {supplier.supplierName}
                                             </td>
-                                            <td className="px-4 py-3 text-sm text-gray-900">{supplier.returnCount}</td>
-                                            <td className="px-4 py-3 text-sm font-semibold text-gray-900">
+                                            <td className="px-4 py-3 text-sm text-main font-mono">{supplier.returnCount}</td>
+                                            <td className="px-4 py-3 text-sm font-semibold text-main font-mono" dir="ltr">
                                                 Rs. {supplier.totalValue.toFixed(2)}
                                             </td>
-                                            <td className="px-4 py-3 text-sm">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${supplier.returnRate > 10 ? 'bg-red-100 text-red-800' :
-                                                        supplier.returnRate > 5 ? 'bg-yellow-100 text-yellow-800' :
-                                                            'bg-green-100 text-green-800'
+                                            <td className="px-4 py-3 text-sm font-mono" dir="ltr">
+                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${supplier.returnRate > 10 ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' :
+                                                        supplier.returnRate > 5 ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' :
+                                                            'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
                                                     }`}>
                                                     {supplier.returnRate.toFixed(2)}%
                                                 </span>
@@ -147,17 +151,17 @@ const PurchaseReturnAnalytics = () => {
                     </div>
 
                     {/* Top Return Reasons */}
-                    <div className="bg-white rounded-lg shadow p-6 mb-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Return Reasons</h3>
+                    <div className="bg-card rounded-xl border border-border p-6 mb-6">
+                        <h3 className="text-lg font-semibold text-main mb-4">{t('reports:topReturnReasons')}</h3>
                         <div className="space-y-3">
                             {analytics.topReasons?.map((reason, index) => (
                                 <div key={index} className="flex items-center">
                                     <div className="flex-1">
                                         <div className="flex justify-between mb-1">
-                                            <span className="text-sm font-medium text-gray-900">{reason.reason}</span>
-                                            <span className="text-sm text-gray-600">{reason.count} returns</span>
+                                            <span className="text-sm font-medium text-main">{reason.reason}</span>
+                                            <span className="text-sm text-secondary">{reason.count} {t('reports:returns')}</span>
                                         </div>
-                                        <div className="w-full bg-gray-200 rounded-full h-2">
+                                        <div className="w-full bg-border rounded-full h-2">
                                             <div
                                                 className="bg-blue-600 h-2 rounded-full"
                                                 style={{ width: `${(reason.count / analytics.totalReturns) * 100}%` }}
@@ -171,15 +175,15 @@ const PurchaseReturnAnalytics = () => {
 
                     {/* Disposition Breakdown */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div className="bg-white rounded-lg shadow p-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Disposition Breakdown</h3>
+                        <div className="bg-card rounded-xl border border-border p-6">
+                            <h3 className="text-lg font-semibold text-main mb-4">{t('reports:dispositionBreakdown')}</h3>
                             <div className="space-y-3">
                                 {analytics.dispositionBreakdown?.map((item, index) => (
                                     <div key={index} className="flex justify-between items-center">
-                                        <span className="text-sm text-gray-700 capitalize">{item.disposition.replace('_', ' ')}</span>
-                                        <div className="flex items-center space-x-2">
-                                            <span className="text-sm font-medium text-gray-900">{item.count} items</span>
-                                            <span className="text-xs text-gray-500">
+                                        <span className="text-sm text-secondary capitalize">{item.disposition.replace('_', ' ')}</span>
+                                        <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                                            <span className="text-sm font-medium text-main">{item.count} {t('reports:items')}</span>
+                                            <span className="text-xs text-muted">
                                                 ({((item.count / analytics.totalItems) * 100).toFixed(1)}%)
                                             </span>
                                         </div>
@@ -188,15 +192,15 @@ const PurchaseReturnAnalytics = () => {
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-lg shadow p-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Condition Breakdown</h3>
+                        <div className="bg-card rounded-xl border border-border p-6">
+                            <h3 className="text-lg font-semibold text-main mb-4">{t('reports:conditionBreakdown')}</h3>
                             <div className="space-y-3">
                                 {analytics.conditionBreakdown?.map((item, index) => (
                                     <div key={index} className="flex justify-between items-center">
-                                        <span className="text-sm text-gray-700 capitalize">{item.condition}</span>
-                                        <div className="flex items-center space-x-2">
-                                            <span className="text-sm font-medium text-gray-900">{item.count} items</span>
-                                            <span className="text-xs text-gray-500">
+                                        <span className="text-sm text-secondary capitalize">{item.condition}</span>
+                                        <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                                            <span className="text-sm font-medium text-main">{item.count} {t('reports:items')}</span>
+                                            <span className="text-xs text-muted">
                                                 ({((item.count / analytics.totalItems) * 100).toFixed(1)}%)
                                             </span>
                                         </div>
@@ -207,24 +211,24 @@ const PurchaseReturnAnalytics = () => {
                     </div>
 
                     {/* Financial Impact */}
-                    <div className="bg-white rounded-lg shadow p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Financial Impact</h3>
+                    <div className="bg-card rounded-xl border border-border p-6">
+                        <h3 className="text-lg font-semibold text-main mb-4">{t('reports:financialImpact')}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <p className="text-sm text-gray-600 mb-1">Total Refunded</p>
-                                <p className="text-2xl font-bold text-red-600">
+                            <div className="bg-surface p-4 rounded-lg border border-border">
+                                <p className="text-sm text-secondary mb-1">{t('reports:totalRefunded')}</p>
+                                <p className="text-2xl font-bold text-red-600 font-mono" dir="ltr">
                                     Rs. {(analytics.totalRefunded || 0).toFixed(2)}
                                 </p>
                             </div>
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <p className="text-sm text-gray-600 mb-1">Payable Adjusted</p>
-                                <p className="text-2xl font-bold text-blue-600">
+                            <div className="bg-surface p-4 rounded-lg border border-border">
+                                <p className="text-sm text-secondary mb-1">{t('reports:payableAdjusted')}</p>
+                                <p className="text-2xl font-bold text-blue-600 font-mono" dir="ltr">
                                     Rs. {(analytics.payableAdjusted || 0).toFixed(2)}
                                 </p>
                             </div>
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                                <p className="text-sm text-gray-600 mb-1">Credit Notes Issued</p>
-                                <p className="text-2xl font-bold text-green-600">
+                            <div className="bg-surface p-4 rounded-lg border border-border">
+                                <p className="text-sm text-secondary mb-1">{t('reports:creditNotesIssued')}</p>
+                                <p className="text-2xl font-bold text-green-600 font-mono" dir="ltr">
                                     Rs. {(analytics.creditNotesIssued || 0).toFixed(2)}
                                 </p>
                             </div>

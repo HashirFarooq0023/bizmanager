@@ -7,6 +7,7 @@ import PageHeader from '../../components/PageHeader';
 import FormInput from '../../components/FormInput';
 import StatsCard from '../../components/StatsCard';
 import DataTable from '../../components/DataTable';
+import Modal from '../../components/Modal';
 import {
     getTransactions,
     getCashBankPosition,
@@ -42,8 +43,24 @@ const CashInHand = () => {
         dispatch(getAccounts());
     }, [dispatch]);
 
-    useEffect(() => {
-        if (isSuccess && showAddTransaction) {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const amt = parseFloat(formData.amount);
+        if (!amt || amt <= 0) {
+            toast.error(t('cashbank:invalidAmount', 'Please enter a valid amount greater than 0'));
+            return;
+        }
+        if (!formData.otherAccount) {
+            toast.error(formData.type === 'in' ? t('cashbank:selectSourcePrompt', 'Please select source of cash') : t('cashbank:selectDestinationPrompt', 'Please select destination of cash'));
+            return;
+        }
+
+        try {
+            const payload = {
+                ...formData,
+                amount: amt,
+            };
+            await dispatch(createCashTransaction(payload)).unwrap();
             toast.success(t('cashbank:txnRecordedSuccess', 'Transaction recorded successfully'));
             setShowAddTransaction(false);
             setFormData({
@@ -57,17 +74,9 @@ const CashInHand = () => {
             dispatch(getTransactions('cash'));
             dispatch(getCashBankPosition());
             dispatch(getAccounts());
-            dispatch(reset());
+        } catch (err) {
+            toast.error(typeof err === 'string' ? err : err?.message || 'Failed to record transaction');
         }
-        if (isError && message) {
-            toast.error(message);
-            dispatch(reset());
-        }
-    }, [isSuccess, isError, message, dispatch, showAddTransaction, t]);
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        dispatch(createCashTransaction(formData));
     };
 
     const filteredTransactions = (transactions || [])
@@ -273,125 +282,124 @@ const CashInHand = () => {
                 </div>
             </div>
 
-            {/* Add Transaction Form */}
-            {showAddTransaction && (
-                <div className="bg-card rounded-xl shadow-lg p-6 mb-6 border border-light animate-slide-down">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-xl font-bold text-main border-l-4 border-indigo-600 pl-4 uppercase tracking-wider">
-                            {formData.type === 'in' ? t('cashbank:addCashIn', 'Add Cash In (Source)') : t('cashbank:addCashOut', 'Add Cash Out (Application)')}
-                        </h2>
-                        <button onClick={() => setShowAddTransaction(false)} className="text-muted hover:text-secondary">
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <form onSubmit={handleSubmit}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {/* Add Transaction Modal */}
+            <Modal
+                isOpen={showAddTransaction}
+                onClose={() => setShowAddTransaction(false)}
+                title={formData.type === 'in' ? t('cashbank:addCashIn', '+ Cash In (Deposit)') : t('cashbank:addCashOut', '- Cash Out (Withdrawal)')}
+                size="lg"
+            >
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormInput
+                            label={t('cashbank:executionDate', 'Execution Date')}
+                            type="date"
+                            dir="ltr"
+                            value={formData.date}
+                            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                            required
+                        />
+                        <FormInput
+                            label={t('cashbank:amountLabel', 'Amount (Rs.)')}
+                            type="number"
+                            dir="ltr"
+                            value={formData.amount}
+                            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                            placeholder="0.00"
+                            className="font-mono text-left"
+                            required
+                        />
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-semibold text-secondary mb-2">
+                                {formData.type === 'in' ? t('cashbank:sourceLabel', 'Source (Where is cash coming from?)') : t('cashbank:destinationLabel', 'Destination (Where is cash going?)')} *
+                            </label>
+                            <select
+                                value={formData.otherAccount}
+                                onChange={(e) => setFormData({ ...formData, otherAccount: e.target.value })}
+                                className="w-full px-4 py-2.5 border border-default rounded-lg focus:ring-2 focus:ring-primary bg-card text-main transition-all shadow-sm"
+                                required
+                            >
+                                <option value="">{formData.type === 'in' ? t('cashbank:selectSource', 'Select source of cash') : t('cashbank:selectDestination', 'Select where cash is going')}</option>
+                                {categories.map(group => (
+                                    <optgroup key={group.group} label={group.group.toUpperCase()}>
+                                        {group.items.map(item => (
+                                            <option key={typeof item === 'string' ? item : item.value} value={typeof item === 'string' ? item : item.value}>
+                                                {typeof item === 'string' ? item : item.label}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="md:col-span-2">
                             <FormInput
-                                label={t('cashbank:executionDate', 'Execution Date')}
-                                type="date"
-                                value={formData.date}
-                                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                                label={t('cashbank:narrative', 'Narrative / Description')}
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                placeholder={t('cashbank:narrativePlaceholder', 'Enter detailed purpose of transaction')}
                                 required
                             />
-                            <FormInput
-                                label={t('cashbank:amountLabel', 'Amount (Rs. )')}
-                                type="number"
-                                value={formData.amount}
-                                onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
-                                placeholder="0.00"
-                                required
-                            />
-                            <div>
-                                <label className="block text-sm font-semibold text-secondary mb-2">
-                                    {formData.type === 'in' ? t('cashbank:sourceLabel', 'Source (Where is cash coming from?)') : t('cashbank:destinationLabel', 'Destination (Where is cash going?)')}
-                                </label>
-                                <select
-                                    value={formData.otherAccount}
-                                    onChange={(e) => setFormData({ ...formData, otherAccount: e.target.value })}
-                                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary bg-card transition-all shadow-sm"
-                                    required
-                                >
-                                    <option value="">{formData.type === 'in' ? t('cashbank:selectSource', 'Select source of cash') : t('cashbank:selectDestination', 'Select where cash is going')}</option>
-                                    {categories.map(group => (
-                                        <optgroup key={group.group} label={group.group.toUpperCase()}>
-                                            {group.items.map(item => (
-                                                <option key={typeof item === 'string' ? item : item.value} value={typeof item === 'string' ? item : item.value}>
-                                                    {typeof item === 'string' ? item : item.label}
-                                                </option>
-                                            ))}
-                                        </optgroup>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="md:col-span-2">
-                                <FormInput
-                                    label={t('cashbank:narrative', 'Narrative / Description')}
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    placeholder={t('cashbank:narrativePlaceholder', 'Enter detailed purpose of transaction')}
-                                    required
-                                />
-                            </div>
+                        </div>
+                        <div className="md:col-span-2">
                             <FormInput
                                 label={t('cashbank:reference', 'Reference #')}
+                                dir="ltr"
                                 value={formData.reference}
                                 onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
                                 placeholder={t('cashbank:referencePlaceholder', 'Voucher / Bill / ID')}
+                                className="font-mono text-left"
                             />
                         </div>
+                    </div>
 
-                        {/* Balance Preview Insight */}
-                        {formData.otherAccount && formData.amount > 0 && (
-                            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-8 flex items-center justify-between animate-pulse">
-                                <div className="flex items-center space-x-4">
-                                    <div className="p-2 bg-white rounded-lg shadow-sm font-bold text-indigo-700">
-                                        {t('cashbank:livePreview', 'Live Preview')}
-                                    </div>
-                                    <div className="text-sm text-indigo-800">
-                                        {formData.type === 'in' ? (
-                                            <>
-                                                {t('cashbank:depositing', 'Depositing')} <strong>Rs. {formData.amount.toLocaleString()}</strong> {t('cashbank:into', 'into')} <strong>{t('cashbank:cashInHand', 'Cash')}</strong>
-                                                {accounts.find(a => a._id === formData.otherAccount) && ` ${t('cashbank:from', 'from')} ${accounts.find(a => a._id === formData.otherAccount).bankName}`}
-                                            </>
-                                        ) : (
-                                            <>
-                                                {t('cashbank:withdrawing', 'Withdrawing')} <strong>Rs. {formData.amount.toLocaleString()}</strong> {t('cashbank:from', 'from')} <strong>{t('cashbank:cashInHand', 'Cash')}</strong>
-                                                {accounts.find(a => a._id === formData.otherAccount) && ` ${t('cashbank:to', 'to')} ${accounts.find(a => a._id === formData.otherAccount).bankName}`}
-                                            </>
-                                        )}
-                                    </div>
+                    {/* Balance Preview Insight */}
+                    {formData.otherAccount && parseFloat(formData.amount) > 0 && (
+                        <div className="bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-800 rounded-xl p-4 flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                                <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-xs font-bold text-xs text-indigo-700 dark:text-indigo-300">
+                                    {t('cashbank:livePreview', 'Live Preview')}
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-xs text-indigo-500 uppercase font-bold">{t('cashbank:newCashBalance', 'New Cash Balance')}</p>
-                                    <p className="text-lg font-black text-indigo-700">
-                                        Rs. {(formData.type === 'in' ? (position?.cashInHand || 0) + formData.amount : (position?.cashInHand || 0) - formData.amount).toLocaleString()}
-                                    </p>
+                                <div className="text-sm text-indigo-900 dark:text-indigo-200">
+                                    {formData.type === 'in' ? (
+                                        <>
+                                            {t('cashbank:depositing', 'Depositing')} <strong>Rs. {parseFloat(formData.amount).toLocaleString()}</strong> {t('cashbank:into', 'into')} <strong>{t('cashbank:cashInHand', 'Cash')}</strong>
+                                            {accounts.find(a => a._id === formData.otherAccount) && ` ${t('cashbank:from', 'from')} ${accounts.find(a => a._id === formData.otherAccount).bankName}`}
+                                        </>
+                                    ) : (
+                                        <>
+                                            {t('cashbank:withdrawing', 'Withdrawing')} <strong>Rs. {parseFloat(formData.amount).toLocaleString()}</strong> {t('cashbank:from', 'from')} <strong>{t('cashbank:cashInHand', 'Cash')}</strong>
+                                            {accounts.find(a => a._id === formData.otherAccount) && ` ${t('cashbank:to', 'to')} ${accounts.find(a => a._id === formData.otherAccount).bankName}`}
+                                        </>
+                                    )}
                                 </div>
                             </div>
-                        )}
-
-                        <div className="flex gap-4 items-center">
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className={`px-10 py-3 text-white rounded-lg font-bold shadow-lg transition transform hover:scale-105 ${formData.type === 'in' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} ${isLoading ? 'opacity-50' : ''}`}
-                            >
-                                {isLoading ? t('cashbank:processing', 'Processing...') : formData.type === 'in' ? t('cashbank:confirmCashEntry', 'Confirm Cash Entry') : t('cashbank:confirmCashExit', 'Confirm Cash Exit')}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setShowAddTransaction(false)}
-                                className="px-10 py-3 border border-default text-secondaryrounded-lg font-bold hover:bg-surface transition"
-                            >
-                                {t('cashbank:discard', 'Discard')}
-                            </button>
+                            <div className="text-right">
+                                <p className="text-[11px] text-indigo-500 dark:text-indigo-400 uppercase font-bold">{t('cashbank:newCashBalance', 'New Cash Balance')}</p>
+                                <p className="text-base font-black text-indigo-700 dark:text-indigo-300">
+                                    Rs. {(formData.type === 'in' ? (position?.cashInHand || 0) + (parseFloat(formData.amount) || 0) : (position?.cashInHand || 0) - (parseFloat(formData.amount) || 0)).toLocaleString()}
+                                </p>
+                            </div>
                         </div>
-                    </form>
-                </div>
-            )}
+                    )}
+
+                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                        <button
+                            type="button"
+                            onClick={() => setShowAddTransaction(false)}
+                            className="px-5 py-2.5 border border-default text-secondary rounded-lg font-medium hover:bg-surface transition cursor-pointer"
+                        >
+                            {t('cashbank:discard', 'Discard')}
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className={`px-6 py-2.5 text-white rounded-lg font-semibold shadow-xs transition cursor-pointer ${formData.type === 'in' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                            {isLoading ? t('cashbank:processing', 'Processing...') : formData.type === 'in' ? t('cashbank:confirmCashEntry', 'Confirm Cash Entry') : t('cashbank:confirmCashExit', 'Confirm Cash Exit')}
+                        </button>
+                    </div>
+                </form>
+            </Modal>
 
             {/* Transactions Table */}
             <div className="bg-card rounded-xl shadow-sm border border-light overflow-hidden">

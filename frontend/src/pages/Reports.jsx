@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getSalesReport, getStockReport, getCustomerReport, reset } from '../redux/slices/reportsSlice';
 import { getAllInvoices } from '../redux/slices/posSlice';
 import Layout from '../components/Layout';
@@ -22,6 +23,7 @@ import {
 
 const Reports = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation(['reports', 'common']);
   const { salesReport, stockReport, customerReport, isLoading, isError, message } = useSelector(
     (state) => state.reports
   );
@@ -96,8 +98,8 @@ const Reports = () => {
       <div className="space-y-6">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-main mb-2">Reports & Analytics</h1>
-          <p className="text-secondary">Business insights and performance metrics</p>
+          <h1 className="text-3xl font-bold text-main mb-2">{t('reports:title')}</h1>
+          <p className="text-secondary">{t('reports:subtitle')}</p>
         </div>
 
         {/* Error Message */}
@@ -109,23 +111,23 @@ const Reports = () => {
 
         {/* Tabs */}
         <div className="mb-6 border-b border-default">
-          <nav className="flex space-x-8">
+          <nav className="flex space-x-8 rtl:space-x-reverse overflow-x-auto">
             {[
-              { id: 'overview', label: 'Overview', icon: '📊' },
-              { id: 'sales', label: 'Sales', icon: '💰' },
-              { id: 'inventory', label: 'Inventory', icon: '📦' },
-              { id: 'bank', label: 'Bank & Cash', icon: '🏦' },
-              { id: 'customers', label: 'Customers', icon: '👥' },
+              { id: 'overview', label: t('reports:overview'), icon: '📊' },
+              { id: 'sales', label: t('reports:sales'), icon: '💰' },
+              { id: 'inventory', label: t('reports:inventory'), icon: '📦' },
+              { id: 'bank', label: t('reports:bankAndCash'), icon: '🏦' },
+              { id: 'customers', label: t('reports:customers'), icon: '👥' },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition ${activeTab === tab.id
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition flex items-center whitespace-nowrap ${activeTab === tab.id
                   ? 'border-indigo-500 text-indigo-600'
                   : 'border-transparent text-muted hover:text-secondary hover:border-gray-300'
                   }`}
               >
-                <span className="mr-2">{tab.icon}</span>
+                <span className="mr-2 rtl:ml-2 rtl:mr-0">{tab.icon}</span>
                 {tab.label}
               </button>
             ))}
@@ -145,52 +147,52 @@ const Reports = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium opacity-90">Total Sales</h3>
+                      <h3 className="text-sm font-medium opacity-90">{t('reports:totalSales')}</h3>
                       <svg className="w-8 h-8 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
-                    <p className="text-3xl font-bold">
+                    <p className="text-3xl font-bold font-mono">
                       Rs. {salesReport?.report?.summary?.totalSales?.toFixed(0) || 0}
                     </p>
                     <p className="text-sm opacity-80 mt-1">
-                      {salesReport?.report?.summary?.totalInvoices || 0} invoices
+                      {t('reports:invoicesCount', { count: salesReport?.report?.summary?.totalInvoices || 0 })}
                     </p>
                   </div>
 
                   <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium opacity-90">Average Bill</h3>
+                      <h3 className="text-sm font-medium opacity-90">{t('reports:averageBill')}</h3>
                       <svg className="w-8 h-8 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                       </svg>
                     </div>
-                    <p className="text-3xl font-bold">
+                    <p className="text-3xl font-bold font-mono">
                       Rs. {salesReport?.report?.summary?.averageBill?.toFixed(0) || 0}
                     </p>
-                    <p className="text-sm opacity-80 mt-1">Per transaction</p>
+                    <p className="text-sm opacity-80 mt-1">{t('reports:perTransaction')}</p>
                   </div>
 
                   <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium opacity-90">Total Items</h3>
+                      <h3 className="text-sm font-medium opacity-90">{t('reports:totalItems')}</h3>
                       <svg className="w-8 h-8 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                       </svg>
                     </div>
-                    <p className="text-3xl font-bold">{stockReport?.totalItems || 0}</p>
-                    <p className="text-sm opacity-80 mt-1">In inventory</p>
+                    <p className="text-3xl font-bold font-mono">{stockReport?.totalItems || 0}</p>
+                    <p className="text-sm opacity-80 mt-1">{t('reports:inInventory')}</p>
                   </div>
 
                   <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg p-6 text-white">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium opacity-90">Low Stock</h3>
+                      <h3 className="text-sm font-medium opacity-90">{t('reports:lowStock')}</h3>
                       <svg className="w-8 h-8 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                       </svg>
                     </div>
-                    <p className="text-3xl font-bold">{stockReport?.lowStock?.length || 0}</p>
-                    <p className="text-sm opacity-80 mt-1">Items need restock</p>
+                    <p className="text-3xl font-bold font-mono">{stockReport?.lowStock?.length || 0}</p>
+                    <p className="text-sm opacity-80 mt-1">{t('reports:itemsNeedRestock')}</p>
                   </div>
                 </div>
 
@@ -198,7 +200,7 @@ const Reports = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Sales Trend Chart */}
                   <div className="bg-card rounded-xl shadow-sm p-6">
-                    <h3 className="text-lg font-bold text-main mb-4">Sales Trend (Last 7 Days)</h3>
+                    <h3 className="text-lg font-bold text-main mb-4">{t('reports:salesTrend7Days')}</h3>
                     <ResponsiveContainer width="100%" height={300}>
                       <LineChart data={salesChartData}>
                         <CartesianGrid strokeDasharray="3 3" />
@@ -206,14 +208,14 @@ const Reports = () => {
                         <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={2} name="Sales (Rs. )" />
+                        <Line type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={2} name={`${t('reports:sales')} (Rs.)`} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
 
                   {/* Payment Methods Chart */}
                   <div className="bg-card rounded-xl shadow-sm p-6">
-                    <h3 className="text-lg font-bold text-main mb-4">Payment Methods Distribution</h3>
+                    <h3 className="text-lg font-bold text-main mb-4">{t('reports:paymentMethodsDistribution')}</h3>
                     <ResponsiveContainer width="100%" height={300}>
                       <PieChart>
                         <Pie
@@ -238,17 +240,17 @@ const Reports = () => {
 
                 {/* AI Insights */}
                 {salesReport?.report?.insight && (
-                  <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6">
+                  <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-xl p-6 border border-indigo-100 dark:border-indigo-900">
                     <h3 className="text-lg font-bold text-main mb-4 flex items-center">
-                      <svg className="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-6 h-6 mr-2 rtl:ml-2 rtl:mr-0 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
-                      AI-Powered Business Insights
+                      {t('reports:aiInsights')}
                     </h3>
                     <div className="space-y-2">
                       {salesReport.report.insight.map((insight, index) => (
                         <div key={index} className="flex items-start">
-                          <span className="text-indigo-600 mr-2">•</span>
+                          <span className="text-indigo-600 mr-2 rtl:ml-2 rtl:mr-0">•</span>
                           <p className="text-secondary">{insight}</p>
                         </div>
                       ))}
@@ -264,7 +266,7 @@ const Reports = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Top Selling Products */}
                   <div className="bg-card rounded-xl shadow-sm p-6">
-                    <h3 className="text-lg font-bold text-main mb-4">Top Selling Products</h3>
+                    <h3 className="text-lg font-bold text-main mb-4">{t('reports:topProducts')}</h3>
                     {topSellingItems.length > 0 ? (
                       <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={topSellingItems}>
@@ -273,22 +275,22 @@ const Reports = () => {
                           <YAxis />
                           <Tooltip />
                           <Legend />
-                          <Bar dataKey="qty" fill="#6366f1" name="Quantity Sold" />
+                          <Bar dataKey="qty" fill="#6366f1" name={t('reports:qty')} />
                         </BarChart>
                       </ResponsiveContainer>
                     ) : (
-                      <p className="text-muted text-center py-8">No sales data available</p>
+                      <p className="text-muted text-center py-8">{t('reports:noSalesData')}</p>
                     )}
                   </div>
 
                   {/* Sales Summary */}
                   <div className="bg-card rounded-xl shadow-sm p-6">
-                    <h3 className="text-lg font-bold text-main mb-4">Sales Summary</h3>
+                    <h3 className="text-lg font-bold text-main mb-4">{t('reports:salesSummary')}</h3>
                     <div className="space-y-4">
-                      <div className="flex justify-between items-center p-4 bg-blue-50 rounded-lg">
+                      <div className="flex justify-between items-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
                         <div>
-                          <p className="text-sm text-secondary">Total Revenue</p>
-                          <p className="text-2xl font-bold text-blue-600">
+                          <p className="text-sm text-secondary">{t('reports:totalRevenue')}</p>
+                          <p className="text-2xl font-bold text-blue-600 font-mono">
                             Rs. {salesReport?.report?.summary?.totalSales?.toFixed(2) || 0}
                           </p>
                         </div>
@@ -297,10 +299,10 @@ const Reports = () => {
                         </svg>
                       </div>
 
-                      <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
+                      <div className="flex justify-between items-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
                         <div>
-                          <p className="text-sm text-secondary">Total Invoices</p>
-                          <p className="text-2xl font-bold text-green-600">
+                          <p className="text-sm text-secondary">{t('reports:totalInvoices')}</p>
+                          <p className="text-2xl font-bold text-green-600 font-mono">
                             {salesReport?.report?.summary?.totalInvoices || 0}
                           </p>
                         </div>
@@ -309,10 +311,10 @@ const Reports = () => {
                         </svg>
                       </div>
 
-                      <div className="flex justify-between items-center p-4 bg-purple-50 rounded-lg">
+                      <div className="flex justify-between items-center p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
                         <div>
-                          <p className="text-sm text-secondary">Average Bill Value</p>
-                          <p className="text-2xl font-bold text-purple-600">
+                          <p className="text-sm text-secondary">{t('reports:averageBillValue')}</p>
+                          <p className="text-2xl font-bold text-purple-600 font-mono">
                             Rs. {salesReport?.report?.summary?.averageBill?.toFixed(2) || 0}
                           </p>
                         </div>
@@ -331,22 +333,22 @@ const Reports = () => {
               <div className="space-y-6">
                 {/* Low Stock Alert */}
                 {stockReport?.lowStock && stockReport.lowStock.length > 0 && (
-                  <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-                    <h3 className="text-lg font-bold text-red-900 mb-4 flex items-center">
-                      <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
+                    <h3 className="text-lg font-bold text-red-900 dark:text-red-300 mb-4 flex items-center">
+                      <svg className="w-6 h-6 mr-2 rtl:ml-2 rtl:mr-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                       </svg>
-                      Low Stock Alert - {stockReport.lowStock.length} Items
+                      {t('reports:lowStockAlertWithCount', { count: stockReport.lowStock.length })}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {stockReport.lowStock.map((item) => (
-                        <div key={item._id} className="bg-white rounded-lg p-4 border border-red-200">
+                        <div key={item._id} className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-red-200 dark:border-red-900">
                           <div className="font-medium text-main">{item.name}</div>
                           <div className="text-sm text-secondary mt-1">
-                            Stock: <span className="font-bold text-red-600">{item.stockQty}</span> {item.unit}
+                            {t('reports:stock')}: <span className="font-bold text-red-600 font-mono">{item.stockQty}</span> {item.unit}
                           </div>
                           <div className="text-xs text-muted">
-                            Min. Required: {item.lowStockLimit} {item.unit}
+                            {t('reports:minRequired')}: {item.lowStockLimit} {item.unit}
                           </div>
                         </div>
                       ))}
@@ -356,21 +358,21 @@ const Reports = () => {
 
                 {/* Stock Summary */}
                 <div className="bg-card rounded-xl shadow-sm p-6">
-                  <h3 className="text-lg font-bold text-main mb-4">Inventory Summary</h3>
+                  <h3 className="text-lg font-bold text-main mb-4">{t('reports:inventorySummary')}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="text-center p-6 bg-blue-50 rounded-lg">
-                      <p className="text-4xl font-bold text-blue-600">{stockReport?.totalItems || 0}</p>
-                      <p className="text-secondary mt-2">Total Items</p>
+                    <div className="text-center p-6 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                      <p className="text-4xl font-bold text-blue-600 font-mono">{stockReport?.totalItems || 0}</p>
+                      <p className="text-secondary mt-2">{t('reports:totalItems')}</p>
                     </div>
-                    <div className="text-center p-6 bg-green-50 rounded-lg">
-                      <p className="text-4xl font-bold text-green-600">
+                    <div className="text-center p-6 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                      <p className="text-4xl font-bold text-green-600 font-mono">
                         {(stockReport?.totalItems || 0) - (stockReport?.lowStock?.length || 0)}
                       </p>
-                      <p className="text-secondary mt-2">In Stock</p>
+                      <p className="text-secondary mt-2">{t('reports:inStock')}</p>
                     </div>
-                    <div className="text-center p-6 bg-red-50 rounded-lg">
-                      <p className="text-4xl font-bold text-red-600">{stockReport?.lowStock?.length || 0}</p>
-                      <p className="text-secondary mt-2">Low Stock</p>
+                    <div className="text-center p-6 bg-red-50 dark:bg-red-950/20 rounded-lg">
+                      <p className="text-4xl font-bold text-red-600 font-mono">{stockReport?.lowStock?.length || 0}</p>
+                      <p className="text-secondary mt-2">{t('reports:lowStock')}</p>
                     </div>
                   </div>
                 </div>
@@ -382,27 +384,27 @@ const Reports = () => {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="bg-card rounded-xl shadow-sm p-6 border border-light">
-                    <h3 className="text-lg font-bold text-main mb-2">Finance Summary</h3>
-                    <p className="text-secondary mb-6">Detailed overview of all bank accounts, balances, and reconciliation status.</p>
+                    <h3 className="text-lg font-bold text-main mb-2">{t('reports:financeSummary')}</h3>
+                    <p className="text-secondary mb-6">{t('reports:financeSummaryDesc')}</p>
                     <button
                       onClick={() => navigate('/cashbank/summary')}
                       className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
                     >
-                      View Bank Summary
-                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      {t('reports:viewBankSummary')}
+                      <svg className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </button>
                   </div>
                   <div className="bg-card rounded-xl shadow-sm p-6 border border-light">
-                    <h3 className="text-lg font-bold text-main mb-2">Liquidity Position</h3>
-                    <p className="text-secondary mb-6">Visual breakdown of your cash in hand vs. bank balances and total liquidity.</p>
+                    <h3 className="text-lg font-bold text-main mb-2">{t('reports:liquidityPosition')}</h3>
+                    <p className="text-secondary mb-6">{t('reports:liquidityPositionDesc')}</p>
                     <button
                       onClick={() => navigate('/cashbank/position')}
                       className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
                     >
-                      View Cash/Bank Position
-                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      {t('reports:viewCashBankPosition')}
+                      <svg className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </button>
@@ -418,32 +420,32 @@ const Reports = () => {
                 {customerReport && customerReport.length > 0 ? (
                   <div className="bg-card rounded-xl shadow-sm p-6">
                     <h3 className="text-lg font-bold text-main mb-4">
-                      Customers with Outstanding Dues ({customerReport.length})
+                      {t('reports:customersWithOutstandingDues', { count: customerReport.length })}
                     </h3>
                     <div className="overflow-x-auto">
                       <table className="w-full">
                         <thead className="bg-surface border-b border-default">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Customer</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Phone</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Email</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-muted uppercase">Due Amount</th>
+                            <th className="px-6 py-3 ltr:text-left rtl:text-right text-xs font-medium text-muted uppercase">{t('reports:customer')}</th>
+                            <th className="px-6 py-3 ltr:text-left rtl:text-right text-xs font-medium text-muted uppercase">{t('reports:phone')}</th>
+                            <th className="px-6 py-3 ltr:text-left rtl:text-right text-xs font-medium text-muted uppercase">{t('reports:email')}</th>
+                            <th className="px-6 py-3 ltr:text-right rtl:text-left text-xs font-medium text-muted uppercase">{t('reports:dueAmount')}</th>
                           </tr>
                         </thead>
-                        <tbody className="bg-card divide-y divide-gray-200">
+                        <tbody className="bg-card divide-y divide-gray-200 dark:divide-gray-800">
                           {customerReport.map((customer) => (
                             <tr key={customer._id} className="hover:bg-surface">
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="text-sm font-medium text-main">{customer.name}</div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-main">{customer.phone}</div>
+                                <div className="text-sm text-main font-mono" dir="ltr">{customer.phone}</div>
                               </td>
                               <td className="px-6 py-4">
-                                <div className="text-sm text-main">{customer.email || '-'}</div>
+                                <div className="text-sm text-main font-mono" dir="ltr">{customer.email || '-'}</div>
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-right">
-                                <span className="text-sm font-bold text-red-600">Rs. {customer.dues.toFixed(2)}</span>
+                              <td className="px-6 py-4 whitespace-nowrap ltr:text-right rtl:text-left">
+                                <span className="text-sm font-bold text-red-600 font-mono" dir="ltr">Rs. {customer.dues.toFixed(2)}</span>
                               </td>
                             </tr>
                           ))}
@@ -456,8 +458,8 @@ const Reports = () => {
                     <svg className="w-16 h-16 text-green-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <h3 className="text-xl font-bold text-main mb-2">All Clear! 🎉</h3>
-                    <p className="text-secondary">No customers have outstanding dues.</p>
+                    <h3 className="text-xl font-bold text-main mb-2">{t('reports:allClear')}</h3>
+                    <p className="text-secondary">{t('reports:noCustomersWithDues')}</p>
                   </div>
                 )}
               </div>

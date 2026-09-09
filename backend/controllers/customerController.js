@@ -12,17 +12,22 @@ export const addCustomer = async (req, res) => {
   try {
     const { name, phone, email, address, referredBy } = req.body;
 
-    if (!name || !phone) {
-      return res.status(400).json({ message: "Name and phone are required" });
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: "Customer name is required" });
     }
 
-    if (phone.length > 10 || phone.length < 10 || !Number(phone)) {
-      return res.status(400).json({ message: "Phone is not valid" });
+    if (!phone || !phone.toString().trim()) {
+      return res.status(400).json({ message: "Customer phone number is required" });
+    }
+
+    const cleanedPhone = phone.toString().replace(/[\s\-()]/g, "");
+    if (!/^\+?\d{7,15}$/.test(cleanedPhone)) {
+      return res.status(400).json({ message: "Please enter a valid phone number (7 to 15 digits)" });
     }
 
     // Check for duplicate phone within this owner's customers
     const existingPhone = await Customer.findOne({
-      phone,
+      phone: cleanedPhone,
       owner: req.user._id,
     });
 
@@ -33,9 +38,10 @@ export const addCustomer = async (req, res) => {
     }
 
     // Check for duplicate email within this owner's customers (if email provided)
-    if (email) {
+    const cleanEmail = email && typeof email === "string" ? email.trim().toLowerCase() : "";
+    if (cleanEmail) {
       const existingEmail = await Customer.findOne({
-        email,
+        email: cleanEmail,
         owner: req.user._id,
       });
 
@@ -48,12 +54,14 @@ export const addCustomer = async (req, res) => {
 
     // Create customer with owner reference
     const customer = await Customer.create({
-      name,
-      phone,
-      email,
-      address,
+      name: name.trim(),
+      phone: cleanedPhone,
+      email: cleanEmail,
+      address: address && typeof address === "string" ? address.trim() : "",
       referredBy: referredBy || null,
       owner: req.user._id, // Link to current user
+      createdBy: req.user._id,
+      organizationId: req.user.organizationId || undefined,
     });
 
     info(
@@ -90,28 +98,41 @@ export const updateCustomer = async (req, res) => {
     }
 
     // Check for duplicate phone if phone is being updated
-    if (req.body.phone && req.body.phone !== customer.phone) {
-      const existingPhone = await Customer.findOne({
-        phone: req.body.phone,
-        owner: req.user._id,
-        _id: { $ne: req.params.id }, // Exclude current customer
-      });
+    if (req.body.phone) {
+      const cleanedPhone = req.body.phone.toString().replace(/[\s\-()]/g, "");
+      if (!/^\+?\d{7,15}$/.test(cleanedPhone)) {
+        return res.status(400).json({ message: "Please enter a valid phone number (7 to 15 digits)" });
+      }
+      req.body.phone = cleanedPhone;
 
-      if (existingPhone) {
-        return res.status(400).json({ message: "Phone number already exists" });
+      if (cleanedPhone !== customer.phone) {
+        const existingPhone = await Customer.findOne({
+          phone: cleanedPhone,
+          owner: req.user._id,
+          _id: { $ne: req.params.id }, // Exclude current customer
+        });
+
+        if (existingPhone) {
+          return res.status(400).json({ message: "Phone number already exists" });
+        }
       }
     }
 
     // Check for duplicate email if email is being updated
-    if (req.body.email && req.body.email !== customer.email) {
-      const existingEmail = await Customer.findOne({
-        email: req.body.email,
-        owner: req.user._id,
-        _id: { $ne: req.params.id },
-      });
+    if (req.body.email !== undefined) {
+      const cleanEmail = req.body.email && typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : "";
+      req.body.email = cleanEmail;
 
-      if (existingEmail) {
-        return res.status(400).json({ message: "Email already exists" });
+      if (cleanEmail && cleanEmail !== customer.email) {
+        const existingEmail = await Customer.findOne({
+          email: cleanEmail,
+          owner: req.user._id,
+          _id: { $ne: req.params.id },
+        });
+
+        if (existingEmail) {
+          return res.status(400).json({ message: "Email already exists" });
+        }
       }
     }
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import api from '../../services/api';
 import Layout from '../../components/Layout';
@@ -27,6 +28,7 @@ const getConfig = (token) => ({
 const SalesReport = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { t } = useTranslation(['reports', 'common']);
     const [searchParams, setSearchParams] = useSearchParams();
 
     // Get auth token from Redux
@@ -180,16 +182,16 @@ const SalesReport = () => {
             {/* Page Header with Back Button */}
             <div className="flex items-center justify-between mb-6">
                 <PageHeader
-                    title="Sales Report"
-                    description="Comprehensive sales analytics with advanced filtering and insights"
+                    title={t('reports:salesReport')}
+                    description={t('reports:salesReportDesc')}
                 />
                 <button
                     onClick={handleBackToReports}
                     className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 text-main rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition border border-border"
-                    title="Back to Reports"
+                    title={t('reports:backToReports')}
                 >
-                    <span>←</span>
-                    <span className="hidden sm:inline">Back</span>
+                    <span className="rtl:rotate-180">←</span>
+                    <span className="hidden sm:inline">{t('reports:back')}</span>
                 </button>
             </div>
 
@@ -200,14 +202,14 @@ const SalesReport = () => {
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
                 >
                     <span>🔍</span>
-                    {showFilters ? 'Hide Filters' : 'Show Filters'}
+                    {showFilters ? t('reports:hideFilters') : t('reports:showFilters')}
                 </button>
                 <button
                     onClick={() => setShowCharts(!showCharts)}
                     className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center gap-2"
                 >
                     <span>📊</span>
-                    {showCharts ? 'Hide Charts' : 'Show Charts'}
+                    {showCharts ? t('reports:hideCharts') : t('reports:showCharts')}
                 </button>
                 <button
                     onClick={() => handleExport('pdf')}
@@ -218,7 +220,7 @@ const SalesReport = () => {
                         }`}
                 >
                     <span>📄</span>
-                    {exportLoading ? 'Exporting...' : 'Export PDF'}
+                    {exportLoading ? t('reports:exporting') : t('reports:exportPdf')}
                 </button>
                 <button
                     onClick={() => handleExport('csv')}
@@ -229,7 +231,7 @@ const SalesReport = () => {
                         }`}
                 >
                     <span>📊</span>
-                    {exportLoading ? 'Exporting...' : 'Export CSV'}
+                    {exportLoading ? t('reports:exporting') : t('reports:exportCsv')}
                 </button>
             </div>
 

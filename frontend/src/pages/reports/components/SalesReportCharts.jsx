@@ -1,6 +1,9 @@
-﻿import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useTranslation } from 'react-i18next';
 
 const SalesReportCharts = ({ charts, isLoading }) => {
+    const { t } = useTranslation(['reports', 'common']);
+
     if (isLoading || !charts) {
         return (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -49,13 +52,13 @@ const SalesReportCharts = ({ charts, isLoading }) => {
 
     return (
         <div className="mb-8">
-            <h3 className="text-xl font-bold text-main mb-4">Visual Analytics</h3>
+            <h3 className="text-xl font-bold text-main mb-4">{t('reports:visualAnalytics')}</h3>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Sales Trend */}
                 {salesTrendData.length > 0 && (
                     <div className="bg-card p-6 rounded-xl border border-border">
-                        <h4 className="text-lg font-semibold text-main mb-4">Sales Trend</h4>
+                        <h4 className="text-lg font-semibold text-main mb-4">{t('reports:salesTrend')}</h4>
                         <ResponsiveContainer width="100%" height={300}>
                             <LineChart data={salesTrendData}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -66,8 +69,8 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                                     labelStyle={{ color: '#F3F4F6' }}
                                 />
                                 <Legend />
-                                <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} name="Sales (Rs. )" />
-                                <Line type="monotone" dataKey="count" stroke="#10B981" strokeWidth={2} name="Invoices" />
+                                <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} name={`${t('reports:sales')} (Rs.)`} />
+                                <Line type="monotone" dataKey="count" stroke="#10B981" strokeWidth={2} name={t('reports:totalInvoices')} />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
@@ -76,7 +79,7 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                 {/* Payment Methods */}
                 {paymentMethodsData.length > 0 && (
                     <div className="bg-card p-6 rounded-xl border border-border">
-                        <h4 className="text-lg font-semibold text-main mb-4">Payment Methods</h4>
+                        <h4 className="text-lg font-semibold text-main mb-4">{t('reports:paymentMethodsDistribution')}</h4>
                         <ResponsiveContainer width="100%" height={300}>
                             <PieChart>
                                 <Pie
@@ -105,7 +108,7 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                 {/* Category-wise Sales */}
                 {categoryData.length > 0 && (
                     <div className="bg-card p-6 rounded-xl border border-border">
-                        <h4 className="text-lg font-semibold text-main mb-4">Category-wise Sales</h4>
+                        <h4 className="text-lg font-semibold text-main mb-4">{t('reports:categoryWiseSales')}</h4>
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={categoryData}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -116,7 +119,7 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                                     formatter={(value) => `Rs. ${value.toLocaleString('en-PK')}`}
                                 />
                                 <Legend />
-                                <Bar dataKey="amount" fill="#8B5CF6" name="Sales (Rs. )" />
+                                <Bar dataKey="amount" fill="#8B5CF6" name={`${t('reports:sales')} (Rs.)`} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -125,7 +128,7 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                 {/* Top Customers */}
                 {topCustomersData.length > 0 && (
                     <div className="bg-card p-6 rounded-xl border border-border">
-                        <h4 className="text-lg font-semibold text-main mb-4">Top Customers</h4>
+                        <h4 className="text-lg font-semibold text-main mb-4">{t('reports:topCustomers')}</h4>
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={topCustomersData} layout="vertical">
                                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -136,7 +139,7 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                                     formatter={(value) => `Rs. ${value.toLocaleString('en-PK')}`}
                                 />
                                 <Legend />
-                                <Bar dataKey="sales" fill="#10B981" name="Sales (Rs. )" />
+                                <Bar dataKey="sales" fill="#10B981" name={`${t('reports:sales')} (Rs.)`} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -145,7 +148,7 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                 {/* Top Items */}
                 {topItemsData.length > 0 && (
                     <div className="bg-card p-6 rounded-xl border border-border lg:col-span-2">
-                        <h4 className="text-lg font-semibold text-main mb-4">Top Selling Items</h4>
+                        <h4 className="text-lg font-semibold text-main mb-4">{t('reports:topSellingItems')}</h4>
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={topItemsData}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -154,13 +157,13 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
                                     formatter={(value, name) => {
-                                        if (name === 'Amount') return `Rs. ${value.toLocaleString('en-PK')}`;
+                                        if (name === 'Amount' || name === `${t('reports:gross')} (Rs.)`) return `Rs. ${value.toLocaleString('en-PK')}`;
                                         return value;
                                     }}
                                 />
                                 <Legend />
-                                <Bar dataKey="amount" fill="#F59E0B" name="Amount (Rs. )" />
-                                <Bar dataKey="quantity" fill="#3B82F6" name="Quantity" />
+                                <Bar dataKey="amount" fill="#F59E0B" name={`${t('reports:gross')} (Rs.)`} />
+                                <Bar dataKey="quantity" fill="#3B82F6" name={t('reports:qty')} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -169,7 +172,7 @@ const SalesReportCharts = ({ charts, isLoading }) => {
                 {/* Profit Trend */}
                 {charts.profitTrend && charts.profitTrend.length > 0 && (
                     <div className="bg-card p-6 rounded-xl border border-border lg:col-span-2">
-                        <h4 className="text-lg font-semibold text-main mb-4">Profit Trend</h4>
+                        <h4 className="text-lg font-semibold text-main mb-4">{t('reports:profitTrend')}</h4>
                         <ResponsiveContainer width="100%" height={300}>
                             <LineChart data={charts.profitTrend.map(item => ({
                                 date: new Date(item._id).toLocaleDateString('en-PK', { month: 'short', day: 'numeric' }),
