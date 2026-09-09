@@ -1,0 +1,21 @@
+{
+  "title": "سامان / اسٹاک لسٹ",
+  "subtitle": "دکان میں موجود سامان کی گنتی، قیمت خرید و فروخت اور اسٹاک چیک کریں",
+  "addProduct": "نیا سامان درج کریں",
+  "searchPlaceholder": "نام یا بارکوڈ سے تلاش کریں...",
+  "allCategories": "تمام کیٹیگریز",
+  "product": "سامان کا نام",
+  "category": "قسم (کیٹیگری)",
+  "totalStock": "کل اسٹاک",
+  "available": "موجود مال",
+  "costPrice": "خرید قیمت",
+  "sellingPrice": "فروخت قیمت",
+  "margin": "منافع %",
+  "totalItems": "کل اقسام",
+  "lowStockItems": "کم اسٹاک کا انتباہ",
+  "costValuation": "موجود مال کی کل لاگت",
+  "expectedRevenue": "متوقع کل فروخت",
+  "stockAlerts": "اسٹاک کی الرٹس",
+  "deleteProduct": "سامان حذف کریں",
+  "deleteConfirmation": "کیا آپ واقعی اس سامان کو اپنی لسٹ سے ہٹانا چاہتے ہیں؟"
+}

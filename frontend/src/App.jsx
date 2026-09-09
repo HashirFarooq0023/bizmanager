@@ -2,7 +2,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useSelector } from 'react-redux';
 import { ToastContainer } from "react-toastify"
 import { ThemeProvider } from './contexts/ThemeContext';
+import { LanguageProvider } from './contexts/LanguageContext';
+import { ModeProvider } from './contexts/ModeContext';
 import { migrateUserStorage } from './utils/migrateUserStorage';
+import UdhaarKhata from './pages/UdhaarKhata';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -133,11 +136,13 @@ function App() {
 
   console.log(import.meta.env.VITE_BACKEND_URL);
   return (
-    <ThemeProvider>
-      <div className="min-h-screen bg-app text-main transition-colors duration-300">
-        <ToastContainer />
-        <Router>
-          <Routes>
+    <LanguageProvider>
+      <ModeProvider>
+        <ThemeProvider>
+          <div className="min-h-screen bg-app text-main transition-colors duration-300">
+            <ToastContainer />
+            <Router>
+              <Routes>
             {/* Public Landing Page */}
             <Route path="/" element={<LandingPage />} />
 
@@ -182,6 +187,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/udhaar"
+              element={
+                <ProtectedRoute>
+                  <UdhaarKhata />
                 </ProtectedRoute>
               }
             />
@@ -452,6 +466,8 @@ function App() {
         </Router>
       </div>
     </ThemeProvider>
+    </ModeProvider>
+  </LanguageProvider>
   );
 }
 

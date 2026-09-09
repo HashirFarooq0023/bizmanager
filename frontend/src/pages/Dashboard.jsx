@@ -10,6 +10,8 @@ import EmptyState from "../components/EmptyState";
 import { getAllExpenses } from "../redux/slices/expenseSlice";
 import { getAllBills } from "../redux/slices/billSlice";
 import { getDashboardStats } from "../redux/slices/reportsSlice";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useMode } from "../contexts/ModeContext";
 import {
   XAxis,
   YAxis,
@@ -33,6 +35,8 @@ const Dashboard = () => {
   const { expenses = [] } = useSelector((state) => state.expense);
   const { bills = [] } = useSelector((state) => state.bill);
   const { dashboardStats } = useSelector((state) => state.reports);
+  const { isRtl } = useLanguage();
+  const { isAsan } = useMode();
   const [showDetailedMetrics, setShowDetailedMetrics] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -64,10 +68,14 @@ const Dashboard = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200/80 dark:border-gray-800 shadow-xs">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-              Welcome back, {userName}
+              {isRtl ? `خوش آمدید، ${userName}` : `Welcome back, ${userName}`}
             </h1>
-            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Here's what's happening with <span className="font-semibold text-gray-700 dark:text-gray-300">{shopName}</span> today.
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 font-urdu">
+              {isRtl ? (
+                <>دکان <span className="font-bold text-gray-800 dark:text-gray-200">{shopName}</span> کا آج کا تازہ ترین خلاصہ</>
+              ) : (
+                <>Here's what's happening with <span className="font-semibold text-gray-700 dark:text-gray-300">{shopName}</span> today.</>
+              )}
             </p>
           </div>
 
@@ -75,38 +83,51 @@ const Dashboard = () => {
             <Button
               onClick={() => navigate('/pos')}
               variant="primary"
-              size="sm"
+              size="md"
               icon={
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
               }
             >
-              New Sale
+              {isRtl ? 'نیا بل بنائیں' : 'New Sale'}
+            </Button>
+            <Button
+              onClick={() => navigate('/udhaar')}
+              variant="secondary"
+              size="md"
+              className="border-rose-300 text-rose-700 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-300"
+              icon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              }
+            >
+              {isRtl ? 'ادھار کھاتہ' : 'Udhaar Khata'}
             </Button>
             <Button
               onClick={() => navigate('/inventory')}
               variant="secondary"
-              size="sm"
+              size="md"
               icon={
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
               }
             >
-              Add Product
+              {isRtl ? 'نیا سامان' : 'Add Product'}
             </Button>
             <Button
               onClick={() => navigate('/customers')}
               variant="secondary"
-              size="sm"
+              size="md"
               icon={
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                 </svg>
               }
             >
-              Add Customer
+              {isRtl ? 'نیا گاہک' : 'Add Customer'}
             </Button>
           </div>
         </div>
@@ -115,19 +136,21 @@ const Dashboard = () => {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              Today / Overview
+              {isRtl ? 'آج کا خلاصہ' : 'Today / Overview'}
             </h2>
             <button
               onClick={() => setShowDetailedMetrics(!showDetailedMetrics)}
               className="text-xs font-semibold text-violet-700 dark:text-violet-400 hover:underline cursor-pointer"
             >
-              {showDetailedMetrics ? 'Hide Detailed Breakdown' : 'Show All Metrics'}
+              {showDetailedMetrics
+                ? (isRtl ? 'تفصیل چھپائیں' : 'Hide Detailed Breakdown')
+                : (isRtl ? 'تمام کھاتے دیکھیں' : 'Show All Metrics')}
             </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             <StatsCard
-              title="Total Revenue"
+              title={isRtl ? 'کل سیلز' : 'Total Revenue'}
               value={`Rs. ${(dashboardStats?.totalRevenue || 0).toLocaleString()}`}
               iconBgColor="bg-violet-50"
               iconColor="text-violet-700"
@@ -139,7 +162,7 @@ const Dashboard = () => {
             />
 
             <StatsCard
-              title="Collected"
+              title={isRtl ? 'وصول شدہ کیش' : 'Collected'}
               value={`Rs. ${(dashboardStats?.totalCollected || 0).toLocaleString()}`}
               iconBgColor="bg-emerald-50"
               iconColor="text-emerald-700"
@@ -150,32 +173,34 @@ const Dashboard = () => {
               }
             />
 
-            <StatsCard
-              title="Customer Dues"
-              value={`Rs. ${(dashboardStats?.totalCustomerOutstanding || 0).toLocaleString()}`}
-              iconBgColor="bg-amber-50"
-              iconColor="text-amber-700"
-              icon={
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              }
-            />
+            <div onClick={() => navigate('/udhaar')} className="cursor-pointer transition-transform active:scale-95">
+              <StatsCard
+                title={isRtl ? 'گاہکوں کا ادھار' : 'Customer Dues'}
+                value={`Rs. ${(dashboardStats?.totalCustomerOutstanding || 0).toLocaleString()}`}
+                iconBgColor="bg-amber-50"
+                iconColor="text-amber-700"
+                icon={
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                }
+              />
+            </div>
 
             <StatsCard
-              title="Total Expenses"
+              title={isRtl ? 'کل اخراجات' : 'Total Expenses'}
               value={`Rs. ${(dashboardStats?.totalExpenses || 0).toLocaleString()}`}
               iconBgColor="bg-rose-50"
               iconColor="text-rose-700"
               icon={
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               }
             />
 
             <StatsCard
-              title="Net Profit"
+              title={isRtl ? 'خالص منافع' : 'Net Profit'}
               value={`Rs. ${(dashboardStats?.operatingProfit || 0).toLocaleString()}`}
               iconBgColor="bg-purple-50"
               iconColor="text-purple-700"
@@ -187,6 +212,7 @@ const Dashboard = () => {
             />
           </div>
         </div>
+
 
         {/* Detailed Metrics Panel (Collapsible) */}
         {showDetailedMetrics && (

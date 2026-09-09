@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 import { getAllItems } from '../redux/slices/inventorySlice';
 import { getAllCustomers, addCustomer, reset as resetCustomer } from '../redux/slices/customerSlice';
 import { createInvoice, reset, clearInvoice } from '../redux/slices/posSlice';
@@ -9,6 +10,7 @@ import { getAccounts } from '../redux/slices/cashbankSlice';
 import Layout from '../components/Layout';
 
 const POS = () => {
+  const { t } = useTranslation(['pos', 'common']);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { items = [] } = useSelector((state) => state.inventory);
@@ -466,7 +468,7 @@ const POS = () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Receipt</title>
+        <title>${t('pos:receipt')}</title>
         <style>
           body { font-family: monospace; width: 280px; margin: 10px; }
           h2 { text-align: center; margin: 10px 0; }
@@ -477,10 +479,10 @@ const POS = () => {
         </style>
       </head>
       <body>
-        <h2>RECEIPT</h2>
+        <h2>${t('pos:receipt')}</h2>
         <div class="line"></div>
-        <p>Date: ${new Date().toLocaleString()}</p>
-        <p>Customer: ${activeTab.customer?.name || 'Walk-in'}</p>
+        <p>${t('pos:date')} ${new Date().toLocaleString()}</p>
+        <p>${t('pos:customer')}: ${activeTab.customer?.name || t('pos:walkInCustomer')}</p>
         <div class="line"></div>
         <table>
           ${activeTab.cart.map(item => `
@@ -496,53 +498,53 @@ const POS = () => {
         <div class="line"></div>
         <table>
           <tr>
-            <td>Subtotal:</td>
+            <td>${t('pos:subtotal')}</td>
             <td class="right">Rs. ${subtotal.toFixed(2)}</td>
           </tr>
           <tr>
-            <td>Discount:</td>
+            <td>${t('pos:discount')}</td>
             <td class="right">-Rs. ${activeTab.discount.toFixed(2)}</td>
           </tr>
           ${activeTab.previousDueApplied > 0 ? `
             <tr>
-              <td>Previous Due Added:</td>
+              <td>${t('pos:previousDueAdded')}</td>
               <td class="right">+Rs. ${(parseFloat(activeTab.previousDueApplied) || 0).toFixed(2)}</td>
             </tr>
           ` : ''}
           <tr class="bold">
-            <td>Total:</td>
+            <td>${t('pos:total')}</td>
             <td class="right">Rs. ${total.toFixed(2)}</td>
           </tr>
           ${getCreditApplied() > 0 ? `
             <tr>
-              <td>Credit Applied:</td>
+              <td>${t('pos:creditApplied')}</td>
               <td class="right">-Rs. ${getCreditApplied().toFixed(2)}</td>
             </tr>
           ` : ''}
           <tr>
-            <td>Amount Paid:</td>
+            <td>${t('pos:amountPaidLabel')}</td>
             <td class="right">Rs. ${(parseFloat(activeTab.paidAmount) || 0).toFixed(2)}</td>
           </tr>
           ${balance > 0 ? `
             <tr>
-              <td>Change Returned:</td>
+              <td>${t('pos:changeReturnedLabel')}</td>
               <td class="right">Rs. ${(parseFloat(activeTab.changeReturned) || 0).toFixed(2)}</td>
             </tr>
             ${parseFloat(activeTab.changeReturned) < balance ? `
               <tr>
-                <td>Balance Due:</td>
+                <td>${t('pos:balanceDue')}</td>
                 <td class="right bold">Rs. ${(balance - parseFloat(activeTab.changeReturned || 0)).toFixed(2)}</td>
               </tr>
             ` : ''}
           ` : `
             <tr>
-              <td>Balance Due:</td>
+              <td>${t('pos:balanceDue')}</td>
               <td class="right bold">Rs. ${Math.max(0, balance).toFixed(2)}</td>
             </tr>
           `}
         </table>
         <div class="line"></div>
-        <p style="text-align: center;">Thank You!</p>
+        <p style="text-align: center;">${t('pos:thankYou')}</p>
       </body>
       </html>
     `;
@@ -664,8 +666,8 @@ const POS = () => {
         {/* Header */}
         <div className="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Point of Sale</h1>
-            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">Fast multi-tab checkout system with inventory & credit integration</p>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">{t('pos:title')}</h1>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">{t('pos:subtitle')}</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -675,7 +677,7 @@ const POS = () => {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
               </svg>
-              <span>Hold Orders</span>
+              <span>{t('pos:holdOrders')}</span>
               {holdOrders.length > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 bg-rose-600 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white">
                   {holdOrders.length}
@@ -689,7 +691,7 @@ const POS = () => {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <span>View Invoices</span>
+              <span>{t('pos:viewInvoices')}</span>
             </button>
           </div>
         </div>
@@ -720,7 +722,9 @@ const POS = () => {
                   onClick={() => setActiveTabId(tab.id)}
                   className="flex items-center space-x-2"
                 >
-                  <span className="font-medium">{tab.name}</span>
+                  <span className="font-medium">
+                    {tab.name.startsWith('Tab ') ? `${t('pos:tab')} ${tab.name.replace('Tab ', '')}` : tab.name}
+                  </span>
                   {tab.cart.length > 0 && (
                     <span className={`px-2 py-0.5 rounded-full text-xs ${activeTabId === tab.id ? 'bg-white text-primary dark:text-indigo-600' : 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300'
                       }`}>
@@ -750,7 +754,7 @@ const POS = () => {
               onClick={addNewTab}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 whitespace-nowrap"
             >
-              + New Tab
+              {t('pos:newTab')}
             </button>
           </div>
         </div>
@@ -762,13 +766,13 @@ const POS = () => {
             <div className="bg-card rounded-xl shadow-sm p-4">
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-medium text-secondary">
-                  Customer
+                  {t('pos:customer')}
                 </label>
                 <button
                   onClick={() => setShowAddCustomer(true)}
                   className="text-primary hover:text-primary-hover text-sm font-medium"
                 >
-                  + Add New Customer
+                  {t('pos:addNewCustomer')}
                 </button>
               </div>
 
@@ -784,7 +788,7 @@ const POS = () => {
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                           <span className="text-sm font-medium text-green-600">
-                            Available Credit: Rs. {getAvailableCredit().toFixed(2)}
+                            {t('pos:availableCredit')}: Rs. {getAvailableCredit().toFixed(2)}
                           </span>
                         </div>
                       )}
@@ -804,7 +808,7 @@ const POS = () => {
                   onClick={() => setShowCustomerSelect(true)}
                   className="w-full px-4 py-3 border-2 border-dashed border-default rounded-lg text-secondary hover:border-indigo-500 hover:text-indigo-600 transition"
                 >
-                  Walk-in Customer (Click to select)
+                  {t('pos:walkInCustomer')}
                 </button>
               )}
 
@@ -817,7 +821,7 @@ const POS = () => {
                         <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span className="text-sm font-medium text-green-800 dark:text-green-300">Available Credit</span>
+                        <span className="text-sm font-medium text-green-800 dark:text-green-300">{t('pos:availableCredit')}</span>
                       </div>
                       <span className="text-lg font-bold text-green-600 dark:text-green-400">Rs. {activeTab.availableCredit.toFixed(2)}</span>
                     </div>
@@ -834,36 +838,36 @@ const POS = () => {
                         <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
-                        <span className="text-sm font-medium text-red-800 dark:text-red-300">Pending Dues</span>
+                        <span className="text-sm font-medium text-red-800 dark:text-red-300">{t('pos:pendingDues')}</span>
                       </div>
                       <span className="text-lg font-bold text-red-600 dark:text-red-400">Rs. {activeTab.customer.dues.toFixed(2)}</span>
                     </div>
                   </div>
                 )
               }
-            </div >
+            </div>
 
             {/* Product Search */}
-            < div className="bg-card rounded-xl shadow-sm p-4" >
+            <div className="bg-card rounded-xl shadow-sm p-4">
               {/* Barcode Scanner Input */}
-              < div className="mb-4" >
+              <div className="mb-4">
                 <label className="block text-sm font-medium text-secondary mb-2">
-                  Barcode Scanner
+                  {t('pos:barcodeScanner')}
                 </label>
                 <input
                   type="text"
                   value={barcodeInput}
                   onChange={(e) => setBarcodeInput(e.target.value)}
                   onKeyPress={handleBarcodeInput}
-                  placeholder="Scan barcode or type SKU and press Enter..."
+                  placeholder={t('pos:scanBarcodePlaceholder')}
                   className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
-              </div >
+              </div>
 
               <div className="relative mb-4">
                 <input
                   type="text"
-                  placeholder="Search products by name or SKU..."
+                  placeholder={t('pos:searchProductsPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -887,29 +891,29 @@ const POS = () => {
                   >
                     <div className="font-medium text-main mb-1 truncate">{item.name}</div>
                     <div className="text-lg font-bold text-primary">Rs. {item.sellingPrice}</div>
-                    <div className="text-xs text-muted mt-1">Stock: {item.stockQty} {item.unit}</div>
-                    {item.sku && <div className="text-xs text-muted mt-1">SKU: {item.sku}</div>}
+                    <div className="text-xs text-muted mt-1">{t('pos:stock')}: {item.stockQty} {item.unit}</div>
+                    {item.sku && <div className="text-xs text-muted mt-1">{t('pos:sku')}: {item.sku}</div>}
                   </button>
                 ))}
               </div>
-            </div >
+            </div>
           </div >
 
           {/* Right Side - Cart & Checkout */}
           < div className="lg:col-span-1" >
             <div className="bg-card rounded-xl shadow-sm p-6 sticky top-4">
-              <h2 className="text-xl font-bold text-main mb-4">Cart</h2>
+              <h2 className="text-xl font-bold text-main mb-4">{t('pos:cart')}</h2>
 
               {/* Cart Items */}
               <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
                 {activeTab.cart.length === 0 ? (
-                  <p className="text-secondary text-center py-8">Cart is empty</p>
+                  <p className="text-secondary text-center py-8">{t('pos:cartEmpty')}</p>
                 ) : (
                   activeTab.cart.map((item) => (
                     <div key={item.item} className="flex items-center justify-between p-3 bg-surface rounded-lg">
                       <div className="flex-1">
                         <div className="font-medium text-main text-sm">{item.name}</div>
-                        <div className="text-xs text-secondary">Rs. {item.price} each</div>
+                        <div className="text-xs text-secondary">Rs. {item.price} {t('pos:each')}</div>
                       </div>
                       <div className="flex items-center space-x-2">
                         <button
@@ -942,7 +946,7 @@ const POS = () => {
 
               {/* Discount */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-secondary mb-2">Discount (Rs. )</label>
+                <label className="block text-sm font-medium text-secondary mb-2">{t('pos:discountLabel')}</label>
                 <input
                   type="number"
                   value={activeTab.discount === 0 ? '' : activeTab.discount}
@@ -950,7 +954,7 @@ const POS = () => {
                   min="0"
                   step="0.01"
                   className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Enter discount"
+                  placeholder={t('pos:enterDiscount')}
                 />
               </div>
 
@@ -965,12 +969,12 @@ const POS = () => {
                       className="w-4 h-4 text-green-600 border-default rounded focus:ring-green-500"
                     />
                     <span className="text-sm font-medium text-secondary">
-                      Apply Customer Credit (Rs. {getAvailableCredit().toFixed(2)} available)
+                      {t('pos:applyCustomerCredit', { amount: getAvailableCredit().toFixed(2) })}
                     </span>
                   </label>
                   {activeTab.applyCreditEnabled && (
                     <div className="mt-2 p-2 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/50 rounded text-sm text-green-800 dark:text-green-300">
-                      ✓ Credit of Rs. {getCreditApplied().toFixed(2)} will be applied
+                      {t('pos:creditWillBeApplied', { amount: getCreditApplied().toFixed(2) })}
                     </div>
                   )}
                 </div>
@@ -979,11 +983,11 @@ const POS = () => {
               {/* Totals */}
               <div className="border-t border-default pt-4 mb-4 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-secondary">Subtotal:</span>
+                  <span className="text-secondary">{t('pos:subtotal')}</span>
                   <span className="font-medium">Rs. {subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-secondary">Discount:</span>
+                  <span className="text-secondary">{t('pos:discount')}</span>
                   <span className="font-medium">-Rs. {activeTab.discount.toFixed(2)}</span>
                 </div>
 
@@ -992,12 +996,12 @@ const POS = () => {
                   <div className="space-y-2">
                     {activeTab.previousDueApplied > 0 ? (
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Previous Due Added:</span>
+                        <span className="text-gray-600">{t('pos:previousDueAdded')}</span>
                         <span className="font-medium text-amber-600">+Rs. {activeTab.previousDueApplied.toFixed(2)}</span>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Outstanding Previous Due:</span>
+                        <span className="text-gray-600">{t('pos:outstandingPreviousDue')}</span>
                         <span className="font-medium">Rs. {(activeTab.customer.dues || 0).toFixed(2)}</span>
                       </div>
                     )}
@@ -1007,32 +1011,32 @@ const POS = () => {
                         onClick={() => updateTabData({ previousDueApplied: 0 })}
                         className="w-full px-3 py-2 text-sm bg-amber-100 hover:bg-amber-200 text-amber-800 rounded"
                       >
-                        Remove Previous Due from Bill
+                        {t('pos:removePreviousDue')}
                       </button>
                     ) : (
                       <button
                         onClick={() => updateTabData({ previousDueApplied: Math.max(0, activeTab.customer.dues || 0) })}
                         className="w-full px-3 py-2 text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded"
                       >
-                        Add Previous Due to Bill
+                        {t('pos:addPreviousDue')}
                       </button>
                     )}
                   </div>
                 )}
 
                 <div className="flex justify-between text-lg font-bold border-t pt-2">
-                  <span>Total:</span>
+                  <span>{t('pos:total')}</span>
                   <span className="text-indigo-600">Rs. {(subtotal - activeTab.discount + (parseFloat(activeTab.previousDueApplied) || 0)).toFixed(2)}</span>
                 </div>
                 {activeTab.applyCreditEnabled && getCreditApplied() > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-secondary">Credit Applied:</span>
+                    <span className="text-secondary">{t('pos:creditApplied')}</span>
                     <span className="font-medium text-green-600">-Rs. {getCreditApplied().toFixed(2)}</span>
                   </div>
                 )}
                 {activeTab.applyCreditEnabled && getCreditApplied() > 0 && (
                   <div className="flex justify-between text-lg font-bold text-indigo-600 border-t pt-2">
-                    <span>Amount to Pay:</span>
+                    <span>{t('pos:amountToPay')}</span>
                     <span>Rs. {total.toFixed(2)}</span>
                   </div>
                 )}
@@ -1040,10 +1044,10 @@ const POS = () => {
                 {/* Payment Method Display with Split Info */}
                 {activeTab.applyCreditEnabled && getCreditApplied() > 0 && (
                   <div className="mt-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                    <div className="text-xs font-semibold text-purple-700 mb-2">Payment Breakdown</div>
+                    <div className="text-xs font-semibold text-purple-700 mb-2">{t('pos:paymentBreakdown')}</div>
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-purple-700">Customer Credit:</span>
+                        <span className="text-purple-700">{t('pos:availableCredit')}:</span>
                         <span className="font-medium text-purple-900">Rs. {getCreditApplied().toFixed(2)}</span>
                       </div>
                       {paid > 0 && (
@@ -1059,23 +1063,23 @@ const POS = () => {
 
               {/* Payment Method */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-secondary mb-2">Payment Method</label>
+                <label className="block text-sm font-medium text-secondary mb-2">{t('pos:paymentMethod')}</label>
                 <select
                   value={activeTab.paymentMethod}
                   onChange={(e) => updateTabData({ paymentMethod: e.target.value })}
                   className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
-                  <option value="cash">Cash</option>
-                  <option value="upi">UPI</option>
-                  <option value="card">Card</option>
-                  <option value="bank_transfer">Bank Transfer</option>
-                  {activeTab.customer && <option value="due">Credit/Due</option>}
+                  <option value="cash">{t('pos:cash')}</option>
+                  <option value="upi">{t('pos:upiOrDigital')}</option>
+                  <option value="card">{t('pos:card')}</option>
+                  <option value="bank_transfer">{t('pos:bankTransfer')}</option>
+                  {activeTab.customer && <option value="due">{t('pos:creditDue')}</option>}
                 </select>
-              </div >
+              </div>
 
               {/* Paid Amount */}
-              < div className="mb-4" >
-                <label className="block text-sm font-medium text-secondary mb-2">Amount Paid (Rs. )</label>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-secondary mb-2">{t('pos:amountPaidLabel')}</label>
                 <input
                   type="number"
                   value={activeTab.paidAmount}
@@ -1083,9 +1087,9 @@ const POS = () => {
                   min="0"
                   step="0.01"
                   className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Enter amount"
+                  placeholder={t('pos:enterAmount')}
                 />
-              </div >
+              </div>
 
               {/* Balance */}
               {
@@ -1093,7 +1097,7 @@ const POS = () => {
                   <div className={`mb-4 p-3 rounded-lg ${balance >= 0 ? 'bg-green-50 dark:bg-green-950/30' : 'bg-red-50 dark:bg-red-950/30'}`}>
                     <div className="flex justify-between items-center">
                       <span className="font-medium text-secondary">
-                        {balance >= 0 ? 'Change to Return:' : 'Balance Due:'}
+                        {balance >= 0 ? t('pos:changeToReturn') : t('pos:balanceDue')}
                       </span>
                       <span className={`text-xl font-bold ${balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         Rs. {Math.abs(balance).toFixed(2)}
@@ -1106,14 +1110,14 @@ const POS = () => {
               {/* Bank Account Selection */}
               {activeTab.paymentMethod === 'bank_transfer' && (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-secondary mb-2">Select Bank Account</label>
+                  <label className="block text-sm font-medium text-secondary mb-2">{t('pos:selectBankAccount')}</label>
                   <select
                     value={activeTab.bankAccount}
                     onChange={(e) => updateTabData({ bankAccount: e.target.value })}
                     className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                   >
-                    <option value="">Choose account</option>
+                    <option value="">{t('pos:chooseAccount')}</option>
                     {accounts.map(account => (
                       <option key={account._id} value={account._id}>
                         {account.bankName} - {account.accountType} (Rs. {account.currentBalance})
@@ -1127,7 +1131,7 @@ const POS = () => {
               {balance > 0 && (
                 <div className="mt-3 pt-3 border-t border-green-200">
                   <label className="block text-sm font-medium text-secondary mb-2">
-                    Change Returned:
+                    {t('pos:changeReturnedLabel')}
                   </label>
                   <input
                     type="number"
@@ -1137,7 +1141,7 @@ const POS = () => {
                     max={balance}
                     step="0.01"
                     className="w-full px-3 py-2 border border-default rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Enter change returned to customer"
+                    placeholder={t('pos:enterChangeReturned')}
                   />
 
                   {/* Remaining Change/Credit */}
@@ -1145,7 +1149,7 @@ const POS = () => {
                     <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-yellow-800 font-medium">
-                          {activeTab.customer ? 'Credit Due to Customer:' : 'Remaining Change (unpaid):'}
+                          {activeTab.customer ? t('pos:creditDueToCustomer') : t('pos:remainingChangeUnpaid')}
                         </span>
                         <span className="font-bold text-yellow-900">
                           Rs. {(balance - parseFloat(activeTab.changeReturned || 0)).toFixed(2)}
@@ -1153,7 +1157,7 @@ const POS = () => {
                       </div>
                       {activeTab.customer && (
                         <p className="text-xs text-yellow-700 mt-1">
-                          💡 This will be added as credit to customer's account
+                          {t('pos:addedAsCreditNotice')}
                         </p>
                       )}
                     </div>
@@ -1165,7 +1169,7 @@ const POS = () => {
                       <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      <span className="font-medium">Full change returned ✓</span>
+                      <span className="font-medium">{t('pos:fullChangeReturnedNotice')}</span>
                     </div>
                   )}
                 </div>
@@ -1176,7 +1180,7 @@ const POS = () => {
                 !activeTab.customer && paid < total && (
                   <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800/50 rounded-lg">
                     <p className="text-xs text-yellow-800 dark:text-yellow-300">
-                      ⚠️ Walk-in customers must pay full amount. Add customer for credit.
+                      {t('pos:walkInWarning')}
                     </p>
                   </div>
                 )
@@ -1188,7 +1192,7 @@ const POS = () => {
                 disabled={activeTab.cart.length === 0 || isLoading}
                 className="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
-                {isLoading ? 'Processing...' : 'Complete Sale'}
+                {isLoading ? t('pos:processing') : t('pos:completeSale')}
               </button>
 
               {/* Additional Actions */}
@@ -1198,21 +1202,21 @@ const POS = () => {
                   disabled={activeTab.cart.length === 0}
                   className="py-2 border border-yellow-600 text-yellow-600 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-950/30 disabled:opacity-50 text-sm"
                 >
-                  Hold
+                  {t('pos:hold')}
                 </button>
                 <button
                   onClick={() => setShowSplitPayment(true)}
                   disabled={activeTab.cart.length === 0}
                   className="py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-950/30 disabled:opacity-50 text-sm"
                 >
-                  Split Pay
+                  {t('pos:splitPay')}
                 </button>
                 <button
                   onClick={printReceipt}
                   disabled={activeTab.cart.length === 0}
                   className="py-2 border border-gray-600 text-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 text-sm"
                 >
-                  Print
+                  {t('pos:print')}
                 </button>
               </div>
 
@@ -1223,11 +1227,11 @@ const POS = () => {
                     onClick={() => updateTabData({ cart: [] })}
                     className="w-full mt-2 py-2 border border-default text-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    Clear Cart
+                    {t('pos:clearCart')}
                   </button>
                 )
               }
-            </div >
+            </div>
           </div >
         </div >
 
@@ -1236,10 +1240,10 @@ const POS = () => {
           showAddCustomer && (
             <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
               <div className="bg-card rounded-xl p-6 max-w-md w-full mx-4">
-                <h3 className="text-lg font-bold text-main mb-4">Add New Customer</h3>
+                <h3 className="text-lg font-bold text-main mb-4">{t('pos:addNewCustomerTitle')}</h3>
                 <form onSubmit={handleAddCustomer} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-secondary mb-1">Name *</label>
+                    <label className="block text-sm font-medium text-secondary mb-1">{t('pos:name')} *</label>
                     <input
                       type="text"
                       value={newCustomer.name}
@@ -1249,7 +1253,7 @@ const POS = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-secondary mb-1">Phone *</label>
+                    <label className="block text-sm font-medium text-secondary mb-1">{t('pos:phone')} *</label>
                     <input
                       type="tel"
                       value={newCustomer.phone}
@@ -1259,7 +1263,7 @@ const POS = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-secondary mb-1">Email</label>
+                    <label className="block text-sm font-medium text-secondary mb-1">{t('pos:email')}</label>
                     <input
                       type="email"
                       value={newCustomer.email}
@@ -1268,7 +1272,7 @@ const POS = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-secondary mb-1">Address</label>
+                    <label className="block text-sm font-medium text-secondary mb-1">{t('pos:address')}</label>
                     <textarea
                       value={newCustomer.address}
                       onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
@@ -1285,13 +1289,13 @@ const POS = () => {
                       }}
                       className="flex-1 px-4 py-2 border border-default text-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]"
                     >
-                      Cancel
+                      {t('pos:cancel')}
                     </button>
                     <button
                       type="submit"
                       className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover"
                     >
-                      Add Customer
+                      {t('pos:addCustomerBtn')}
                     </button>
                   </div>
                 </form>
@@ -1305,13 +1309,13 @@ const POS = () => {
           showCustomerSelect && (
             <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
               <div className="bg-card rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto border border-default">
-                <h3 className="text-lg font-bold text-main mb-4">Select Customer</h3>
+                <h3 className="text-lg font-bold text-main mb-4">{t('pos:selectCustomerTitle')}</h3>
 
                 {/* Customer Search */}
                 <div className="mb-4">
                   <input
                     type="text"
-                    placeholder="Search by name or phone..."
+                    placeholder={t('pos:searchCustomerPlaceholder')}
                     value={customerSearchTerm}
                     onChange={(e) => setCustomerSearchTerm(e.target.value)}
                     className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary"
@@ -1321,7 +1325,7 @@ const POS = () => {
 
                 <div className="space-y-2">
                   {filteredCustomers.length === 0 ? (
-                    <p className="text-center text-secondary py-4">No customers found</p>
+                    <p className="text-center text-secondary py-4">{t('pos:noCustomersFound')}</p>
                   ) : (
                     filteredCustomers.map((customer) => (
                       <button
@@ -1332,7 +1336,7 @@ const POS = () => {
                         <div className="font-medium text-main">{customer.name}</div>
                         <div className="text-sm text-secondary">{customer.phone}</div>
                         {customer.dues > 0 && (
-                          <div className="text-sm text-red-600 dark:text-red-400 mt-1">Outstanding: Rs. {customer.dues.toFixed(2)}</div>
+                          <div className="text-sm text-red-600 dark:text-red-400 mt-1">{t('pos:outstandingDues', { amount: customer.dues.toFixed(2) })}</div>
                         )}
                       </button>
                     ))
@@ -1345,7 +1349,7 @@ const POS = () => {
                   }}
                   className="w-full mt-4 px-4 py-2 border border-default text-secondary rounded-lg hover:bg-surface dark:hover:bg-[rgb(var(--color-input))]"
                 >
-                  Cancel
+                  {t('pos:cancel')}
                 </button>
               </div>
             </div>
@@ -1358,11 +1362,11 @@ const POS = () => {
             <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
               <div className="bg-card rounded-xl p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto border border-default">
                 <h3 className="text-lg font-bold text-main mb-4">
-                  Parked Orders ({holdOrders.length})
+                  {t('pos:parkedOrders', { count: holdOrders.length })}
                 </h3>
 
                 {holdOrders.length === 0 ? (
-                  <p className="text-center text-secondary py-8">No parked orders</p>
+                  <p className="text-center text-secondary py-8">{t('pos:noParkedOrders')}</p>
                 ) : (
                   <div className="space-y-3">
                     {holdOrders.map((order) => (
@@ -1375,7 +1379,7 @@ const POS = () => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-sm text-secondary">{order.cart.length} items</div>
+                            <div className="text-sm text-secondary">{t('pos:itemsCount', { count: order.cart.length })}</div>
                             <div className="font-bold text-indigo-600">
                               Rs. {(order.cart.reduce((sum, item) => sum + item.total, 0) - order.discount).toFixed(2)}
                             </div>
@@ -1386,13 +1390,13 @@ const POS = () => {
                             onClick={() => retrieveHoldOrder(order)}
                             className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover"
                           >
-                            Retrieve
+                            {t('pos:retrieve')}
                           </button>
                           <button
                             onClick={() => deleteHoldOrder(order.id)}
                             className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                           >
-                            Delete
+                            {t('pos:delete')}
                           </button>
                         </div>
                       </div>
@@ -1404,7 +1408,7 @@ const POS = () => {
                   onClick={() => setShowHoldOrders(false)}
                   className="w-full mt-4 px-4 py-2 border border-default text-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]"
                 >
-                  Close
+                  {t('pos:close')}
                 </button>
               </div>
             </div>
@@ -1416,10 +1420,10 @@ const POS = () => {
           showSplitPayment && (
             <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
               <div className="bg-card rounded-xl p-6 max-w-md w-full mx-4 border border-default">
-                <h3 className="text-lg font-bold text-main mb-4">Split Payment</h3>
+                <h3 className="text-lg font-bold text-main mb-4">{t('pos:splitPaymentTitle')}</h3>
                 <div className="mb-4 p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg">
                   <div className="flex justify-between text-sm">
-                    <span className="text-secondary">Total Amount:</span>
+                    <span className="text-secondary">{t('pos:totalAmount')}</span>
                     <span className="font-bold text-primary">Rs. {total.toFixed(2)}</span>
                   </div>
                 </div>
@@ -1432,15 +1436,15 @@ const POS = () => {
                         onChange={(e) => updateSplitPayment(index, 'method', e.target.value)}
                         className="flex-1 px-3 py-2 border border-default rounded-lg bg-input text-main focus:ring-2 focus:ring-primary"
                       >
-                        <option value="cash">Cash</option>
-                        <option value="upi">UPI</option>
-                        <option value="card">Card</option>
+                        <option value="cash">{t('pos:cash')}</option>
+                        <option value="upi">{t('pos:upiOrDigital')}</option>
+                        <option value="card">{t('pos:card')}</option>
                       </select>
                       <input
                         type="number"
                         value={payment.amount}
                         onChange={(e) => updateSplitPayment(index, 'amount', e.target.value)}
-                        placeholder="Amount"
+                        placeholder={t('pos:enterAmount')}
                         className="flex-1 px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary"
                       />
                       {splitPayments.length > 1 && (
@@ -1459,18 +1463,18 @@ const POS = () => {
                   onClick={addSplitPayment}
                   className="w-full mb-4 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/30"
                 >
-                  + Add Payment Method
+                  {t('pos:addPaymentMethod')}
                 </button>
 
                 <div className="mb-4 p-3 bg-gray-50 dark:bg-[rgb(var(--color-input))] rounded-lg">
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-secondary">Total Paid:</span>
+                    <span className="text-secondary">{t('pos:totalPaid')}</span>
                     <span className={`font-bold ${calculateSplitTotal() >= total ? 'text-green-600' : 'text-red-600'}`}>
                       Rs. {calculateSplitTotal().toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-secondary">Balance:</span>
+                    <span className="text-secondary">{t('pos:balance')}</span>
                     <span className={`font-bold ${calculateSplitTotal() >= total ? 'text-green-600' : 'text-red-600'}`}>
                       Rs. {(total - calculateSplitTotal()).toFixed(2)}
                     </span>
@@ -1480,7 +1484,7 @@ const POS = () => {
                 {/* Payment Methods Summary */}
                 {splitPayments.some(p => p.amount) && (
                   <div className="mb-4 p-3 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/50 rounded-lg">
-                    <div className="text-xs font-semibold text-purple-700 dark:text-purple-300 mb-2">Payment Methods</div>
+                    <div className="text-xs font-semibold text-purple-700 dark:text-purple-300 mb-2">{t('pos:paymentMethod')}</div>
                     <div className="space-y-1">
                       {splitPayments.map((payment, index) => (
                         payment.amount && (
@@ -1502,14 +1506,14 @@ const POS = () => {
                     }}
                     className="flex-1 px-4 py-2 border border-default text-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]"
                   >
-                    Cancel
+                    {t('pos:cancel')}
                   </button>
                   <button
                     onClick={applySplitPayment}
                     disabled={calculateSplitTotal() !== total}
                     className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover disabled:opacity-50"
                   >
-                    Apply
+                    {t('pos:apply')}
                   </button>
                 </div>
               </div>
@@ -1528,35 +1532,35 @@ const POS = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-bold text-main">Unpaid Invoice Confirmation</h3>
+                  <h3 className="text-lg font-bold text-main">{t('pos:unpaidConfirmTitle')}</h3>
                 </div>
 
                 <div className="mb-4">
                   <p className="text-secondary mb-3">
-                    This invoice has an outstanding balance. Please confirm before proceeding:
+                    {t('pos:unpaidConfirmDesc')}
                   </p>
                   <div className="bg-surface p-4 rounded-lg space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-secondary">Customer:</span>
+                      <span className="text-secondary">{t('pos:customer')}:</span>
                       <span className="font-medium text-main">{activeTab.customer?.name}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-secondary">Total Amount:</span>
+                      <span className="text-secondary">{t('pos:total')}:</span>
                       <span className="font-bold text-main">Rs. {total.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-secondary">Paid Amount:</span>
+                      <span className="text-secondary">{t('pos:amountPaidLabel')}:</span>
                       <span className="text-main">Rs. {paid.toFixed(2)}</span>
                     </div>
                     <div className="border-t pt-2 flex justify-between">
-                      <span className="font-medium text-red-600">Balance Due:</span>
+                      <span className="font-medium text-red-600">{t('pos:balanceDue')}:</span>
                       <span className="font-bold text-red-600 text-lg">Rs. {(total - paid).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
 
                 <p className="text-sm text-secondary mb-6">
-                  The customer will be responsible for paying the outstanding balance of Rs. {(total - paid).toFixed(2)}.
+                  {t('pos:unpaidNotice', { amount: (total - paid).toFixed(2) })}
                 </p>
 
                 <div className="flex space-x-3">
@@ -1564,13 +1568,13 @@ const POS = () => {
                     onClick={() => setShowUnpaidConfirm(false)}
                     className="flex-1 px-4 py-2 border border-default text-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))] font-medium"
                   >
-                    Cancel
+                    {t('pos:cancel')}
                   </button>
                   <button
                     onClick={proceedWithCheckout}
                     className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium"
                   >
-                    Confirm & Create Invoice
+                    {t('pos:confirmAndCreate')}
                   </button>
                 </div>
               </div>
@@ -1589,50 +1593,50 @@ const POS = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-bold text-main">Partial Change Confirmation</h3>
+                  <h3 className="text-lg font-bold text-main">{t('pos:partialChangeTitle')}</h3>
                 </div>
 
                 <div className="mb-4">
                   <p className="text-secondary mb-3">
-                    The customer overpaid but you are not returning the full change:
+                    {t('pos:partialChangeDesc')}
                   </p>
                   <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg space-y-2 border border-blue-200 dark:border-blue-800/50">
                     <div className="flex justify-between text-sm">
-                      <span className="text-secondary">Customer:</span>
+                      <span className="text-secondary">{t('pos:customer')}:</span>
                       <span className="font-medium text-main">{activeTab.customer?.name}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-secondary">Total Amount:</span>
+                      <span className="text-secondary">{t('pos:total')}:</span>
                       <span className="font-bold text-main">Rs. {total.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-secondary">Amount Paid:</span>
+                      <span className="text-secondary">{t('pos:amountPaidLabel')}:</span>
                       <span className="text-main">Rs. {paid.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-secondary">Change Required:</span>
+                      <span className="text-secondary">{t('pos:changeRequired')}</span>
                       <span className="font-bold text-indigo-600">Rs. {(paid - total).toFixed(2)}</span>
                     </div>
                     <div className="border-t pt-2 flex justify-between">
-                      <span className="text-secondary">Change Returned:</span>
+                      <span className="text-secondary">{t('pos:changeReturnedLabel')}</span>
                       <span className="font-bold text-main">Rs. {(parseFloat(activeTab.changeReturned) || 0).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm bg-yellow-100 p-2 rounded border border-yellow-300">
-                      <span className="font-medium text-yellow-800">Remaining Credit:</span>
+                      <span className="font-medium text-yellow-800">{t('pos:remainingCredit')}</span>
                       <span className="font-bold text-yellow-900">Rs. {((paid - total) - (parseFloat(activeTab.changeReturned) || 0)).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/50 rounded-lg">
-                  <p className="text-sm text-green-800 dark:text-green-300 font-medium mb-1">💡 What happens next:</p>
+                  <p className="text-sm text-green-800 dark:text-green-300 font-medium mb-1">{t('pos:whatHappensNext')}</p>
                   <p className="text-sm text-green-700 dark:text-green-400">
-                    The remaining amount of Rs. {((paid - total) - (parseFloat(activeTab.changeReturned) || 0)).toFixed(2)} will be saved as credit to the customer's account. They can use this for future purchases.
+                    {t('pos:creditSaveNotice', { amount: ((paid - total) - (parseFloat(activeTab.changeReturned) || 0)).toFixed(2) })}
                   </p>
                 </div>
 
                 <p className="text-xs text-secondary mb-6">
-                  This is to prevent accidental loss of change and maintain accurate accounting records.
+                  {t('pos:accountingNotice')}
                 </p>
 
                 <div className="flex space-x-3">
@@ -1640,7 +1644,7 @@ const POS = () => {
                     onClick={() => setShowOverpaymentConfirm(false)}
                     className="flex-1 px-4 py-2 border border-default text-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))] font-medium"
                   >
-                    Cancel
+                    {t('pos:cancel')}
                   </button>
                   <button
                     onClick={() => {
@@ -1649,7 +1653,7 @@ const POS = () => {
                     }}
                     className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium"
                   >
-                    Proceed
+                    {t('pos:proceed')}
                   </button>
                 </div>
               </div>
@@ -1668,39 +1672,39 @@ const POS = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-bold text-main">Return Full Change (Walk-in)</h3>
+                  <h3 className="text-lg font-bold text-main">{t('pos:returnFullChangeTitle')}</h3>
                 </div>
 
                 <div className="mb-4">
                   <p className="text-secondary mb-3">
-                    Walk-in customers must receive the full change. Please return all change before continuing:
+                    {t('pos:returnFullChangeDesc')}
                   </p>
                   <div className="bg-yellow-50 dark:bg-yellow-950/30 p-4 rounded-lg space-y-2 border border-yellow-200 dark:border-yellow-800/50">
                     <div className="flex justify-between text-sm">
-                      <span className="text-secondary">Total Amount:</span>
+                      <span className="text-secondary">{t('pos:total')}:</span>
                       <span className="font-bold text-main">Rs. {total.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-secondary">Amount Paid:</span>
+                      <span className="text-secondary">{t('pos:amountPaidLabel')}:</span>
                       <span className="text-main">Rs. {paid.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-secondary">Change Required:</span>
+                      <span className="text-secondary">{t('pos:changeRequired')}</span>
                       <span className="font-bold text-indigo-600">Rs. {(paid - total).toFixed(2)}</span>
                     </div>
                     <div className="border-t pt-2 flex justify-between">
-                      <span className="text-secondary">Change Returned:</span>
+                      <span className="text-secondary">{t('pos:changeReturnedLabel')}</span>
                       <span className="font-bold text-main">Rs. {(parseFloat(activeTab.changeReturned) || 0).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm bg-yellow-100 p-2 rounded border border-yellow-300">
-                      <span className="font-medium text-yellow-800">Remaining Change to Return:</span>
+                      <span className="font-medium text-yellow-800">{t('pos:remainingChangeUnpaid')}</span>
                       <span className="font-bold text-yellow-900">Rs. {((paid - total) - (parseFloat(activeTab.changeReturned) || 0)).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
 
                 <p className="text-xs text-secondary mb-6">
-                  You can adjust the paid amount or return full change to proceed.
+                  {t('pos:walkInChangeNotice')}
                 </p>
 
                 <div className="flex">
@@ -1708,7 +1712,7 @@ const POS = () => {
                     onClick={() => setShowWalkinChangeConfirm(false)}
                     className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium"
                   >
-                    Got it
+                    {t('pos:gotIt')}
                   </button>
                 </div>
               </div>

@@ -1,0 +1,19 @@
+{
+  "title": "Reports & Analytics",
+  "subtitle": "Clear business performance, sales summary, and financial insights",
+  "overview": "Overview",
+  "sales": "Sales",
+  "inventory": "Inventory",
+  "bankAndCash": "Bank & Cash",
+  "customers": "Customers",
+  "totalSales": "Total Sales",
+  "averageBill": "Average Bill",
+  "totalRevenue": "Total Revenue",
+  "totalCollected": "Total Collected",
+  "customerDues": "Customer Dues",
+  "totalExpenses": "Total Expenses",
+  "netProfit": "Net Profit",
+  "salesTrend": "Sales Trend",
+  "topProducts": "Top Selling Products",
+  "lowStockAlert": "Low Stock Warning"
+}

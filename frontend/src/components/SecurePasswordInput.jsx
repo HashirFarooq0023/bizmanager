@@ -10,6 +10,7 @@ const SecurePasswordInput = ({
     showPassword,
     onToggleVisibility,
     className = "",
+    dir = "ltr",
 }) => {
     const [showTooltip, setShowTooltip] = useState(false);
     const [tooltipMessage, setTooltipMessage] = useState('');
@@ -104,6 +105,7 @@ const SecurePasswordInput = ({
                 type={showPassword ? "text" : "password"}
                 id={id}
                 name={name}
+                dir={dir}
                 value={value}
                 onChange={onChange}
                 onCopy={handleCopy}

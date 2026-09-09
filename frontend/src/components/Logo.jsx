@@ -152,18 +152,30 @@ const Logo = ({
   if (hoverSlide) {
     return (
       <div 
+        dir="ltr"
         onClick={onClick}
-        className={`group flex items-center gap-3 cursor-pointer select-none py-1 ${className}`}
+        className={`bizmanager-logo logo-size-${size} group flex items-center gap-3 cursor-pointer select-none py-1 text-left font-sans ${className}`}
+        style={{ direction: 'ltr', textAlign: 'left', fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
       >
         <MtPixelSvg 
           className={`${svgSizeMap[size] || svgSizeMap.lg} ${colorClassName} shrink-0 transition-transform duration-300 group-hover:scale-105`} 
         />
-        <div className={`flex flex-col justify-center max-w-0 overflow-hidden opacity-0 group-hover:max-w-[450px] group-hover:opacity-100 transition-all duration-300 ease-out whitespace-nowrap ${textClassName}`}>
-          <span className={`font-bold tracking-tight text-slate-900 dark:text-white leading-none ${titleSizeMap[size] || titleSizeMap.lg}`}>
+        <div 
+          dir="ltr"
+          className={`flex flex-col justify-center text-left font-sans max-w-0 overflow-hidden opacity-0 group-hover:max-w-[450px] group-hover:opacity-100 transition-all duration-300 ease-out whitespace-nowrap ${textClassName}`}
+          style={{ direction: 'ltr', textAlign: 'left' }}
+        >
+          <span 
+            className={`logo-title font-bold tracking-tight text-slate-900 dark:text-white leading-none font-sans ${titleSizeMap[size] || titleSizeMap.lg}`}
+            style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', lineHeight: 1.05 }}
+          >
             BizManager
           </span>
           {showSubtitle && (
-            <span className={`font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase leading-tight mt-0.5 ${subSizeMap[size] || subSizeMap.sm}`}>
+            <span 
+              className={`logo-subtitle font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase leading-tight mt-0.5 font-sans ${subSizeMap[size] || subSizeMap.sm}`}
+              style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', lineHeight: 1.1 }}
+            >
               BY MEGATRIX
             </span>
           )}
@@ -176,18 +188,26 @@ const Logo = ({
   if (isStandalone) {
     return (
       <div 
+        dir="ltr"
         onClick={onClick}
-        className={`inline-flex items-center gap-2.5 ${onClick ? 'cursor-pointer select-none' : ''} ${className}`}
+        className={`bizmanager-logo logo-size-${size} inline-flex items-center gap-2.5 text-left font-sans ${onClick ? 'cursor-pointer select-none' : ''} ${className}`}
+        style={{ direction: 'ltr', textAlign: 'left', fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
       >
         <MtPixelSvg className={`${svgSizeMap[size] || svgSizeMap.md} ${colorClassName} shrink-0 transition-transform duration-200`} />
 
         {showText && !badgeOnly && (
-          <div className={`flex flex-col justify-center ${textClassName}`}>
-            <span className={`font-bold tracking-tight text-slate-900 dark:text-white leading-none ${titleSizeMap[size] || titleSizeMap.md}`}>
+          <div dir="ltr" className={`flex flex-col justify-center text-left font-sans ${textClassName}`} style={{ direction: 'ltr', textAlign: 'left' }}>
+            <span 
+              className={`logo-title font-bold tracking-tight text-slate-900 dark:text-white leading-none font-sans ${titleSizeMap[size] || titleSizeMap.md}`}
+              style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', lineHeight: 1.05 }}
+            >
               BizManager
             </span>
             {showSubtitle && (
-              <span className={`font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase leading-tight mt-0.5 ${subSizeMap[size] || subSizeMap.md}`}>
+              <span 
+                className={`logo-subtitle font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase leading-tight mt-0.5 font-sans ${subSizeMap[size] || subSizeMap.md}`}
+                style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', lineHeight: 1.1 }}
+              >
                 BY MEGATRIX
               </span>
             )}
@@ -202,20 +222,28 @@ const Logo = ({
 
   return (
     <div 
+      dir="ltr"
       onClick={onClick}
-      className={`inline-flex items-center gap-2.5 ${onClick ? 'cursor-pointer select-none' : ''} ${className}`}
+      className={`bizmanager-logo logo-size-${size} inline-flex items-center gap-2.5 text-left font-sans ${onClick ? 'cursor-pointer select-none' : ''} ${className}`}
+      style={{ direction: 'ltr', textAlign: 'left', fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
     >
       <div className={badgeClasses}>
         <MtPixelSvg className={svgSizeMap[size] || svgSizeMap.md} />
       </div>
 
       {showText && !badgeOnly && (
-        <div className={`flex flex-col justify-center ${textClassName}`}>
-          <span className={`font-bold tracking-tight text-slate-900 dark:text-white leading-none ${titleSizeMap[size] || titleSizeMap.md}`}>
+        <div dir="ltr" className={`flex flex-col justify-center text-left font-sans ${textClassName}`} style={{ direction: 'ltr', textAlign: 'left' }}>
+          <span 
+            className={`logo-title font-bold tracking-tight text-slate-900 dark:text-white leading-none font-sans ${titleSizeMap[size] || titleSizeMap.md}`}
+            style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', lineHeight: 1.05 }}
+          >
             BizManager
           </span>
           {showSubtitle && (
-            <span className={`font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase leading-tight mt-0.5 ${subSizeMap[size] || subSizeMap.md}`}>
+            <span 
+              className={`logo-subtitle font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase leading-tight mt-0.5 font-sans ${subSizeMap[size] || subSizeMap.md}`}
+              style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', lineHeight: 1.1 }}
+            >
               BY MEGATRIX
             </span>
           )}

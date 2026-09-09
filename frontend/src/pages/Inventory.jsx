@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getAllItems, deleteItem, getLowStockItems, reset } from '../redux/slices/inventorySlice';
 import Layout from '../components/Layout';
 import PageHeader from '../components/PageHeader';
@@ -14,6 +15,7 @@ import EmptyState from '../components/EmptyState';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 
 const Inventory = () => {
+  const { t } = useTranslation(['inventory', 'common']);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { items = [], lowStockItems = [], alerts = [], isLoading, isError, message } = useSelector(
@@ -57,8 +59,8 @@ const Inventory = () => {
       <div className="space-y-6">
         {/* Header */}
         <PageHeader
-          title="Inventory Management"
-          description="Manage products, track stock levels, and monitor low-stock alerts."
+          title={t('inventory:title')}
+          description={t('inventory:subtitle')}
           actions={
             <Button
               onClick={() => navigate('/inventory/add')}
@@ -69,7 +71,7 @@ const Inventory = () => {
                 </svg>
               }
             >
-              Add New Product
+              {t('inventory:addProduct')}
             </Button>
           }
         />
@@ -84,7 +86,7 @@ const Inventory = () => {
                 </svg>
               </div>
               <div className="flex-1">
-                <h3 className="text-xs font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wider mb-1">Stock Alerts</h3>
+                <h3 className="text-xs font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wider mb-1">{t('inventory:stockAlerts')}</h3>
                 <ul className="space-y-1">
                   {alerts.map((alert, idx) => (
                     <li key={idx} className="text-xs text-amber-800 dark:text-amber-300">
@@ -107,7 +109,7 @@ const Inventory = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
-            title="Total Items"
+            title={t('inventory:totalItems')}
             value={items.length}
             iconBgColor="bg-violet-50 dark:bg-violet-900/20"
             iconColor="text-violet-600 dark:text-violet-400"
@@ -118,7 +120,7 @@ const Inventory = () => {
             }
           />
           <StatsCard
-            title="Low Stock Items"
+            title={t('inventory:lowStockItems')}
             value={lowStockItems.length}
             iconBgColor="bg-amber-50 dark:bg-amber-900/20"
             iconColor="text-amber-600 dark:text-amber-400"
@@ -129,7 +131,7 @@ const Inventory = () => {
             }
           />
           <StatsCard
-            title="Cost Valuation"
+            title={t('inventory:costValuation')}
             value={`Rs. ${inventoryValue.toLocaleString()}`}
             iconBgColor="bg-emerald-50 dark:bg-emerald-900/20"
             iconColor="text-emerald-600 dark:text-emerald-400"
@@ -140,7 +142,7 @@ const Inventory = () => {
             }
           />
           <StatsCard
-            title="Expected Revenue"
+            title={t('inventory:expectedRevenue')}
             value={`Rs. ${expectedRevenue.toLocaleString()}`}
             iconBgColor="bg-blue-50 dark:bg-blue-900/20"
             iconColor="text-blue-600 dark:text-blue-400"
@@ -158,7 +160,7 @@ const Inventory = () => {
             <div className="w-full lg:w-96">
               <FormInput
                 type="text"
-                placeholder="Search by name, SKU, or barcode..."
+                placeholder={t('inventory:searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 leftIcon={
@@ -176,7 +178,7 @@ const Inventory = () => {
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
-                    {cat === 'all' ? 'All Categories' : cat}
+                    {cat === 'all' ? t('inventory:allCategories') : cat}
                   </option>
                 ))}
               </select>
@@ -191,7 +193,7 @@ const Inventory = () => {
             <EmptyState
               title="No Inventory Items"
               description={searchTerm ? "No products match your search term or category filter." : "Add products to start tracking inventory and stock levels."}
-              actionLabel="Add Product"
+              actionLabel={t('inventory:addProduct')}
               onAction={() => navigate('/inventory/add')}
             />
           ) : (
@@ -199,14 +201,14 @@ const Inventory = () => {
               <table className="w-full text-left text-sm border-collapse">
                 <thead>
                   <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    <th className="py-3.5 px-6">Product</th>
-                    <th className="py-3.5 px-6">Category</th>
-                    <th className="py-3.5 px-6">Total Stock</th>
-                    <th className="py-3.5 px-6">Available</th>
-                    <th className="py-3.5 px-6">Cost Price</th>
-                    <th className="py-3.5 px-6">Selling Price</th>
-                    <th className="py-3.5 px-6">Margin</th>
-                    <th className="py-3.5 px-6 text-right">Actions</th>
+                    <th className="py-3.5 px-6">{t('inventory:product')}</th>
+                    <th className="py-3.5 px-6">{t('inventory:category')}</th>
+                    <th className="py-3.5 px-6">{t('inventory:totalStock')}</th>
+                    <th className="py-3.5 px-6">{t('inventory:available')}</th>
+                    <th className="py-3.5 px-6">{t('inventory:costPrice')}</th>
+                    <th className="py-3.5 px-6">{t('inventory:sellingPrice')}</th>
+                    <th className="py-3.5 px-6">{t('inventory:margin')}</th>
+                    <th className="py-3.5 px-6 text-right">{t('common:actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -236,7 +238,7 @@ const Inventory = () => {
                         <td className="py-4 px-6 whitespace-nowrap">
                           {isLowStock ? (
                             <StatusBadge status="danger">
-                              {availableStock} {item.unit || ''} (Low)
+                              {availableStock} {item.unit || ''} ({t('common:lowStock')})
                             </StatusBadge>
                           ) : (
                             <StatusBadge status="success">
@@ -261,14 +263,14 @@ const Inventory = () => {
                             variant="secondary"
                             onClick={() => navigate(`/inventory/edit/${item._id}`)}
                           >
-                            Edit
+                            {t('common:edit')}
                           </Button>
                           <Button
                             size="xs"
                             variant="danger"
                             onClick={() => setDeleteConfirm(item._id)}
                           >
-                            Delete
+                            {t('common:delete')}
                           </Button>
                         </td>
                       </tr>
@@ -284,19 +286,19 @@ const Inventory = () => {
         <Modal
           isOpen={!!deleteConfirm}
           onClose={() => setDeleteConfirm(null)}
-          title="Delete Product"
+          title={t('inventory:deleteProduct')}
           size="sm"
         >
           <div className="space-y-4">
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              Are you sure you want to delete this item? This action will permanently remove it from inventory.
+              {t('inventory:deleteConfirmation')}
             </p>
             <div className="flex justify-end gap-3 pt-2">
               <Button variant="secondary" size="sm" onClick={() => setDeleteConfirm(null)}>
-                Cancel
+                {t('common:cancel')}
               </Button>
               <Button variant="danger" size="sm" onClick={() => handleDelete(deleteConfirm)}>
-                Delete Product
+                {t('inventory:deleteProduct')}
               </Button>
             </div>
           </div>

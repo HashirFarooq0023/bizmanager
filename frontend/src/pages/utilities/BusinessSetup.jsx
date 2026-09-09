@@ -187,10 +187,10 @@ const BusinessSetup = () => {
                                 </select>
                             </div>
 
-                            {/* GSTIN */}
+                            {/* NTN / STRN */}
                             <div>
                                 <label htmlFor="gstin" className="block text-sm font-medium text-secondary mb-2">
-                                    GSTIN
+                                    NTN / STRN (National Tax No.)
                                 </label>
                                 <input
                                     type="text"
@@ -198,16 +198,16 @@ const BusinessSetup = () => {
                                     name="gstin"
                                     value={formData.gstin}
                                     onChange={onChange}
-                                    maxLength={15}
+                                    maxLength={20}
                                     className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                    placeholder="22AAAAA0000A1Z5"
+                                    placeholder="e.g. 1234567-8"
                                 />
                             </div>
 
-                            {/* PAN */}
+                            {/* CNIC */}
                             <div>
                                 <label htmlFor="pan" className="block text-sm font-medium text-secondary mb-2">
-                                    PAN
+                                    CNIC / Reg No. (شناختی کارڈ نمبر)
                                 </label>
                                 <input
                                     type="text"
@@ -215,9 +215,9 @@ const BusinessSetup = () => {
                                     name="pan"
                                     value={formData.pan}
                                     onChange={onChange}
-                                    maxLength={10}
+                                    maxLength={15}
                                     className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                    placeholder="ABCDE1234F"
+                                    placeholder="e.g. 35201-1234567-1"
                                 />
                             </div>
 

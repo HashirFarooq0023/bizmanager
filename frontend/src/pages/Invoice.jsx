@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import api from '../services/api';
 import { toast } from 'react-toastify';
 import { getAllInvoices, deleteInvoice, reset } from "../redux/slices/posSlice";
@@ -17,6 +18,7 @@ import LoadingSkeleton from "../components/LoadingSkeleton";
 import PaymentModal from '../components/PaymentModal';
 
 const Invoices = () => {
+  const { t } = useTranslation(['sales', 'pos', 'common']);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { invoices = [], isLoading, isError, message } = useSelector(
@@ -89,8 +91,8 @@ const Invoices = () => {
       <div className="space-y-6">
         {/* Header */}
         <PageHeader
-          title="Sales Invoices"
-          description="View, manage, and track payment status for all POS and billing invoices."
+          title={t('sales:title')}
+          description={t('sales:subtitle')}
           actions={
             <Button
               onClick={() => navigate("/pos")}
@@ -101,7 +103,7 @@ const Invoices = () => {
                 </svg>
               }
             >
-              Go to POS Billing
+              {t('sales:goToPOS')}
             </Button>
           }
         />
@@ -116,7 +118,7 @@ const Invoices = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
-            title="Total Invoices"
+            title={t('sales:totalInvoices')}
             value={invoices.length}
             iconBgColor="bg-violet-50 dark:bg-violet-900/20"
             iconColor="text-violet-600 dark:text-violet-400"
@@ -127,7 +129,7 @@ const Invoices = () => {
             }
           />
           <StatsCard
-            title="Total Invoiced Value"
+            title={t('sales:totalInvoicedValue')}
             value={`Rs. ${totalSales.toLocaleString()}`}
             iconBgColor="bg-emerald-50 dark:bg-emerald-900/20"
             iconColor="text-emerald-600 dark:text-emerald-400"
@@ -138,7 +140,7 @@ const Invoices = () => {
             }
           />
           <StatsCard
-            title="Total Collected"
+            title={t('sales:amountCollected')}
             value={`Rs. ${totalPaid.toLocaleString()}`}
             iconBgColor="bg-blue-50 dark:bg-blue-900/20"
             iconColor="text-blue-600 dark:text-blue-400"
@@ -149,7 +151,7 @@ const Invoices = () => {
             }
           />
           <StatsCard
-            title="Outstanding Balance"
+            title={t('sales:outstandingBalance')}
             value={`Rs. ${totalDue.toLocaleString()}`}
             iconBgColor="bg-amber-50 dark:bg-amber-900/20"
             iconColor="text-amber-600 dark:text-amber-400"
@@ -167,7 +169,7 @@ const Invoices = () => {
             <div className="w-full sm:w-80">
               <FormInput
                 type="text"
-                placeholder="Search invoice no or customer..."
+                placeholder={t('sales:searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 leftIcon={
@@ -183,10 +185,10 @@ const Invoices = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3.5 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-xl focus:ring-2 focus:ring-violet-500 focus:outline-hidden"
               >
-                <option value="all">All Payment Status</option>
-                <option value="paid">Paid</option>
-                <option value="partial">Partial</option>
-                <option value="unpaid">Unpaid</option>
+                <option value="all">{t('sales:allStatus')}</option>
+                <option value="paid">{t('sales:paid')}</option>
+                <option value="partial">{t('sales:partial')}</option>
+                <option value="unpaid">{t('sales:unpaid')}</option>
               </select>
             </div>
           </div>
@@ -197,9 +199,9 @@ const Invoices = () => {
             </div>
           ) : filteredInvoices.length === 0 ? (
             <EmptyState
-              title="No Invoices Found"
+              title={t('sales:noInvoices')}
               description={searchTerm ? "No invoices match your search query." : "No sales invoices have been recorded yet."}
-              actionLabel="Create Invoice"
+              actionLabel={t('sales:newSale')}
               onAction={() => navigate("/pos")}
             />
           ) : (
@@ -207,14 +209,14 @@ const Invoices = () => {
               <table className="w-full text-left text-sm border-collapse">
                 <thead>
                   <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    <th className="py-3.5 px-6">Invoice No</th>
-                    <th className="py-3.5 px-6">Date</th>
-                    <th className="py-3.5 px-6">Customer</th>
-                    <th className="py-3.5 px-6">Total Amount</th>
-                    <th className="py-3.5 px-6">Paid Amount</th>
-                    <th className="py-3.5 px-6">Status</th>
-                    <th className="py-3.5 px-6">Payment Mode</th>
-                    <th className="py-3.5 px-6 text-right">Actions</th>
+                    <th className="py-3.5 px-6">{t('sales:invoiceNo')}</th>
+                    <th className="py-3.5 px-6">{t('common:date')}</th>
+                    <th className="py-3.5 px-6">{t('common:customer')}</th>
+                    <th className="py-3.5 px-6">{t('pos:total')}</th>
+                    <th className="py-3.5 px-6">{t('pos:amountPaidLabel')}</th>
+                    <th className="py-3.5 px-6">{t('common:status')}</th>
+                    <th className="py-3.5 px-6">{t('sales:paymentMode')}</th>
+                    <th className="py-3.5 px-6 text-right">{t('common:actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -228,7 +230,7 @@ const Invoices = () => {
                       </td>
                       <td className="py-4 px-6">
                         <div className="font-semibold text-gray-900 dark:text-gray-100">
-                          {invoice.customer?.name || "Walk-in Customer"}
+                          {invoice.customer?.name || t('pos:walkInCustomer')}
                         </div>
                         {invoice.customer?.phone && (
                           <div className="text-xs text-gray-400">{invoice.customer.phone}</div>
@@ -250,7 +252,7 @@ const Invoices = () => {
                               : 'danger'
                           }
                         >
-                          {invoice.paymentStatus || 'unpaid'}
+                          {invoice.paymentStatus === 'paid' ? t('sales:paid') : invoice.paymentStatus === 'partial' ? t('sales:partial') : t('sales:unpaid')}
                         </StatusBadge>
                       </td>
                       <td className="py-4 px-6 text-gray-600 dark:text-gray-300 capitalize whitespace-nowrap">
@@ -263,7 +265,7 @@ const Invoices = () => {
                             variant="secondary"
                             onClick={() => handleReceivePayment(invoice)}
                           >
-                            Receive
+                            {t('sales:receivePayment')}
                           </Button>
                         )}
                         <Button
@@ -271,14 +273,14 @@ const Invoices = () => {
                           variant="secondary"
                           onClick={() => navigate(`/pos/invoice/${invoice._id}`)}
                         >
-                          View
+                          {t('sales:viewInvoice')}
                         </Button>
                         <Button
                           size="xs"
                           variant="danger"
                           onClick={() => setDeleteConfirm(invoice._id)}
                         >
-                          Delete
+                          {t('sales:deleteInvoice')}
                         </Button>
                       </td>
                     </tr>
@@ -293,19 +295,19 @@ const Invoices = () => {
         <Modal
           isOpen={!!deleteConfirm}
           onClose={() => setDeleteConfirm(null)}
-          title="Delete Invoice"
+          title={t('sales:deleteInvoice')}
           size="sm"
         >
           <div className="space-y-4">
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              Are you sure you want to delete this invoice? This will remove the recorded sale entry.
+              {t('sales:deleteConfirmation')}
             </p>
             <div className="flex justify-end gap-3 pt-2">
               <Button variant="secondary" size="sm" onClick={() => setDeleteConfirm(null)}>
-                Cancel
+                {t('common:cancel')}
               </Button>
               <Button variant="danger" size="sm" onClick={() => handleDelete(deleteConfirm)}>
-                Delete Invoice
+                {t('sales:deleteInvoice')}
               </Button>
             </div>
           </div>

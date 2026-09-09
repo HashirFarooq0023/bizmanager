@@ -16,8 +16,10 @@ import Modal from "../components/Modal";
 import FormInput from "../components/FormInput";
 import EmptyState from "../components/EmptyState";
 import LoadingSkeleton from "../components/LoadingSkeleton";
+import { useTranslation } from "react-i18next";
 
 const Customers = () => {
+  const { t } = useTranslation(['udhaar', 'common']);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { customers = [], isLoading, isError, message } = useSelector(
@@ -61,8 +63,8 @@ const Customers = () => {
       <div className="space-y-6">
         {/* Header */}
         <PageHeader
-          title="Customers"
-          description="Manage your customer directory, contact details, and account balances."
+          title={t('customersTitle', 'Customers')}
+          description={t('customersDesc', 'Manage your customer directory, contact details, and account balances.')}
           actions={
             <Button
               onClick={handleAddCustomer}
@@ -73,7 +75,7 @@ const Customers = () => {
                 </svg>
               }
             >
-              Add New Customer
+              {t('addNewCustomer', 'Add New Customer')}
             </Button>
           }
         />
@@ -88,7 +90,7 @@ const Customers = () => {
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatsCard
-            title="Total Customers"
+            title={t('totalCustomers', 'Total Customers')}
             value={customers.length}
             iconBgColor="bg-violet-50 dark:bg-violet-900/20"
             iconColor="text-violet-600 dark:text-violet-400"
@@ -99,7 +101,7 @@ const Customers = () => {
             }
           />
           <StatsCard
-            title="Total Outstanding Dues"
+            title={t('totalOutstandingDues', 'Total Outstanding Dues')}
             value={`Rs. ${totalDues.toFixed(2)}`}
             iconBgColor="bg-rose-50 dark:bg-rose-900/20"
             iconColor="text-rose-600 dark:text-rose-400"
@@ -111,9 +113,9 @@ const Customers = () => {
           />
           <div onClick={() => navigate("/customers/with-dues")} className="cursor-pointer">
             <StatsCard
-              title="Customers with Pending Dues"
+              title={t('pendingDuesCount', 'Customers with Pending Dues')}
               value={customersWithDuesCount}
-              subtitle="Click to view details →"
+              subtitle={t('clickToView', 'Click to view details →')}
               iconBgColor="bg-amber-50 dark:bg-amber-900/20"
               iconColor="text-amber-600 dark:text-amber-400"
               icon={
@@ -131,7 +133,7 @@ const Customers = () => {
             <div className="w-full sm:w-80">
               <FormInput
                 type="text"
-                placeholder="Search name, phone, or email..."
+                placeholder={t('searchPlaceholderCustomer', 'Search name, phone, or email...')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 leftIcon={
@@ -142,7 +144,7 @@ const Customers = () => {
               />
             </div>
             <div className="text-xs text-gray-500 font-medium">
-              Showing {filteredCustomers.length} of {customers.length} customers
+              {t('showingCustomers', { count: filteredCustomers.length, total: customers.length, defaultValue: `Showing ${filteredCustomers.length} of ${customers.length} customers` })}
             </div>
           </div>
 
@@ -152,9 +154,9 @@ const Customers = () => {
             </div>
           ) : filteredCustomers.length === 0 ? (
             <EmptyState
-              title="No Customers Found"
-              description={searchTerm ? "No customers match your search query." : "Get started by adding your first customer."}
-              actionLabel="Add Customer"
+              title={t('noCustomersFound', 'No Customers Found')}
+              description={searchTerm ? t('noCustomersFoundDesc', 'No customers match your search query.') : t('addFirstCustomer', 'Get started by adding your first customer.')}
+              actionLabel={t('addCustomer', 'Add Customer')}
               onAction={handleAddCustomer}
             />
           ) : (
@@ -162,11 +164,11 @@ const Customers = () => {
               <table className="w-full text-left text-sm border-collapse">
                 <thead>
                   <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    <th className="py-3.5 px-6">Customer</th>
-                    <th className="py-3.5 px-6">Contact Info</th>
-                    <th className="py-3.5 px-6">Address</th>
-                    <th className="py-3.5 px-6">Balance / Status</th>
-                    <th className="py-3.5 px-6 text-right">Actions</th>
+                    <th className="py-3.5 px-6">{t('tableCustomer', 'Customer')}</th>
+                    <th className="py-3.5 px-6">{t('tableContact', 'Contact Info')}</th>
+                    <th className="py-3.5 px-6">{t('tableAddress', 'Address')}</th>
+                    <th className="py-3.5 px-6">{t('tableBalanceStatus', 'Balance / Status')}</th>
+                    <th className="py-3.5 px-6 text-right">{t('common:actions', 'Actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -180,14 +182,14 @@ const Customers = () => {
                           <div>
                             <div className="font-semibold text-gray-900 dark:text-gray-100">{customer.name}</div>
                             {customer.referredBy && (
-                              <div className="text-xs text-gray-400">Referred by existing customer</div>
+                              <div className="text-xs text-gray-400">{t('referredBy', 'Referred by existing customer')}</div>
                             )}
                           </div>
                         </div>
                       </td>
                       <td className="py-4 px-6">
                         <div className="font-medium text-gray-900 dark:text-gray-100">{customer.phone}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{customer.email || "No email"}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{customer.email || t('noEmail', 'No email')}</div>
                       </td>
                       <td className="py-4 px-6 text-gray-600 dark:text-gray-300">
                         {customer.address || "—"}
@@ -195,15 +197,15 @@ const Customers = () => {
                       <td className="py-4 px-6 whitespace-nowrap">
                         {(customer.dues || 0) > 0 ? (
                           <StatusBadge status="warning">
-                            Owes Rs. {(customer.dues).toFixed(2)}
+                            {t('owesRs', { amount: (customer.dues).toFixed(2), defaultValue: `Owes Rs. ${(customer.dues).toFixed(2)}` })}
                           </StatusBadge>
                         ) : (customer.dues || 0) < 0 ? (
                           <StatusBadge status="info">
-                            Advance Rs. {Math.abs(customer.dues).toFixed(2)}
+                            {t('advanceRs', { amount: Math.abs(customer.dues).toFixed(2), defaultValue: `Advance Rs. ${Math.abs(customer.dues).toFixed(2)}` })}
                           </StatusBadge>
                         ) : (
                           <StatusBadge status="success">
-                            Clear
+                            {t('clear', 'Clear')}
                           </StatusBadge>
                         )}
                       </td>
@@ -213,14 +215,14 @@ const Customers = () => {
                           variant="secondary"
                           onClick={() => navigate(`/customers/${customer._id}`)}
                         >
-                          View
+                          {t('common:view', 'View')}
                         </Button>
                         <Button
                           size="xs"
                           variant="danger"
                           onClick={() => setDeleteConfirm(customer._id)}
                         >
-                          Delete
+                          {t('common:delete', 'Delete')}
                         </Button>
                       </td>
                     </tr>
@@ -235,19 +237,19 @@ const Customers = () => {
         <Modal
           isOpen={!!deleteConfirm}
           onClose={() => setDeleteConfirm(null)}
-          title="Delete Customer"
+          title={t('deleteCustomerTitle', 'Delete Customer')}
           size="sm"
         >
           <div className="space-y-4">
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              Are you sure you want to delete this customer? This action will permanently remove their records.
+              {t('deleteCustomerConfirm', 'Are you sure you want to delete this customer? This action will permanently remove their records.')}
             </p>
             <div className="flex justify-end gap-3 pt-2">
               <Button variant="secondary" size="sm" onClick={() => setDeleteConfirm(null)}>
-                Cancel
+                {t('common:cancel', 'Cancel')}
               </Button>
               <Button variant="danger" size="sm" onClick={() => handleDelete(deleteConfirm)}>
-                Delete Customer
+                {t('deleteCustomerBtn', 'Delete Customer')}
               </Button>
             </div>
           </div>

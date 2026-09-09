@@ -1,0 +1,19 @@
+{
+  "title": "حساب کتاب اور رپورٹس",
+  "subtitle": "دکان کی کل سیلز، منافع، خرچے اور گاہکوں کے ادھار کی مکمل رپورٹ",
+  "overview": "خلاصہ",
+  "sales": "سیلز",
+  "inventory": "اسٹاک",
+  "bankAndCash": "بینک اور گلّہ",
+  "customers": "گاہک",
+  "totalSales": "کل سیلز",
+  "averageBill": "اوسط فی بل رقم",
+  "totalRevenue": "کل آمدن",
+  "totalCollected": "وصول شدہ کیش",
+  "customerDues": "گاہکوں کا بقایا ادھار",
+  "totalExpenses": "کل اخراجات",
+  "netProfit": "خالص منافع",
+  "salesTrend": "سیلز کا رجحان",
+  "topProducts": "سب سے زیادہ بکنے والا سامان",
+  "lowStockAlert": "سامان ختم ہونے کا انتباہ"
+}

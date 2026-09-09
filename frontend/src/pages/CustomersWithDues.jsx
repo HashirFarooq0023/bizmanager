@@ -6,8 +6,10 @@ import {
     reset,
 } from "../redux/slices/customerSlice";
 import Layout from "../components/Layout";
+import { useTranslation } from "react-i18next";
 
 const CustomersWithDues = () => {
+    const { t } = useTranslation(['udhaar', 'common']);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { customers, isLoading, isError, message } = useSelector(
@@ -61,13 +63,13 @@ const CustomersWithDues = () => {
                                 d="M15 19l-7-7 7-7"
                             />
                         </svg>
-                        Back to All Customers
+                        {t('backToAllCustomers', 'Back to All Customers')}
                     </button>
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-2">
-                        Customers With Outstanding Dues
+                        {t('customersWithOutstandingDues', 'Customers With Outstanding Dues')}
                     </h1>
                     <p className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
-                        Manage customers with pending payments
+                        {t('managePendingPayments', 'Manage customers with pending payments')}
                     </p>
                 </div>
 
@@ -83,7 +85,7 @@ const CustomersWithDues = () => {
                     <div className="relative">
                         <input
                             type="text"
-                            placeholder="Search by name, phone, or email..."
+                            placeholder={t('searchPlaceholderCustomer', 'Search by name, phone, or email...')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-[rgb(var(--color-border))] bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] placeholder:text-gray-400 dark:placeholder:text-[rgb(var(--color-placeholder))] rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[rgb(var(--color-primary))] focus:border-transparent"
@@ -109,14 +111,15 @@ const CustomersWithDues = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-red-100 text-sm font-medium mb-1">
-                                Total Outstanding Dues
+                                {t('totalOutstandingDues', 'Total Outstanding Dues')}
                             </p>
                             <p className="text-4xl font-bold">
                                 Rs. {totalOutstandingDues.toFixed(2)}
                             </p>
                             <p className="text-red-100 text-sm mt-2">
-                                From {customersWithDues.length} customer
-                                {customersWithDues.length !== 1 ? "s" : ""}
+                                {customersWithDues.length === 1
+                                    ? t('fromCustomerCount', { count: customersWithDues.length, defaultValue: `From ${customersWithDues.length} customer` })
+                                    : t('fromCustomerCountPlural', { count: customersWithDues.length, defaultValue: `From ${customersWithDues.length} customers` })}
                             </p>
                         </div>
                         <div className="p-4 bg-white/20 rounded-lg">
@@ -160,11 +163,11 @@ const CustomersWithDues = () => {
                             </svg>
                             <p className="text-gray-500 dark:text-[rgb(var(--color-text-secondary))] text-lg">
                                 {searchTerm
-                                    ? "No customers found matching your search"
-                                    : "No customers with outstanding dues"}
+                                    ? t('noMatchingCustomers', 'No customers found matching your search')
+                                    : t('noDuesCustomers', 'No customers with outstanding dues')}
                             </p>
                             <p className="text-gray-400 dark:text-[rgb(var(--color-text-muted))] text-sm mt-2">
-                                {!searchTerm && "All customers have cleared their dues!"}
+                                {!searchTerm && t('allDuesCleared', 'All customers have cleared their dues!')}
                             </p>
                         </div>
                     ) : (
@@ -173,19 +176,19 @@ const CustomersWithDues = () => {
                                 <thead className="bg-gray-50 dark:bg-[rgb(var(--color-table-header))] border-b border-gray-200 dark:border-[rgb(var(--color-border))]">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Customer
+                                            {t('tableCustomer', 'Customer')}
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Contact
+                                            {t('tableContact', 'Contact Info')}
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Address
+                                            {t('tableAddress', 'Address')}
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Outstanding Dues
+                                            {t('totalOutstandingDues', 'Outstanding Dues')}
                                         </th>
                                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Actions
+                                            {t('common:actions', 'Actions')}
                                         </th>
                                     </tr>
                                 </thead>
@@ -214,12 +217,12 @@ const CustomersWithDues = () => {
                                                     {customer.phone}
                                                 </div>
                                                 <div className="text-sm text-gray-500 dark:text-[rgb(var(--color-text-secondary))]">
-                                                    {customer.email || "No email"}
+                                                    {customer.email || t('noEmail', 'No email')}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">
-                                                    {customer.address || "No address"}
+                                                    {customer.address || "—"}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
@@ -233,7 +236,7 @@ const CustomersWithDues = () => {
                                                     onClick={() => navigate(`/customers/${customer._id}`)}
                                                     className="text-indigo-600 dark:text-[rgb(var(--color-primary))] hover:text-indigo-900 dark:hover:text-[rgb(var(--color-primary-hover))] mr-4"
                                                 >
-                                                    View
+                                                    {t('common:view', 'View')}
                                                 </button>
                                                 <button
                                                     type="button"
@@ -242,7 +245,7 @@ const CustomersWithDues = () => {
                                                     }
                                                     className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-500"
                                                 >
-                                                    Adjust Due
+                                                    {t('adjustDue', 'Adjust Due')}
                                                 </button>
                                             </td>
                                         </tr>

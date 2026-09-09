@@ -5,6 +5,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../redux/slices/authSlice';
 import { ThemeProvider } from '../contexts/ThemeContext';
+import { LanguageProvider } from '../contexts/LanguageContext';
+import '../i18n';
 import Login from './Login';
 
 // Create a mock store for testing
@@ -30,14 +32,16 @@ describe('Login Component', () => {
         render(
             <Provider store={store}>
                 <ThemeProvider>
-                    <BrowserRouter>
-                        <Login />
-                    </BrowserRouter>
+                    <LanguageProvider>
+                        <BrowserRouter>
+                            <Login />
+                        </BrowserRouter>
+                    </LanguageProvider>
                 </ThemeProvider>
             </Provider>
         );
 
         expect(screen.getByPlaceholderText(/you@example.com/i)).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /Sign In/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Sign In|لاگ ان کریں/i })).toBeInTheDocument();
     });
 });

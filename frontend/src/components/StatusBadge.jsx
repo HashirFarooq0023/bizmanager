@@ -42,19 +42,42 @@ const StatusBadge = ({ status, text, size = 'md' }) => {
   const currentStyle = statusStyles[normalized] || 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
 
   const sizeClasses = {
-    sm: 'px-2 py-0.5 text-[11px]',
-    md: 'px-2.5 py-0.5 text-xs',
-    lg: 'px-3 py-1 text-xs font-semibold'
+    sm: 'px-2 py-0.5 text-xs',
+    md: 'px-2.5 py-1 text-xs sm:text-sm',
+    lg: 'px-3.5 py-1 text-sm font-semibold'
   };
 
-  const label = text || status;
+  // Status Urdu translations
+  const urduStatusMap = {
+    paid: 'ادا شدہ',
+    unpaid: 'ادھار / باقی',
+    partial: 'جزوی ادا',
+    partially_paid: 'جزوی ادا',
+    completed: 'مکمل',
+    active: 'فعال',
+    inactive: 'غیر فعال',
+    in_stock: 'اسٹاک موجود',
+    low_stock: 'کم اسٹاک',
+    out_of_stock: 'اسٹاک ختم',
+    overdue: 'واجب الادا',
+    pending: 'زیر التواء',
+    draft: 'مسودہ',
+    processing: 'پروسیسنگ',
+    sent: 'ارسال شدہ',
+    open: 'کھلا',
+    closed: 'بند',
+    cancelled: 'منسوخ'
+  };
+
+  const isUrdu = typeof document !== 'undefined' && document.documentElement.getAttribute('lang') === 'ur';
+  const label = (isUrdu && urduStatusMap[normalized]) ? urduStatusMap[normalized] : (text || status);
 
   return (
     <span
       className={`inline-flex items-center font-medium rounded-full border ${currentStyle} ${sizeClasses[size] || sizeClasses.md}`}
     >
-      <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5 opacity-75" />
-      {label}
+      <span className="w-1.5 h-1.5 rounded-full bg-current me-1.5 opacity-75 shrink-0" />
+      <span>{label}</span>
     </span>
   );
 };

@@ -12,8 +12,10 @@ import Modal from '../components/Modal';
 import FormInput from '../components/FormInput';
 import EmptyState from '../components/EmptyState';
 import LoadingSkeleton from '../components/LoadingSkeleton';
+import { useTranslation } from 'react-i18next';
 
 const Suppliers = () => {
+  const { t } = useTranslation(['purchase', 'common']);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { suppliers = [], isLoading, isError, message } = useSelector(
@@ -58,8 +60,8 @@ const Suppliers = () => {
       <div className="space-y-6">
         {/* Header */}
         <PageHeader
-          title="Suppliers"
-          description="Manage supplier directory, contact details, and procurement partners."
+          title={t('suppliersTitle', 'Suppliers')}
+          description={t('suppliersDesc', 'Manage supplier directory, contact details, and procurement partners.')}
           actions={
             <Button
               onClick={handleAddSupplier}
@@ -70,7 +72,7 @@ const Suppliers = () => {
                 </svg>
               }
             >
-              Add New Supplier
+              {t('addNewSupplier', 'Add New Supplier')}
             </Button>
           }
         />
@@ -85,7 +87,7 @@ const Suppliers = () => {
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatsCard
-            title="Total Suppliers"
+            title={t('totalSuppliers', 'Total Suppliers')}
             value={suppliers.length}
             iconBgColor="bg-violet-50 dark:bg-violet-900/20"
             iconColor="text-violet-600 dark:text-violet-400"
@@ -96,7 +98,7 @@ const Suppliers = () => {
             }
           />
           <StatsCard
-            title="Active Suppliers"
+            title={t('activeSuppliers', 'Active Suppliers')}
             value={activeCount}
             iconBgColor="bg-emerald-50 dark:bg-emerald-900/20"
             iconColor="text-emerald-600 dark:text-emerald-400"
@@ -107,7 +109,7 @@ const Suppliers = () => {
             }
           />
           <StatsCard
-            title="Inactive Suppliers"
+            title={t('inactiveSuppliers', 'Inactive Suppliers')}
             value={inactiveCount}
             iconBgColor="bg-gray-100 dark:bg-gray-800"
             iconColor="text-gray-600 dark:text-gray-400"
@@ -125,7 +127,7 @@ const Suppliers = () => {
             <div className="w-full sm:w-80">
               <FormInput
                 type="text"
-                placeholder="Search business, contact person, or email..."
+                placeholder={t('searchSupplierPlaceholder', 'Search business, contact person, or email...')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 leftIcon={
@@ -136,7 +138,7 @@ const Suppliers = () => {
               />
             </div>
             <div className="text-xs text-gray-500 font-medium">
-              Showing {filteredSuppliers.length} of {suppliers.length} suppliers
+              {t('showingSuppliers', { count: filteredSuppliers.length, total: suppliers.length, defaultValue: `Showing ${filteredSuppliers.length} of ${suppliers.length} suppliers` })}
             </div>
           </div>
 
@@ -146,9 +148,9 @@ const Suppliers = () => {
             </div>
           ) : filteredSuppliers.length === 0 ? (
             <EmptyState
-              title="No Suppliers Found"
-              description={searchTerm ? "No suppliers match your search filter." : "Add your first supplier to start managing purchases."}
-              actionLabel="Add Supplier"
+              title={t('noSuppliersFound', 'No Suppliers Found')}
+              description={searchTerm ? t('noSuppliersFilterDesc', 'No suppliers match your search filter.') : t('addFirstSupplier', 'Add your first supplier to start managing purchases.')}
+              actionLabel={t('addSupplier', 'Add Supplier')}
               onAction={handleAddSupplier}
             />
           ) : (
@@ -156,12 +158,12 @@ const Suppliers = () => {
               <table className="w-full text-left text-sm border-collapse">
                 <thead>
                   <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    <th className="py-3.5 px-6">Business Name</th>
-                    <th className="py-3.5 px-6">Contact Person</th>
-                    <th className="py-3.5 px-6">Contact No. / Email</th>
-                    <th className="py-3.5 px-6">City / Address</th>
-                    <th className="py-3.5 px-6">Status</th>
-                    <th className="py-3.5 px-6 text-right">Actions</th>
+                    <th className="py-3.5 px-6">{t('businessName', 'Business Name')}</th>
+                    <th className="py-3.5 px-6">{t('contactPerson', 'Contact Person')}</th>
+                    <th className="py-3.5 px-6">{t('contactNoEmail', 'Contact No. / Email')}</th>
+                    <th className="py-3.5 px-6">{t('cityAddress', 'City / Address')}</th>
+                    <th className="py-3.5 px-6">{t('common:status', 'Status')}</th>
+                    <th className="py-3.5 px-6 text-right">{t('common:actions', 'Actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -175,14 +177,14 @@ const Suppliers = () => {
                       </td>
                       <td className="py-4 px-6">
                         <div className="font-medium text-gray-900 dark:text-gray-100">{supplier.contactNo}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{supplier.email || "No email"}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{supplier.email || t('common:noData', 'No email')}</div>
                       </td>
                       <td className="py-4 px-6 text-gray-600 dark:text-gray-300">
                         {supplier.city || supplier.address || "—"}
                       </td>
                       <td className="py-4 px-6 whitespace-nowrap">
                         <StatusBadge status={supplier.status === 'active' ? 'success' : 'neutral'}>
-                          {supplier.status || 'Active'}
+                          {supplier.status === 'active' ? t('common:active', 'Active') : t('common:inactive', 'Inactive')}
                         </StatusBadge>
                       </td>
                       <td className="py-4 px-6 text-right space-x-2">
@@ -191,14 +193,14 @@ const Suppliers = () => {
                           variant="secondary"
                           onClick={() => navigate(`/suppliers/${supplier._id}`)}
                         >
-                          View
+                          {t('common:view', 'View')}
                         </Button>
                         <Button
                           size="xs"
                           variant="danger"
                           onClick={() => setDeleteConfirm(supplier._id)}
                         >
-                          Delete
+                          {t('common:delete', 'Delete')}
                         </Button>
                       </td>
                     </tr>
@@ -213,19 +215,19 @@ const Suppliers = () => {
         <Modal
           isOpen={!!deleteConfirm}
           onClose={() => setDeleteConfirm(null)}
-          title="Delete Supplier"
+          title={t('deleteSupplierTitle', 'Delete Supplier')}
           size="sm"
         >
           <div className="space-y-4">
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              Are you sure you want to delete this supplier? This action cannot be undone.
+              {t('deleteSupplierConfirm', 'Are you sure you want to delete this supplier? This action cannot be undone.')}
             </p>
             <div className="flex justify-end gap-3 pt-2">
               <Button variant="secondary" size="sm" onClick={() => setDeleteConfirm(null)}>
-                Cancel
+                {t('common:cancel', 'Cancel')}
               </Button>
               <Button variant="danger" size="sm" onClick={() => handleDelete(deleteConfirm)}>
-                Delete Supplier
+                {t('deleteSupplierBtn', 'Delete Supplier')}
               </Button>
             </div>
           </div>

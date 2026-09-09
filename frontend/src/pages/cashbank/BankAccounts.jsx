@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/Layout';
@@ -90,7 +90,7 @@ const BankAccounts = () => {
         },
         { key: 'accountType', label: 'Type', sortable: true },
         { key: 'branch', label: 'Branch' },
-        { key: 'ifsc', label: 'IFSC Code', render: (val) => <span className="font-mono text-sm">{val}</span> },
+        { key: 'ifsc', label: 'IBAN / Branch Code', render: (val) => <span className="font-mono text-sm">{val}</span> },
         { key: 'currentBalance', label: 'Balance', sortable: true, render: (val) => <span className="font-bold text-green-600">Rs. {val.toLocaleString()}</span> },
         {
             key: 'actions',
@@ -170,7 +170,7 @@ const BankAccounts = () => {
                                 value={formData.bankName}
                                 onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
                                 className="w-full px-4 py-2 border rounded-lg"
-                                placeholder="e.g., HDFC Bank"
+                                placeholder="e.g., Meezan Bank, HBL, EasyPaisa, JazzCash"
                                 required
                             />
                         </div>
@@ -194,17 +194,18 @@ const BankAccounts = () => {
                             >
                                 <option>Savings</option>
                                 <option>Current</option>
-                                <option>Overdraft</option>
+                                <option>Overdraft / Running Finance</option>
+                                <option>Mobile Wallet (JazzCash/EasyPaisa)</option>
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-secondary mb-2">IFSC Code</label>
+                            <label className="block text-sm font-medium text-secondary mb-2">IBAN / Branch Code</label>
                             <input
                                 type="text"
                                 value={formData.ifsc}
                                 onChange={(e) => setFormData({ ...formData, ifsc: e.target.value })}
                                 className="w-full px-4 py-2 border rounded-lg"
-                                placeholder="e.g., HDFC0001234"
+                                placeholder="e.g., PK36MEZN00012345678901 or 0123"
                                 required
                             />
                         </div>

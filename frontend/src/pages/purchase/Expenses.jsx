@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import {
     FiPlus,
@@ -29,6 +30,7 @@ import {
 import { getAllCategories, seedDefaultCategories } from '../../redux/slices/expenseCategorySlice';
 
 const Expenses = () => {
+    const { t } = useTranslation(['purchase', 'common']);
     const dispatch = useDispatch();
     const { expenses, summary, pagination, isLoading, isError, isSuccess, message } = useSelector(
         (state) => state.expense
@@ -230,9 +232,14 @@ const Expenses = () => {
             approved: 'bg-green-100 text-green-800',
             rejected: 'bg-red-100 text-red-800',
         };
+        const statusLabel = {
+            pending: t('purchase:pending', 'Pending'),
+            approved: t('purchase:approved', 'Approved'),
+            rejected: t('purchase:rejected', 'Rejected'),
+        }[status] || status;
         return (
             <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${badges[status] || badges.pending}`}>
-                {status}
+                {statusLabel}
             </span>
         );
     };
@@ -244,9 +251,14 @@ const Expenses = () => {
             bank: 'bg-purple-100 text-purple-800',
             cheque: 'bg-indigo-100 text-indigo-800',
         };
+        const methodLabel = {
+            cash: t('purchase:cash', 'Cash'),
+            bank: t('purchase:bankTransfer', 'Bank'),
+            cheque: t('purchase:cheque', 'Cheque'),
+        }[method] || method;
         return (
             <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${badges[method] || badges.cash}`}>
-                {method}
+                {methodLabel}
             </span>
         );
     };
@@ -274,60 +286,60 @@ const Expenses = () => {
         },
         {
             key: 'expenseNo',
-            label: 'Expense #',
+            label: t('purchase:expenseNo', 'Expense #'),
             sortable: true,
             render: (value) => <span className="font-medium text-blue-600">{value}</span>,
         },
         {
             key: 'date',
-            label: 'Date',
+            label: t('purchase:date', 'Date'),
             sortable: true,
             render: (value) => formatDate(value),
         },
         {
             key: 'category',
-            label: 'Category',
+            label: t('purchase:expenseCategory', 'Category'),
             render: (value) => getCategoryName(value),
         },
         {
             key: 'description',
-            label: 'Description',
+            label: t('purchase:description', 'Description'),
             render: (value) => (
                 <span className="text-sm text-gray-600 max-w-xs truncate block">{value || '-'}</span>
             ),
         },
         {
             key: 'amount',
-            label: 'Amount',
+            label: t('purchase:amount', 'Amount'),
             sortable: true,
             render: (value) => <span className="text-sm font-semibold">{formatCurrency(value)}</span>,
         },
         {
             key: 'paymentMethod',
-            label: 'Payment',
+            label: t('purchase:payment', 'Payment'),
             render: (value) => getPaymentMethodBadge(value),
         },
         {
             key: 'status',
-            label: 'Status',
+            label: t('purchase:status', 'Status'),
             render: (value) => getStatusBadge(value),
         },
         {
             key: 'actions',
-            label: 'Actions',
+            label: t('purchase:actions', 'Actions'),
             render: (_, row) => (
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => handleEdit(row)}
                         className="text-blue-600 hover:text-blue-800 transition-colors"
-                        title="Edit"
+                        title={t('common:edit', 'Edit')}
                     >
                         <FiEdit2 className="w-4 h-4" />
                     </button>
                     <button
                         onClick={() => handleDelete(row._id)}
                         className="text-red-600 hover:text-red-800 transition-colors"
-                        title="Delete"
+                        title={t('common:delete', 'Delete')}
                     >
                         <FiTrash2 className="w-4 h-4" />
                     </button>
@@ -341,8 +353,8 @@ const Expenses = () => {
             <div className="space-y-4">
                 {/* Page Header */}
                 <div className="mb-4">
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-1">Expenses Management</h1>
-                    <p className="text-sm text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Track and manage all business expenses</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-1">{t('purchase:expensesManagement', 'Expenses Management')}</h1>
+                    <p className="text-sm text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{t('purchase:trackManageExpenses', 'Track and manage all business expenses')}</p>
                 </div>
 
                 {/* Summary Cards */}
@@ -357,8 +369,8 @@ const Expenses = () => {
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">{summary?.totalExpenses?.amount ? formatCurrency(summary.totalExpenses.amount) : formatCurrency(0)}</p>
-                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">Total Expenses</p>
-                                <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{summary?.totalExpenses?.count || 0} entries</p>
+                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">{t('purchase:totalExpenses', 'Total Expenses')}</p>
+                                <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{t('purchase:entriesCount', { count: summary?.totalExpenses?.count || 0, defaultValue: `${summary?.totalExpenses?.count || 0} entries` })}</p>
                             </div>
                         </div>
                     </div>
@@ -373,8 +385,8 @@ const Expenses = () => {
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">{summary?.thisMonth?.amount ? formatCurrency(summary.thisMonth.amount) : formatCurrency(0)}</p>
-                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">This Month</p>
-                                <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{summary?.thisMonth?.count || 0} expenses</p>
+                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">{t('purchase:thisMonth', 'This Month')}</p>
+                                <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{t('purchase:expensesCount', { count: summary?.thisMonth?.count || 0, defaultValue: `${summary?.thisMonth?.count || 0} expenses` })}</p>
                             </div>
                         </div>
                     </div>
@@ -389,7 +401,7 @@ const Expenses = () => {
                             </div>
                             <div>
                                 <p className="text-lg font-bold text-gray-900 dark:text-[rgb(var(--color-text))] truncate">{summary?.categoryBreakdown && summary.categoryBreakdown.length > 0 ? summary.categoryBreakdown[0].categoryName : 'N/A'}</p>
-                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">Top Category</p>
+                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">{t('purchase:topCategory', 'Top Category')}</p>
                                 <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{summary?.categoryBreakdown && summary.categoryBreakdown.length > 0 ? formatCurrency(summary.categoryBreakdown[0].total) : 'No data'}</p>
                             </div>
                         </div>
@@ -405,8 +417,8 @@ const Expenses = () => {
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">{summary?.totalExpenses?.count && summary?.totalExpenses?.amount ? formatCurrency(summary.totalExpenses.amount / summary.totalExpenses.count) : formatCurrency(0)}</p>
-                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">Average Expense</p>
-                                <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Per transaction</p>
+                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">{t('purchase:averageExpense', 'Average Expense')}</p>
+                                <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{t('purchase:perTransaction', 'Per transaction')}</p>
                             </div>
                         </div>
                     </div>
@@ -423,14 +435,14 @@ const Expenses = () => {
                             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                         >
                             <FiPlus className="w-5 h-5" />
-                            Add Expense
+                            {t('purchase:addExpense', 'Add Expense')}
                         </button>
                         <button
                             onClick={() => setShowFilters(!showFilters)}
                             className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                         >
                             <FiFilter className="w-5 h-5" />
-                            Filters
+                            {t('purchase:filters', 'Filters')}
                             {showFilters ? <FiChevronUp /> : <FiChevronDown />}
                         </button>
                         <button
@@ -441,7 +453,7 @@ const Expenses = () => {
                             className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                         >
                             <FiRefreshCw className="w-5 h-5" />
-                            Refresh
+                            {t('purchase:refresh', 'Refresh')}
                         </button>
                     </div>
 
@@ -451,14 +463,14 @@ const Expenses = () => {
                             className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                         >
                             <FiDownload className="w-5 h-5" />
-                            Export PDF
+                            {t('purchase:exportPdf', 'Export PDF')}
                         </button>
                         <button
                             onClick={() => handleExport('excel')}
                             className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                         >
                             <FiDownload className="w-5 h-5" />
-                            Export Excel
+                            {t('purchase:exportExcel', 'Export Excel')}
                         </button>
                     </div>
                 </div>
@@ -490,14 +502,14 @@ const Expenses = () => {
                         columns={columns}
                         data={expenses || []}
                         isLoading={isLoading}
-                        emptyMessage="No expenses found. Click 'Add Expense' to create your first expense."
+                        emptyMessage={t('purchase:noExpensesFound', "No expenses found. Click 'Add Expense' to create your first expense.")}
                     />
 
                     {/* Pagination */}
                     {pagination && pagination.totalPages > 1 && (
                         <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
                             <div className="text-sm text-gray-700">
-                                Showing {((pagination.currentPage - 1) * filters.limit) + 1} to {Math.min(pagination.currentPage * filters.limit, pagination.totalItems)} of {pagination.totalItems} results
+                                {t('purchase:showingResults', { from: ((pagination.currentPage - 1) * filters.limit) + 1, to: Math.min(pagination.currentPage * filters.limit, pagination.totalItems), total: pagination.totalItems, defaultValue: `Showing ${((pagination.currentPage - 1) * filters.limit) + 1} to ${Math.min(pagination.currentPage * filters.limit, pagination.totalItems)} of ${pagination.totalItems} results` })}
                             </div>
                             <div className="flex items-center gap-2">
                                 <button
@@ -505,17 +517,17 @@ const Expenses = () => {
                                     disabled={!pagination.hasPrevPage}
                                     className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                                 >
-                                    Previous
+                                    {t('common:previous', 'Previous')}
                                 </button>
                                 <span className="text-sm text-gray-700">
-                                    Page {pagination.currentPage} of {pagination.totalPages}
+                                    {t('purchase:pageOf', { current: pagination.currentPage, total: pagination.totalPages, defaultValue: `Page ${pagination.currentPage} of ${pagination.totalPages}` })}
                                 </span>
                                 <button
                                     onClick={() => handlePageChange(pagination.currentPage + 1)}
                                     disabled={!pagination.hasNextPage}
                                     className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                                 >
-                                    Next
+                                    {t('common:next', 'Next')}
                                 </button>
                             </div>
                         </div>

@@ -1,0 +1,21 @@
+{
+  "title": "Inventory Management",
+  "subtitle": "Manage products, track stock levels, and monitor low-stock alerts",
+  "addProduct": "Add New Product",
+  "searchPlaceholder": "Search by name, SKU, or barcode...",
+  "allCategories": "All Categories",
+  "product": "Product",
+  "category": "Category",
+  "totalStock": "Total Stock",
+  "available": "Available",
+  "costPrice": "Cost Price",
+  "sellingPrice": "Selling Price",
+  "margin": "Margin",
+  "totalItems": "Total Items",
+  "lowStockItems": "Low Stock Items",
+  "costValuation": "Inventory Value",
+  "expectedRevenue": "Expected Revenue",
+  "stockAlerts": "Stock Alerts",
+  "deleteProduct": "Delete Product",
+  "deleteConfirmation": "Are you sure you want to delete this item? This action cannot be undone."
+}

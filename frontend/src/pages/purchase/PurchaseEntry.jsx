@@ -10,8 +10,10 @@ import { getAllItems } from '../../redux/slices/inventorySlice';
 import { getAllSuppliers } from '../../redux/slices/supplierSlice';
 import { getAccounts } from '../../redux/slices/cashbankSlice';
 import { createPurchase, reset } from '../../redux/slices/purchaseSlice';
+import { useTranslation } from 'react-i18next';
 
 const PurchaseEntry = () => {
+    const { t } = useTranslation(['purchase', 'common']);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { id } = useParams(); // Get purchase ID from URL for edit mode
@@ -423,8 +425,8 @@ const PurchaseEntry = () => {
                 <div className="mb-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-2">{isEditMode ? 'Edit Purchase' : 'Purchase Entry'}</h1>
-                            <p className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{isEditMode ? 'Update purchase details' : 'Record purchases from suppliers'}</p>
+                            <h1 className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-2">{isEditMode ? t('editPurchase', 'Edit Purchase') : t('purchaseEntry', 'Purchase Entry')}</h1>
+                            <p className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{isEditMode ? t('updatePurchaseDetails', 'Update purchase details') : t('recordPurchasesFromSuppliers', 'Record purchases from suppliers')}</p>
                         </div>
                         <div className="flex items-center gap-3">
                             {/* Draft indicator */}
@@ -433,7 +435,7 @@ const PurchaseEntry = () => {
                                     <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                     </svg>
-                                    <span className="text-xs font-medium text-green-700 dark:text-green-300">Draft Auto-Saved</span>
+                                    <span className="text-xs font-medium text-green-700 dark:text-green-300">{t('draftAutoSaved', 'Draft Auto-Saved')}</span>
                                 </div>
                             )}
                             {/* View All Purchases Button */}
@@ -444,7 +446,7 @@ const PurchaseEntry = () => {
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                                 </svg>
-                                View All Purchases
+                                {t('viewAllPurchases', 'View All Purchases')}
                             </button>
                         </div>
                     </div>
@@ -461,7 +463,7 @@ const PurchaseEntry = () => {
                 {loadingPurchase && (
                     <div className="mb-6 p-8 bg-card rounded-xl shadow-sm text-center">
                         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
-                        <p className="text-secondary">Loading purchase data...</p>
+                        <p className="text-secondary">{t('common:loading', 'Loading purchase data...')}</p>
                     </div>
                 )}
 
@@ -472,10 +474,10 @@ const PurchaseEntry = () => {
                         <div className="lg:col-span-2 space-y-4">
                             {/* Purchase Header */}
                             <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-3">
-                                <h2 className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-3">Purchase Details</h2>
+                                <h2 className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-3">{t('purchaseDetails', 'Purchase Details')}</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">Purchase Date</label>
+                                        <label className="block text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">{t('purchaseDate', 'Purchase Date')}</label>
                                         <input
                                             type="date"
                                             value={formData.purchaseDate}
@@ -484,18 +486,18 @@ const PurchaseEntry = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">Supplier Invoice No *</label>
+                                        <label className="block text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">{t('supplierInvoiceNo', 'Supplier Invoice No *')}</label>
                                         <input
                                             type="text"
                                             value={formData.supplierInvoiceNo}
                                             onChange={(e) => setFormData({ ...formData, supplierInvoiceNo: e.target.value })}
                                             className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-lg bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:ring-2 focus:ring-indigo-500"
-                                            placeholder="Enter supplier invoice number"
+                                            placeholder={t('enterSupplierInvoiceNo', 'Enter supplier invoice number')}
                                             required
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">Supplier Invoice Date</label>
+                                        <label className="block text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">{t('supplierInvoiceDate', 'Supplier Invoice Date')}</label>
                                         <input
                                             type="date"
                                             value={formData.supplierInvoiceDate}
@@ -504,7 +506,7 @@ const PurchaseEntry = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">Due Date</label>
+                                        <label className="block text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">{t('dueDate', 'Due Date')}</label>
                                         <input
                                             type="date"
                                             value={formData.dueDate}
@@ -513,18 +515,18 @@ const PurchaseEntry = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">Purchase Type</label>
+                                        <label className="block text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">{t('purchaseType', 'Purchase Type')}</label>
                                         <select
                                             value={formData.purchaseType}
                                             onChange={(e) => setFormData({ ...formData, purchaseType: e.target.value })}
                                             className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-lg bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:ring-2 focus:ring-indigo-500"
                                         >
-                                            <option value="cash">Cash</option>
-                                            <option value="credit">Credit</option>
+                                            <option value="cash">{t('cash', 'Cash')}</option>
+                                            <option value="credit">{t('credit', 'Credit')}</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">Reference No (Optional)</label>
+                                        <label className="block text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">{t('referenceNo', 'Reference No (Optional)')}</label>
                                         <input
                                             type="text"
                                             value={formData.referenceNo}
@@ -538,7 +540,7 @@ const PurchaseEntry = () => {
 
                             {/* Supplier Selection */}
                             <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-3">
-                                <h2 className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-3">Supplier *</h2>
+                                <h2 className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-3">{t('common:supplier', 'Supplier')} *</h2>
                                 {formData.supplier ? (
                                     <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg">
                                         <div className="flex items-center justify-between">
@@ -551,10 +553,10 @@ const PurchaseEntry = () => {
                                                 {formData.supplier.outstandingBalance !== undefined && formData.supplier.outstandingBalance !== 0 && (
                                                     <div className="mt-2 pt-2 border-t border-indigo-200 dark:border-indigo-700">
                                                         <div className="flex items-center justify-between">
-                                                            <span className="text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Previous Outstanding:</span>
+                                                            <span className="text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{t('previousOutstanding', 'Previous Outstanding:')}</span>
                                                             <span className={`text-xs font-bold ${formData.supplier.outstandingBalance > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
                                                                 Rs. {Math.abs(formData.supplier.outstandingBalance).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                                {formData.supplier.outstandingBalance > 0 ? ' (You Owe)' : ' (They Owe)'}
+                                                                {formData.supplier.outstandingBalance > 0 ? ` ${t('youOwe', '(You Owe)')}` : ` ${t('theyOwe', '(They Owe)')}`}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -579,7 +581,7 @@ const PurchaseEntry = () => {
                                             }}
                                             className="w-full px-3 py-2 text-sm border-2 border-dashed border-gray-300 dark:border-[rgb(var(--color-border))] rounded-lg bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:ring-2 focus:ring-indigo-500"
                                         >
-                                            <option value="">Select a supplier</option>
+                                            <option value="">{t('selectSupplier', 'Select a supplier')}</option>
                                             {suppliers.map((supplier) => (
                                                 <option key={supplier._id} value={supplier._id}>
                                                     {supplier.businessName} - {supplier.contactPersonName}
@@ -593,19 +595,19 @@ const PurchaseEntry = () => {
                             {/* Items Table */}
                             <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-3">
                                 <div className="flex items-center justify-between mb-3">
-                                    <h2 className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">Items *</h2>
+                                    <h2 className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">{t('common:items', 'Items')} *</h2>
                                     <button
                                         onClick={addItemRow}
                                         className="px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
                                     >
-                                        + Add Item
+                                        {t('addItem', '+ Add Item')}
                                     </button>
                                 </div>
 
                                 {/* Barcode Scan Input */}
                                 <div className="mb-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg">
                                     <label className="block text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-2">
-                                        🔍 Scan Item (Barcode / SKU)
+                                        {t('scanItemBarcode', '🔍 Scan Item (Barcode / SKU)')}
                                     </label>
                                     <input
                                         ref={scanInputRef}
@@ -613,28 +615,28 @@ const PurchaseEntry = () => {
                                         value={scanInput}
                                         onChange={(e) => setScanInput(e.target.value)}
                                         onKeyDown={handleScanKeyDown}
-                                        placeholder="Scan barcode or enter SKU, then press Enter..."
+                                        placeholder={t('scanBarcodePlaceholder', 'Scan barcode or enter SKU, then press Enter...')}
                                         className="w-full px-3 py-2 text-sm border-2 border-indigo-300 dark:border-indigo-700 rounded-lg bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                     />
                                     {scanError && (
                                         <p className="text-xs text-red-600 mt-1">{scanError}</p>
                                     )}
                                     <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mt-1">
-                                        💡 Tip: Use a USB barcode scanner or type manually and press Enter
+                                        {t('scannerTip', '💡 Tip: Use a USB barcode scanner or type manually and press Enter')}
                                     </p>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-xs">
                                         <thead className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-[rgb(var(--color-border))]">
                                             <tr>
-                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">Item</th>
-                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">Qty</th>
-                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">Rate</th>
-                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">Selling</th>
-                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">Tax%</th>
-                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">Disc</th>
-                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">Total</th>
-                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">Action</th>
+                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">{t('tableItem', 'Item')}</th>
+                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">{t('tableQty', 'Qty')}</th>
+                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">{t('tableRate', 'Rate')}</th>
+                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">{t('tableSelling', 'Selling')}</th>
+                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">{t('tableTax', 'Tax%')}</th>
+                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">{t('tableDisc', 'Disc')}</th>
+                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">{t('common:total', 'Total')}</th>
+                                                <th className="px-2 py-2 text-left text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] uppercase">{t('common:actions', 'Action')}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-200 dark:divide-[rgb(var(--color-border))]">
@@ -648,7 +650,7 @@ const PurchaseEntry = () => {
                                                                 onChange={(e) => updateItem(index, 'item', e.target.value)}
                                                                 className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-[rgb(var(--color-border))] rounded bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))]"
                                                             >
-                                                                <option value="">Select item</option>
+                                                                <option value="">{t('selectItem', 'Select item')}</option>
                                                                 {items.map((i) => (
                                                                     <option key={i._id} value={i._id}>
                                                                         {i.name}
@@ -730,13 +732,13 @@ const PurchaseEntry = () => {
 
                             {/* Notes */}
                             <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-3">
-                                <h2 className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-3">Notes</h2>
+                                <h2 className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-3">{t('notes', 'Notes')}</h2>
                                 <textarea
                                     value={formData.notes}
                                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                                     rows="3"
                                     className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-lg bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:ring-2 focus:ring-indigo-500"
-                                    placeholder="Add any notes about this purchase..."
+                                    placeholder={t('addNotesPlaceholder', 'Add any notes about this purchase...')}
                                 />
                             </div>
                         </div>
@@ -744,22 +746,22 @@ const PurchaseEntry = () => {
                         {/* Summary Panel */}
                         <div className="lg:col-span-1">
                             <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-3 sticky top-4">
-                                <h2 className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-3">Summary</h2>
+                                <h2 className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-3">{t('summary', 'Summary')}</h2>
 
                                 {/* Calculations */}
                                 <div className="space-y-2 mb-3">
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Subtotal:</span>
+                                        <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{t('common:subtotal', 'Subtotal')}:</span>
                                         <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {totals.subtotal.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Item Discount:</span>
+                                        <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{t('itemDiscount', 'Item Discount:')}</span>
                                         <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">-Rs. {totals.itemDiscount.toFixed(2)}</span>
                                     </div>
 
                                     {/* Bill Discount */}
                                     <div>
-                                        <label className="block text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">Bill Discount:</label>
+                                        <label className="block text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">{t('billDiscount', 'Bill Discount:')}</label>
                                         <input
                                             type="number"
                                             value={formData.billDiscount}
@@ -772,7 +774,7 @@ const PurchaseEntry = () => {
 
                                     {/* Shipping */}
                                     <div>
-                                        <label className="block text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">Shipping/Loading:</label>
+                                        <label className="block text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">{t('shippingLoading', 'Shipping/Loading:')}</label>
                                         <input
                                             type="number"
                                             value={formData.shippingCharges}
@@ -785,7 +787,7 @@ const PurchaseEntry = () => {
 
                                     {/* Tax Breakup */}
                                     <div className="border-t border-gray-200 dark:border-[rgb(var(--color-border))] pt-2">
-                                        <p className="text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-2">Tax Breakup:</p>
+                                        <p className="text-xs font-medium text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-2">{t('taxBreakup', 'Tax Breakup:')}</p>
                                         {isInterState() ? (
                                             <div className="flex justify-between text-xs">
                                                 <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">IGST:</span>
@@ -806,7 +808,7 @@ const PurchaseEntry = () => {
                                     </div>
 
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Round Off:</span>
+                                        <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{t('roundOff', 'Round Off:')}</span>
                                         <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {totals.roundOff.toFixed(2)}</span>
                                     </div>
                                 </div>
@@ -814,37 +816,37 @@ const PurchaseEntry = () => {
                                 {/* Total */}
                                 <div className="border-t border-gray-200 dark:border-[rgb(var(--color-border))] pt-3 mb-3">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">Total:</span>
+                                        <span className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">{t('common:total', 'Total')}:</span>
                                         <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">Rs. {totals.totalAmount.toFixed(2)}</span>
                                     </div>
                                 </div>
 
                                 {/* Payment Section */}
                                 <div className="space-y-2 mb-3 border-t border-gray-200 dark:border-[rgb(var(--color-border))] pt-3">
-                                    <h3 className="font-medium text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">Payment</h3>
+                                    <h3 className="font-medium text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">{t('payment', 'Payment')}</h3>
 
                                     <div>
-                                        <label className="block text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">Payment Method:</label>
+                                        <label className="block text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">{t('paymentMethod', 'Payment Method:')}</label>
                                         <select
                                             value={formData.paymentMethod}
                                             onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
                                             className="w-full px-2 py-2 text-xs border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-lg bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))]"
                                         >
-                                            <option value="cash">Cash</option>
-                                            <option value="bank">Bank Transfer</option>
-                                            <option value="credit">Credit (Pay Later)</option>
+                                            <option value="cash">{t('cash', 'Cash')}</option>
+                                            <option value="bank">{t('bankTransfer', 'Bank Transfer')}</option>
+                                            <option value="credit">{t('creditPayLater', 'Credit (Pay Later)')}</option>
                                         </select>
                                     </div>
 
                                     {formData.paymentMethod === 'bank' && (
                                         <div>
-                                            <label className="block text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">Bank Account:</label>
+                                            <label className="block text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">{t('common:supplier', 'Bank Account')}:</label>
                                             <select
                                                 value={formData.bankAccount}
                                                 onChange={(e) => setFormData({ ...formData, bankAccount: e.target.value })}
                                                 className="w-full px-2 py-2 text-xs border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-lg bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))]"
                                             >
-                                                <option value="">Select bank account</option>
+                                                <option value="">{t('selectBankAccount', 'Select bank account')}</option>
                                                 {accounts.map((acc) => (
                                                     <option key={acc._id} value={acc._id}>
                                                         {acc.bankName} - {acc.accountNumber}
@@ -855,7 +857,7 @@ const PurchaseEntry = () => {
                                     )}
 
                                     <div>
-                                        <label className="block text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">Amount Paid:</label>
+                                        <label className="block text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))] mb-1">{t('paidAmount', 'Paid Amount:')}</label>
                                         <input
                                             type="number"
                                             value={formData.paidAmount}
@@ -870,7 +872,7 @@ const PurchaseEntry = () => {
                                     {/* Supplier Previous Outstanding */}
                                     {formData.supplier && formData.supplier.outstandingBalance !== undefined && formData.supplier.outstandingBalance !== 0 && (
                                         <div className="flex justify-between text-xs pb-2 mb-2 border-b border-gray-200 dark:border-[rgb(var(--color-border))]">
-                                            <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Supplier Previous Dues:</span>
+                                            <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{t('previousOutstanding', 'Supplier Previous Dues:')}</span>
                                             <span className={`font-bold ${formData.supplier.outstandingBalance > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
                                                 Rs. {Math.abs(formData.supplier.outstandingBalance).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                             </span>
@@ -878,7 +880,7 @@ const PurchaseEntry = () => {
                                     )}
 
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">This Purchase Outstanding:</span>
+                                        <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{t('balanceDue', 'This Purchase Outstanding:')}</span>
                                         <span className="font-medium text-red-600 dark:text-red-400">Rs. {totals.outstandingAmount.toFixed(2)}</span>
                                     </div>
                                 </div>
@@ -897,14 +899,14 @@ const PurchaseEntry = () => {
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
-                                                {isLoading || loadingPurchase ? 'Finalizing...' : 'Finalize Purchase'}
+                                                {isLoading || loadingPurchase ? t('common:processing', 'Finalizing...') : t('savePurchase', 'Finalize Purchase')}
                                             </button>
                                             <button
                                                 onClick={() => handleSubmit('draft')}
                                                 disabled={isLoading || loadingPurchase}
                                                 className="w-full py-2 text-sm border-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 dark:border-indigo-400 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 font-medium disabled:opacity-50"
                                             >
-                                                {isLoading || loadingPurchase ? 'Saving...' : 'Update as Draft'}
+                                                {isLoading || loadingPurchase ? t('common:processing', 'Saving...') : t('saveDraft', 'Update as Draft')}
                                             </button>
                                         </>
                                     ) : isEditMode ? (
@@ -914,7 +916,7 @@ const PurchaseEntry = () => {
                                             disabled={isLoading || loadingPurchase}
                                             className="w-full py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium disabled:opacity-50"
                                         >
-                                            {isLoading || loadingPurchase ? 'Updating...' : 'Update Purchase'}
+                                            {isLoading || loadingPurchase ? t('common:processing', 'Updating...') : t('updatePurchase', 'Update Purchase')}
                                         </button>
                                     ) : (
                                         /* When creating a new purchase */
@@ -924,14 +926,14 @@ const PurchaseEntry = () => {
                                                 disabled={isLoading || loadingPurchase}
                                                 className="w-full py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium disabled:opacity-50"
                                             >
-                                                {isLoading || loadingPurchase ? 'Saving...' : 'Save & Finalize'}
+                                                {isLoading || loadingPurchase ? t('common:processing', 'Saving...') : t('savePurchase', 'Save & Finalize')}
                                             </button>
                                             <button
                                                 onClick={() => handleSubmit('draft')}
                                                 disabled={isLoading || loadingPurchase}
                                                 className="w-full py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] text-gray-600 dark:text-[rgb(var(--color-text-secondary))] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
                                             >
-                                                Save as Draft
+                                                {t('saveDraft', 'Save as Draft')}
                                             </button>
                                         </>
                                     )}
@@ -939,7 +941,7 @@ const PurchaseEntry = () => {
                                         onClick={() => navigate('/purchase/list')}
                                         className="w-full py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] text-gray-600 dark:text-[rgb(var(--color-text-secondary))] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
                                     >
-                                        Cancel
+                                        {t('common:cancel', 'Cancel')}
                                     </button>
                                 </div>
                             </div>
