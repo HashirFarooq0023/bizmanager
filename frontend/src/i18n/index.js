@@ -54,7 +54,7 @@ const resources = {
   },
 };
 
-const savedLanguage = localStorage.getItem('bizmanager_language') || 'ur';
+const savedLanguage = localStorage.getItem('bizmanager_language') || 'en';
 
 i18n
   .use(LanguageDetector)
@@ -69,7 +69,7 @@ i18n
       escapeValue: false,
     },
     detection: {
-      order: ['localStorage', 'navigator'],
+      order: ['localStorage'],
       lookupLocalStorage: 'bizmanager_language',
       caches: ['localStorage'],
     },

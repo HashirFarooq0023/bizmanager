@@ -10,13 +10,13 @@ export const ModeProvider = ({ children }) => {
     const saved = localStorage.getItem('bizmanager_mode');
     if (saved) return saved;
     // Default: English -> 'pro', Urdu -> 'asan'
-    const savedLang = localStorage.getItem('bizmanager_language') || 'ur';
+    const savedLang = localStorage.getItem('bizmanager_language') || 'en';
     return savedLang === 'en' ? 'pro' : 'asan';
   });
 
   const [showModeOnboarding, setShowModeOnboarding] = useState(() => {
     // Only show onboarding if user has selected Urdu and has not completed mode onboarding
-    const savedLang = localStorage.getItem('bizmanager_language') || 'ur';
+    const savedLang = localStorage.getItem('bizmanager_language') || 'en';
     const completed = localStorage.getItem('bizmanager_mode_onboarding_completed');
     return savedLang === 'ur' && !completed;
   });

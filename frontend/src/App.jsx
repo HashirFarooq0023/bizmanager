@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify"
 import { ThemeProvider } from './contexts/ThemeContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ModeProvider } from './contexts/ModeContext';
+import VisitorLanguageModal from './components/VisitorLanguageModal';
 import { migrateUserStorage } from './utils/migrateUserStorage';
 import UdhaarKhata from './pages/UdhaarKhata';
 import Login from './pages/Login';
@@ -142,6 +143,7 @@ function App() {
           <div className="min-h-screen bg-app text-main transition-colors duration-300">
             <ToastContainer />
             <Router>
+              <VisitorLanguageModal />
               <Routes>
             {/* Public Landing Page */}
             <Route path="/" element={<LandingPage />} />

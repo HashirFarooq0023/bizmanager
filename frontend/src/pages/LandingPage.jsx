@@ -169,8 +169,8 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
 
           {/* MegaTrix Logo (Preserved Brand Identity) */}
-          <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
-            <Logo size="lg" hoverSlide={true} />
+          <div className="flex items-center cursor-pointer select-none" onClick={() => navigate('/')}>
+            <Logo size="xl" showText={true} showSubtitle={true} />
           </div>
 
           {/* Desktop & Tablet Nav Links */}
@@ -1215,8 +1215,8 @@ const LandingPage = () => {
       <footer className="bg-white dark:bg-[#06080E] border-t border-slate-200/80 dark:border-white/[0.08] py-8 sm:py-10 transition-colors font-urdu">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-start">
-            <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
-              <Logo size="md" hoverSlide={true} />
+            <div className="flex items-center cursor-pointer select-none" onClick={() => navigate('/')}>
+              <Logo size="md" showText={true} showSubtitle={true} />
             </div>
 
             <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3.5 sm:gap-6 text-xs text-slate-500 dark:text-zinc-400">
