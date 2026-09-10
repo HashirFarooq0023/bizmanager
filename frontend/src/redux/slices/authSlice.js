@@ -14,6 +14,7 @@ const initialState = {
   message: '',
   deviceConflict: false,
   conflictMessage: '',
+  isNewGoogleUser: false,
 };
 
 // Register user
@@ -56,6 +57,33 @@ export const login = createAsyncThunk(
         const userToStore = {
           token: response.data.token,
           refreshToken: response.data.refreshToken,
+          ...response.data.user
+        };
+        localStorage.setItem('user', JSON.stringify(userToStore));
+        return userToStore;
+      }
+      return response.data;
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Google OAuth Login / Register
+export const googleLogin = createAsyncThunk(
+  'auth/googleLogin',
+  async ({ credential }, thunkAPI) => {
+    try {
+      const response = await api.post(`${API_URL}/google`, { credential });
+      if (response.data) {
+        const userToStore = {
+          token: response.data.token,
+          refreshToken: response.data.refreshToken,
+          isNewUser: Boolean(response.data.isNewUser),
           ...response.data.user
         };
         localStorage.setItem('user', JSON.stringify(userToStore));
@@ -211,6 +239,14 @@ export const authSlice = createSlice({
       state.message = '';
       state.deviceConflict = false;
       state.conflictMessage = '';
+      state.isNewGoogleUser = false;
+    },
+    clearNewGoogleUser: (state) => {
+      state.isNewGoogleUser = false;
+      if (state.user) {
+        state.user.isNewUser = false;
+        localStorage.setItem('user', JSON.stringify(state.user));
+      }
     },
   },
   extraReducers: (builder) => {
@@ -242,6 +278,30 @@ export const authSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         // Check if this is a device conflict (409 status) - axios stores status in error.response
+        const errorData = action.payload;
+        if (typeof errorData === 'string' && errorData.includes('currently active on another device')) {
+          state.deviceConflict = true;
+          state.conflictMessage = errorData;
+        } else {
+          state.isError = true;
+          state.message = action.payload;
+        }
+        state.user = null;
+      })
+      // Google Login
+      .addCase(googleLogin.pending, (state) => {
+        state.isLoading = true;
+        state.isError = false;
+        state.message = '';
+      })
+      .addCase(googleLogin.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user = action.payload;
+        state.isNewGoogleUser = Boolean(action.payload?.isNewUser);
+      })
+      .addCase(googleLogin.rejected, (state, action) => {
+        state.isLoading = false;
         const errorData = action.payload;
         if (typeof errorData === 'string' && errorData.includes('currently active on another device')) {
           state.deviceConflict = true;
@@ -338,5 +398,5 @@ export const authSlice = createSlice({
   },
 });
 
-export const { reset } = authSlice.actions;
+export const { reset, clearNewGoogleUser } = authSlice.actions;
 export default authSlice.reducer;

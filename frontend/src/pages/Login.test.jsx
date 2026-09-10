@@ -42,6 +42,7 @@ describe('Login Component', () => {
         );
 
         expect(screen.getByPlaceholderText(/you@example.com/i)).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /Sign In|لاگ ان کریں/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /^(Sign In|لاگ ان کریں)$/i })).toBeInTheDocument();
+        expect(screen.getByText(/Google/i)).toBeInTheDocument();
     });
 });

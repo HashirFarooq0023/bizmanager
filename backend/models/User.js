@@ -15,7 +15,24 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, "Please enter password"],
+      required: function () {
+        return !this.googleId;
+      },
+    },
+    googleId: {
+      type: String,
+      default: null,
+      sparse: true,
+      index: true,
+    },
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+    avatar: {
+      type: String,
+      default: "",
     },
     shopName: {
       type: String,
@@ -43,6 +60,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["owner"],
       default: "owner",
+    },
+    preferredMode: {
+      type: String,
+      enum: ["asan", "pro"],
+      default: "pro",
     },
     resetPasswordToken: {
       type: String,
@@ -225,7 +247,7 @@ const userSchema = new mongoose.Schema(
 
 // Password encryption before save
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  if (!this.password || !this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
@@ -233,6 +255,7 @@ userSchema.pre("save", async function (next) {
 
 // Compare passwords
 userSchema.methods.matchPassword = async function (enteredPassword) {
+  if (!this.password) return false;
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

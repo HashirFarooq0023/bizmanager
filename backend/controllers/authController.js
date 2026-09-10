@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import RefreshToken from "../models/RefreshToken.js";
 import { generateToken, generateRefreshToken, generateRandomToken } from "../config/jwt.js";
 import crypto from "crypto";
+import { OAuth2Client } from "google-auth-library";
 import { sendHtmlEmail, generatePasswordResetEmail } from "../utils/emailService.js";
 import { generateDeviceId, setDeviceIdCookie, getDeviceIdFromCookie } from "../utils/deviceUtils.js";
 import { info } from "../utils/logger.js";
@@ -373,6 +374,283 @@ export const loginUser = async (req, res) => {
   } catch (error) {
     console.error("Login Error:", error);
     res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
+/**
+ * @desc Authenticate with Google (Sign In / Register)
+ * @route POST /api/auth/google
+ */
+export const googleAuth = async (req, res) => {
+  try {
+    const idToken = req.body.credential || req.body.token || req.body.idToken;
+
+    if (!idToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Google ID token (credential) is required",
+      });
+    }
+
+    const clientId = process.env.GOOGLE_CLIENT_ID || "797014673114-9rlvk9ivhh9m675p041vr67ojkm948ut.apps.googleusercontent.com";
+    const client = new OAuth2Client(clientId);
+
+    let ticket;
+    try {
+      ticket = await client.verifyIdToken({
+        idToken,
+        audience: clientId,
+      });
+    } catch (verifyError) {
+      console.error("Google verifyIdToken failed:", verifyError.message);
+      return res.status(401).json({
+        success: false,
+        message: "Failed to verify Google token: " + verifyError.message,
+      });
+    }
+
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Google token payload",
+      });
+    }
+
+    const { sub: googleId, email, email_verified, name, picture } = payload;
+
+    if (!email_verified) {
+      return res.status(400).json({
+        success: false,
+        message: "Google email address is not verified",
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Check if user exists by googleId or email
+    let user = await User.findOne({
+      $or: [
+        { googleId },
+        { email: normalizedEmail }
+      ]
+    });
+
+    const deviceMeta = getDeviceMetadata(req);
+    const ipAddress = getIpAddress(req);
+    const existingDeviceId = getDeviceIdFromCookie(req);
+
+    if (user) {
+      // Check account status
+      if (user.isLocked()) {
+        return res.status(423).json({
+          success: false,
+          message: "Account locked due to too many failed attempts. Try again later.",
+          lockedUntil: user.accountLockedUntil,
+        });
+      }
+
+      if (user.status === "suspended" || user.accountStatus === "suspended") {
+        return res.status(403).json({
+          success: false,
+          message: "Account suspended. Please contact support.",
+        });
+      }
+
+      // Check device conflict if user already active on another device
+      if (user.activeDeviceId && user.activeDeviceId !== existingDeviceId) {
+        await logUserActivity(user._id, "FAILED_LOGIN", {
+          ipAddress,
+          userAgent: deviceMeta.userAgent,
+          deviceId: existingDeviceId,
+          deviceType: deviceMeta.deviceType,
+          browser: deviceMeta.browser,
+          os: deviceMeta.os,
+          metadata: { reason: "device_conflict", authProvider: "google" },
+        });
+
+        return res.status(409).json({
+          success: false,
+          message: "This account is currently active on another device.",
+          deviceConflict: true,
+        });
+      }
+
+      // Link googleId if not present or avatar if empty
+      if (!user.googleId) {
+        user.googleId = googleId;
+      }
+      if (!user.avatar && picture) {
+        user.avatar = picture;
+      }
+      if (user.authProvider !== "google" && !user.password) {
+        user.authProvider = "google";
+      }
+
+      let deviceIdToUse;
+      const isNewDevice = !existingDeviceId || user.activeDeviceId !== existingDeviceId;
+
+      if (existingDeviceId && user.activeDeviceId === existingDeviceId) {
+        deviceIdToUse = existingDeviceId;
+      } else {
+        deviceIdToUse = generateDeviceId();
+      }
+
+      await user.resetLoginAttempts();
+      await user.recordLogin(ipAddress, deviceMeta.userAgent);
+
+      user.activeDeviceId = deviceIdToUse;
+      user.activeSessionCreatedAt = new Date();
+      user.lastLoginAt = new Date();
+      user.lastSeenAt = new Date();
+      user.lastActivityType = "login";
+
+      if (isNewDevice) {
+        user.activeSessionCount = (user.activeSessionCount || 0) + 1;
+        if (!user.activeDeviceIds.includes(deviceIdToUse)) {
+          user.activeDeviceIds.push(deviceIdToUse);
+        }
+      }
+
+      user.lastActiveDeviceId = deviceIdToUse;
+      user.lastActiveDeviceType = deviceMeta.deviceType;
+      user.lastActiveOS = deviceMeta.os;
+      user.lastActiveBrowser = deviceMeta.browser;
+
+      user.lastLoginIp = ipAddress;
+      user.lastLoginUserAgent = deviceMeta.userAgent;
+      user.lastKnownIp = ipAddress;
+
+      await user.save();
+
+      setDeviceIdCookie(res, deviceIdToUse);
+
+      const accessToken = generateToken(user._id);
+      const refreshToken = generateRandomToken();
+
+      await RefreshToken.create({
+        token: refreshToken,
+        user: user._id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        createdByIp: ipAddress,
+        userAgent: deviceMeta.userAgent,
+        deviceId: deviceIdToUse,
+        deviceType: deviceMeta.deviceType,
+        browser: deviceMeta.browser,
+        os: deviceMeta.os,
+      });
+
+      await logUserActivity(user._id, "LOGIN", {
+        ipAddress,
+        userAgent: deviceMeta.userAgent,
+        deviceId: deviceIdToUse,
+        deviceType: deviceMeta.deviceType,
+        browser: deviceMeta.browser,
+        os: deviceMeta.os,
+        metadata: { authProvider: "google", isNewDevice },
+      });
+
+      return res.status(200).json({
+        success: true,
+        isNewUser: false,
+        token: accessToken,
+        refreshToken: refreshToken,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          shopName: user.shopName,
+          gstNumber: user.gstNumber || "",
+          shopAddress: user.shopAddress || "",
+          phone: user.phone || "",
+          avatar: user.avatar || "",
+          role: user.role || "owner",
+          authProvider: user.authProvider || "google",
+          preferredMode: user.preferredMode || "pro",
+        },
+      });
+    } else {
+      // New user registering via Google
+      const deviceId = generateDeviceId();
+
+      user = await User.create({
+        name: name || normalizedEmail.split("@")[0],
+        email: normalizedEmail,
+        googleId,
+        authProvider: "google",
+        avatar: picture || "",
+        shopName: (req.body.shopName || "").trim(),
+        preferredMode: req.body.preferredMode && ["asan", "pro"].includes(req.body.preferredMode) ? req.body.preferredMode : "pro",
+        phone: "",
+        role: "owner",
+        accountStatus: "active",
+        accountCreatedSource: "web",
+        activeDeviceId: deviceId,
+        activeSessionCreatedAt: new Date(),
+        activeSessionCount: 1,
+        activeDeviceIds: [deviceId],
+        lastLoginAt: new Date(),
+        lastSeenAt: new Date(),
+        lastActivityType: "login",
+        lastActiveDeviceId: deviceId,
+        lastActiveDeviceType: deviceMeta.deviceType,
+        lastActiveOS: deviceMeta.os,
+        lastActiveBrowser: deviceMeta.browser,
+        lastLoginIp: ipAddress,
+        lastLoginUserAgent: deviceMeta.userAgent,
+        lastKnownIp: ipAddress,
+      });
+
+      setDeviceIdCookie(res, deviceId);
+
+      const accessToken = generateToken(user._id);
+      const refreshToken = generateRandomToken();
+
+      await RefreshToken.create({
+        token: refreshToken,
+        user: user._id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        createdByIp: ipAddress,
+        userAgent: deviceMeta.userAgent,
+        deviceId,
+        deviceType: deviceMeta.deviceType,
+        browser: deviceMeta.browser,
+        os: deviceMeta.os,
+      });
+
+      await logUserActivity(user._id, "REGISTRATION", {
+        ipAddress,
+        userAgent: deviceMeta.userAgent,
+        deviceId,
+        deviceType: deviceMeta.deviceType,
+        browser: deviceMeta.browser,
+        os: deviceMeta.os,
+        metadata: { authProvider: "google" },
+      });
+
+      return res.status(201).json({
+        success: true,
+        isNewUser: true,
+        token: accessToken,
+        refreshToken: refreshToken,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          shopName: user.shopName || "",
+          gstNumber: user.gstNumber || "",
+          shopAddress: user.shopAddress || "",
+          phone: user.phone || "",
+          avatar: user.avatar || "",
+          role: user.role || "owner",
+          authProvider: user.authProvider || "google",
+          preferredMode: user.preferredMode || "pro",
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Google Auth Error:", error);
+    return res.status(500).json({ success: false, message: "Server Error during Google authentication", error: error.message });
   }
 };
 

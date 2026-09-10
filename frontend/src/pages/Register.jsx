@@ -4,6 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { register, reset } from "../redux/slices/authSlice";
 import SecurePasswordInput from '../components/SecurePasswordInput';
+import GoogleAuthButton from '../components/GoogleAuthButton';
+import GoogleOnboardingModal from '../components/GoogleOnboardingModal';
 import Logo from '../components/Logo';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -40,14 +42,25 @@ const Register = () => {
   const { language, changeLanguage, isRtl } = useLanguage();
   const { t } = useTranslation(['auth', 'common']);
 
-  const { user, isLoading, isError, isSuccess, message } = useSelector(
+  const { user, isLoading, isError, isSuccess, message, isNewGoogleUser } = useSelector(
     (state) => state.auth
   );
 
   const [validationError, setValidationError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [showGoogleOnboarding, setShowGoogleOnboarding] = useState(false);
 
   useEffect(() => {
+    // If this is a new Google user or an authenticated Google user without shopName, prompt store setup
+    if (
+      isNewGoogleUser ||
+      (user && user.isNewUser) ||
+      (user && user.authProvider === 'google' && !user.shopName)
+    ) {
+      setShowGoogleOnboarding(true);
+      return;
+    }
+
     if (isSuccess || user) {
       if (language === 'en') {
         localStorage.setItem('bizmanager_mode', 'pro');
@@ -61,7 +74,7 @@ const Register = () => {
 
     // Keep error visible; reset only on unmount
     return () => dispatch(reset());
-  }, [user, isSuccess, navigate, dispatch, language]);
+  }, [user, isSuccess, isNewGoogleUser, navigate, dispatch, language]);
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -257,6 +270,23 @@ const Register = () => {
                     </p>
                   </div>
                 )}
+
+                {/* Google OAuth Button */}
+                <div className="space-y-3 pt-1">
+                  <GoogleAuthButton mode="signup" />
+
+                  {/* Divider */}
+                  <div className="relative my-3">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-slate-200/80 dark:border-zinc-800/80" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white/95 dark:bg-[#0C0F17] px-3 text-slate-500 dark:text-zinc-400 font-medium font-urdu">
+                        {t('auth:register.orContinueWith') || 'Or continue with'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
                 <form onSubmit={onSubmit} className="space-y-5">
                   {/* Name and Email Row */}
@@ -497,6 +527,12 @@ const Register = () => {
         </footer>
 
       </div>
+
+      {/* Google Onboarding Modal for New Google Users */}
+      <GoogleOnboardingModal
+        isOpen={showGoogleOnboarding}
+        onComplete={() => setShowGoogleOnboarding(false)}
+      />
     </div>
   );
 };

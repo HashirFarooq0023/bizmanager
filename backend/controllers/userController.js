@@ -22,7 +22,7 @@ export const getAllUsers = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, phone, shopName, gstNumber, shopAddress } = req.body;
+    const { name, email, phone, shopName, gstNumber, shopAddress, preferredMode } = req.body;
 
     // Validate that user is updating their own profile
     if (req.user._id.toString() !== id) {
@@ -45,6 +45,9 @@ export const updateUser = async (req, res) => {
     if (shopName !== undefined) updateData.shopName = shopName;
     if (gstNumber !== undefined) updateData.gstNumber = gstNumber;
     if (shopAddress !== undefined) updateData.shopAddress = shopAddress;
+    if (preferredMode !== undefined && ["asan", "pro"].includes(preferredMode)) {
+      updateData.preferredMode = preferredMode;
+    }
 
     const user = await User.findByIdAndUpdate(
       id,
@@ -67,6 +70,7 @@ export const updateUser = async (req, res) => {
         shopAddress: user.shopAddress,
         phone: user.phone,
         role: user.role,
+        preferredMode: user.preferredMode,
       },
     });
   } catch (error) {

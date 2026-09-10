@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useLanguage } from './LanguageContext';
 
-const ModeContext = createContext();
+export const ModeContext = createContext();
 
 export const ModeProvider = ({ children }) => {
   const { language } = useLanguage();

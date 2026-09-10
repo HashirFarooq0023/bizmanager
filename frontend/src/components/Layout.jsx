@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import Sidebar from './Sidebar';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useMode } from '../contexts/ModeContext';
 import Logo from './Logo';
 import ModeOnboardingModal from './ModeOnboardingModal';
+import GoogleOnboardingModal from './GoogleOnboardingModal';
 
 const Layout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -12,6 +14,13 @@ const Layout = ({ children }) => {
   const { theme, toggleTheme } = useTheme();
   const { language, changeLanguage, isRtl } = useLanguage();
   const { mode, toggleMode, isAsan } = useMode();
+  const { user, isNewGoogleUser } = useSelector((state) => state.auth);
+
+  const showGoogleOnboarding = Boolean(
+    isNewGoogleUser ||
+    (user && user.isNewUser) ||
+    (user && user.authProvider === 'google' && !user.shopName)
+  );
 
   // Initialize expandedMenus from localStorage
   const [expandedMenus, setExpandedMenus] = useState(() => {
@@ -61,6 +70,7 @@ const Layout = ({ children }) => {
         setExpandedMenus={setExpandedMenus}
       />
       <ModeOnboardingModal />
+      <GoogleOnboardingModal isOpen={showGoogleOnboarding} />
       <div
         className={`flex flex-col min-h-screen transition-[margin] duration-300 ease-in-out ${
           isRtl
