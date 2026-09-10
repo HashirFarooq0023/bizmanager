@@ -14,6 +14,8 @@ const initialState = {
   message: '',
   deviceConflict: false,
   conflictMessage: '',
+  conflictProvider: 'local', // 'local' | 'google'
+  pendingGoogleCredential: null,
   isNewGoogleUser: false,
 };
 
@@ -76,9 +78,9 @@ export const login = createAsyncThunk(
 // Google OAuth Login / Register
 export const googleLogin = createAsyncThunk(
   'auth/googleLogin',
-  async ({ credential }, thunkAPI) => {
+  async ({ credential, forceLogout = false }, thunkAPI) => {
     try {
-      const response = await api.post(`${API_URL}/google`, { credential });
+      const response = await api.post(`${API_URL}/google`, { credential, forceLogout });
       if (response.data) {
         const userToStore = {
           token: response.data.token,
@@ -95,7 +97,11 @@ export const googleLogin = createAsyncThunk(
         (error.response && error.response.data && error.response.data.message) ||
         error.message ||
         error.toString();
-      return thunkAPI.rejectWithValue(message);
+      return thunkAPI.rejectWithValue({
+        message,
+        deviceConflict: Boolean(error.response?.data?.deviceConflict || error.response?.status === 409),
+        credential,
+      });
     }
   }
 );
@@ -239,6 +245,8 @@ export const authSlice = createSlice({
       state.message = '';
       state.deviceConflict = false;
       state.conflictMessage = '';
+      state.conflictProvider = 'local';
+      state.pendingGoogleCredential = null;
       state.isNewGoogleUser = false;
     },
     clearNewGoogleUser: (state) => {
@@ -282,6 +290,8 @@ export const authSlice = createSlice({
         if (typeof errorData === 'string' && errorData.includes('currently active on another device')) {
           state.deviceConflict = true;
           state.conflictMessage = errorData;
+          state.conflictProvider = 'local';
+          state.pendingGoogleCredential = null;
         } else {
           state.isError = true;
           state.message = action.payload;
@@ -299,16 +309,29 @@ export const authSlice = createSlice({
         state.isSuccess = true;
         state.user = action.payload;
         state.isNewGoogleUser = Boolean(action.payload?.isNewUser);
+        state.deviceConflict = false;
+        state.conflictMessage = '';
+        state.conflictProvider = 'local';
+        state.pendingGoogleCredential = null;
       })
       .addCase(googleLogin.rejected, (state, action) => {
         state.isLoading = false;
-        const errorData = action.payload;
-        if (typeof errorData === 'string' && errorData.includes('currently active on another device')) {
+        const payload = action.payload;
+        const isConflict =
+          (typeof payload === 'object' && payload?.deviceConflict) ||
+          (typeof payload === 'string' && payload.includes('currently active on another device'));
+
+        if (isConflict) {
           state.deviceConflict = true;
-          state.conflictMessage = errorData;
+          state.conflictMessage =
+            typeof payload === 'object' && payload?.message
+              ? payload.message
+              : 'This account is currently active on another device.';
+          state.conflictProvider = 'google';
+          state.pendingGoogleCredential = typeof payload === 'object' ? payload?.credential : null;
         } else {
           state.isError = true;
-          state.message = action.payload;
+          state.message = typeof payload === 'object' ? payload?.message : action.payload;
         }
         state.user = null;
       })
@@ -358,6 +381,8 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.deviceConflict = false;
         state.conflictMessage = '';
+        state.conflictProvider = 'local';
+        state.pendingGoogleCredential = null;
       })
       .addCase(forceLogout.rejected, (state, action) => {
         state.isLoading = false;

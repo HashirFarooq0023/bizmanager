@@ -18,7 +18,8 @@ const GoogleAuthButton = ({ mode = 'signin' }) => {
   const { isLoading } = useSelector((state) => state.auth);
   const [gisLoaded, setGisLoaded] = useState(false);
 
-  const handleCredentialResponse = (response) => {
+  const handleCredentialResponseRef = useRef();
+  handleCredentialResponseRef.current = (response) => {
     if (response && response.credential) {
       dispatch(googleLogin({ credential: response.credential }));
     }
@@ -33,12 +34,19 @@ const GoogleAuthButton = ({ mode = 'signin' }) => {
         setGisLoaded(true);
 
         try {
-          window.google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleCredentialResponse,
-            auto_select: false,
-            cancel_on_tap_outside: true,
-          });
+          if (!window.__bizmanager_gis_initialized) {
+            window.google.accounts.id.initialize({
+              client_id: GOOGLE_CLIENT_ID,
+              callback: (response) => {
+                if (handleCredentialResponseRef.current) {
+                  handleCredentialResponseRef.current(response);
+                }
+              },
+              auto_select: false,
+              cancel_on_tap_outside: true,
+            });
+            window.__bizmanager_gis_initialized = true;
+          }
 
           if (buttonRef.current) {
             buttonRef.current.innerHTML = ''; // Clear previous render to handle theme/lang change

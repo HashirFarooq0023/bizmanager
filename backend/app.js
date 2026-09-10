@@ -81,6 +81,9 @@ app.use(
                 imgSrc: ["'self'", "data:", "https:"],
             },
         },
+        crossOriginOpenerPolicy: {
+            policy: "same-origin-allow-popups",
+        },
         hsts: {
             maxAge: 31536000, // 1 year
             includeSubDomains: true,

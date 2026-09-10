@@ -459,21 +459,32 @@ export const googleAuth = async (req, res) => {
 
       // Check device conflict if user already active on another device
       if (user.activeDeviceId && user.activeDeviceId !== existingDeviceId) {
-        await logUserActivity(user._id, "FAILED_LOGIN", {
-          ipAddress,
-          userAgent: deviceMeta.userAgent,
-          deviceId: existingDeviceId,
-          deviceType: deviceMeta.deviceType,
-          browser: deviceMeta.browser,
-          os: deviceMeta.os,
-          metadata: { reason: "device_conflict", authProvider: "google" },
-        });
+        if (req.body.forceLogout) {
+          // Force logout from previous device requested
+          await RefreshToken.updateMany(
+            { user: user._id, isRevoked: false },
+            { isRevoked: true, revokedAt: new Date() }
+          );
+          user.activeDeviceId = null;
+          user.activeSessionCreatedAt = null;
+          await user.save();
+        } else {
+          await logUserActivity(user._id, "FAILED_LOGIN", {
+            ipAddress,
+            userAgent: deviceMeta.userAgent,
+            deviceId: existingDeviceId,
+            deviceType: deviceMeta.deviceType,
+            browser: deviceMeta.browser,
+            os: deviceMeta.os,
+            metadata: { reason: "device_conflict", authProvider: "google" },
+          });
 
-        return res.status(409).json({
-          success: false,
-          message: "This account is currently active on another device.",
-          deviceConflict: true,
-        });
+          return res.status(409).json({
+            success: false,
+            message: "This account is currently active on another device.",
+            deviceConflict: true,
+          });
+        }
       }
 
       // Link googleId if not present or avatar if empty
@@ -741,24 +752,57 @@ export const forgotPassword = async (req, res) => {
  */
 export const forceLogout = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, credential } = req.body;
 
     // Generic error message to prevent information leakage
     const genericError = "Invalid credentials";
 
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: genericError });
+    let user;
+
+    if (credential) {
+      // Validate via Google ID token
+      const clientId =
+        process.env.GOOGLE_CLIENT_ID ||
+        "797014673114-9rlvk9ivhh9m675p041vr67ojkm948ut.apps.googleusercontent.com";
+      const client = new OAuth2Client(clientId);
+      let ticket;
+      try {
+        ticket = await client.verifyIdToken({
+          idToken: credential,
+          audience: clientId,
+        });
+      } catch (verifyErr) {
+        return res.status(401).json({ success: false, message: genericError });
+      }
+
+      const payload = ticket.getPayload();
+      if (!payload || !payload.email) {
+        return res.status(400).json({ success: false, message: genericError });
+      }
+
+      const normalizedEmail = payload.email.toLowerCase().trim();
+      user = await User.findOne({
+        $or: [{ googleId: payload.sub }, { email: normalizedEmail }],
+      });
+    } else {
+      if (!email || !password) {
+        return res.status(400).json({ success: false, message: genericError });
+      }
+
+      // Find and verify user
+      user = await User.findOne({ email });
+      if (!user) {
+        return res.status(401).json({ success: false, message: genericError });
+      }
+
+      // Verify password
+      const isMatch = await user.matchPassword(password);
+      if (!isMatch) {
+        return res.status(401).json({ success: false, message: genericError });
+      }
     }
 
-    // Find and verify user
-    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ success: false, message: genericError });
-    }
-
-    // Verify password
-    const isMatch = await user.matchPassword(password);
-    if (!isMatch) {
       return res.status(401).json({ success: false, message: genericError });
     }
 

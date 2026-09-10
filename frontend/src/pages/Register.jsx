@@ -6,6 +6,7 @@ import { register, reset } from "../redux/slices/authSlice";
 import SecurePasswordInput from '../components/SecurePasswordInput';
 import GoogleAuthButton from '../components/GoogleAuthButton';
 import GoogleOnboardingModal from '../components/GoogleOnboardingModal';
+import DeviceConflictModal from '../components/DeviceConflictModal';
 import Logo from '../components/Logo';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -42,13 +43,20 @@ const Register = () => {
   const { language, changeLanguage, isRtl } = useLanguage();
   const { t } = useTranslation(['auth', 'common']);
 
-  const { user, isLoading, isError, isSuccess, message, isNewGoogleUser } = useSelector(
+  const { user, isLoading, isError, isSuccess, message, isNewGoogleUser, deviceConflict } = useSelector(
     (state) => state.auth
   );
 
   const [validationError, setValidationError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [showConflictModal, setShowConflictModal] = useState(false);
   const [showGoogleOnboarding, setShowGoogleOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (deviceConflict) {
+      setShowConflictModal(true);
+    }
+  }, [deviceConflict]);
 
   useEffect(() => {
     // If this is a new Google user or an authenticated Google user without shopName, prompt store setup
@@ -527,6 +535,15 @@ const Register = () => {
         </footer>
 
       </div>
+
+      {/* Device Conflict Modal */}
+      {showConflictModal && (
+        <DeviceConflictModal
+          email={formData.email}
+          password={formData.password}
+          onClose={() => setShowConflictModal(false)}
+        />
+      )}
 
       {/* Google Onboarding Modal for New Google Users */}
       <GoogleOnboardingModal
