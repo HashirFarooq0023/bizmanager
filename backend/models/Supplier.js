@@ -34,7 +34,7 @@ const supplierSchema = new mongoose.Schema(
     },
     gstNo: {
       type: String,
-      required: true,
+      default: "",
     },
     state: {
       type: String,

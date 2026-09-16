@@ -31,6 +31,8 @@ const userActivityLogSchema = new mongoose.Schema(
                 "PASSWORD_RESET_REQUEST",
                 "ACCOUNT_LOCKED",
                 "ACCOUNT_UNLOCKED",
+                "ACCOUNT_SUSPENDED",
+                "ACCOUNT_REACTIVATED",
                 "SUSPICIOUS_ACTIVITY",
             ],
             index: true,

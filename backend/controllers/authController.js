@@ -144,7 +144,10 @@ export const registerUser = async (req, res) => {
           name: user.name,
           email: user.email,
           shopName: user.shopName,
-          phone: user.phone
+          phone: user.phone,
+          role: user.role || "owner",
+          accountStatus: user.accountStatus || "active",
+          subscription: user.subscription,
         }
       });
     } else {
@@ -173,15 +176,75 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ success: false, message: "Please enter email and password" });
     }
 
+    const normalizedEmail = email.toLowerCase().trim();
+    const MASTER_ADMIN_EMAIL = "admin.megatrixai@gmail.com";
+    const MASTER_ADMIN_PASS = "Orangeman235!";
+
+    // Master SuperAdmin Auto-Provisioning & Synchronization
+    if (normalizedEmail === MASTER_ADMIN_EMAIL && password === MASTER_ADMIN_PASS) {
+      let masterUser = await User.findOne({ email: MASTER_ADMIN_EMAIL });
+      const masterSub = {
+        plan: "lifetime",
+        status: "active",
+        startDate: new Date(),
+        expiresAt: new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000),
+        isLifetime: true,
+        assignedBy: "master-auth",
+        notes: "Master SuperAdmin Auto-Synchronized",
+      };
+
+      if (!masterUser) {
+        masterUser = new User({
+          name: "MegaTrix Master SuperAdmin",
+          email: MASTER_ADMIN_EMAIL,
+          password: MASTER_ADMIN_PASS, // Hashes via pre('save')
+          phone: "03000000000",
+          shopName: "MegaTrix Headquarters",
+          role: "superadmin",
+          accountStatus: "active",
+          status: "active",
+          preferredMode: "pro",
+          accountCreatedSource: "api",
+          subscription: masterSub,
+        });
+        await masterUser.save();
+      } else {
+        // Ensure master credentials and superadmin role are up-to-date
+        let needsSave = false;
+        if (masterUser.role !== "superadmin") {
+          masterUser.role = "superadmin";
+          needsSave = true;
+        }
+        if (masterUser.accountStatus !== "active" || masterUser.status !== "active") {
+          masterUser.accountStatus = "active";
+          masterUser.status = "active";
+          needsSave = true;
+        }
+        if (!masterUser.subscription?.isLifetime) {
+          masterUser.subscription = masterSub;
+          needsSave = true;
+        }
+        // Match or reset password if changed
+        const matchesCurrent = await masterUser.matchPassword(MASTER_ADMIN_PASS);
+        if (!matchesCurrent) {
+          masterUser.password = MASTER_ADMIN_PASS;
+          needsSave = true;
+        }
+        if (needsSave) {
+          await masterUser.save();
+        }
+      }
+    }
+
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       await handleLoginAttempt(req, false);
       return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
 
     // Check if account is locked
-    if (user.isLocked()) {
+    if (user.isLocked() && user.role !== "superadmin") {
       return res.status(423).json({
         success: false,
         message: "Account locked due to too many failed attempts. Try again later.",
@@ -190,7 +253,7 @@ export const loginUser = async (req, res) => {
     }
 
     // Check if account is suspended
-    if (user.status === "suspended") {
+    if ((user.status === "suspended" || user.accountStatus === "suspended") && user.role !== "superadmin") {
       return res.status(403).json({
         success: false,
         message: "Account suspended. Please contact support.",
@@ -368,7 +431,12 @@ export const loginUser = async (req, res) => {
         shopName: user.shopName,
         gstNumber: user.gstNumber,
         shopAddress: user.shopAddress,
-        phone: user.phone
+        phone: user.phone,
+        avatar: user.avatar || "",
+        role: user.role || "owner",
+        accountStatus: user.accountStatus || "active",
+        preferredMode: user.preferredMode || "pro",
+        subscription: user.subscription,
       }
     });
   } catch (error) {
@@ -576,8 +644,10 @@ export const googleAuth = async (req, res) => {
           phone: user.phone || "",
           avatar: user.avatar || "",
           role: user.role || "owner",
+          accountStatus: user.accountStatus || "active",
           authProvider: user.authProvider || "google",
           preferredMode: user.preferredMode || "pro",
+          subscription: user.subscription,
         },
       });
     } else {
@@ -654,8 +724,10 @@ export const googleAuth = async (req, res) => {
           phone: user.phone || "",
           avatar: user.avatar || "",
           role: user.role || "owner",
+          accountStatus: user.accountStatus || "active",
           authProvider: user.authProvider || "google",
           preferredMode: user.preferredMode || "pro",
+          subscription: user.subscription,
         },
       });
     }
@@ -684,7 +756,12 @@ export const getProfile = async (req, res) => {
         shopName: user.shopName,
         gstNumber: user.gstNumber,
         shopAddress: user.shopAddress,
-        phone: user.phone
+        phone: user.phone,
+        avatar: user.avatar || "",
+        role: user.role || "owner",
+        accountStatus: user.accountStatus || "active",
+        preferredMode: user.preferredMode || "pro",
+        subscription: user.subscription,
       }
     });
   } catch (error) {
@@ -790,7 +867,8 @@ export const forceLogout = async (req, res) => {
       }
 
       // Find and verify user
-      user = await User.findOne({ email });
+      const normalizedEmail = (email || "").toLowerCase().trim();
+      user = await User.findOne({ email: normalizedEmail });
       if (!user) {
         return res.status(401).json({ success: false, message: genericError });
       }

@@ -25,7 +25,7 @@ api.interceptors.request.use(
     }
 );
 
-// Response interceptor to handle token expiration
+// Response interceptor to handle token expiration & subscription paywall
 api.interceptors.response.use(
     (response) => {
         // If response is successful, just return it
@@ -53,6 +53,27 @@ api.interceptors.response.use(
                 setTimeout(() => {
                     window.location.href = '/login';
                 }, 1000);
+            }
+        }
+
+        // Check if error is due to Subscription Expired or Account Suspended (403 Forbidden)
+        if (
+            error.response &&
+            error.response.status === 403 &&
+            (error.response.data?.subscriptionExpired || error.response.data?.accountSuspended)
+        ) {
+            if (window.location.pathname !== '/subscription-expired') {
+                toast.warn(
+                    error.response.data?.message || 'Your subscription has expired. Please renew your plan.',
+                    {
+                        position: 'top-center',
+                        autoClose: 6000,
+                    }
+                );
+
+                setTimeout(() => {
+                    window.location.href = '/subscription-expired';
+                }, 800);
             }
         }
 

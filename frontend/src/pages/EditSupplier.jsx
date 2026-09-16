@@ -258,13 +258,13 @@ const EditSupplier = () => {
               />
             </div>
 
-            {/* GST No. Input */}
+            {/* GST / NTN Number Input */}
             <div>
               <label
                 htmlFor="gstNo"
-                className="block text-sm font-medium  text-secondary mb-2"
+                className="block text-sm font-medium text-secondary mb-2"
               >
-                GST Number <span className="text-red-500">*</span>
+                GST / NTN Number <span className="text-xs text-gray-400 font-normal">(Optional)</span>
               </label>
               <input
                 type="text"
@@ -272,12 +272,9 @@ const EditSupplier = () => {
                 name="gstNo"
                 value={gstNo}
                 onChange={onChange}
-                required
-                pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$"
-                maxLength={15}
-                title="Please enter a valid 15-character GST number (e.g., 22AAAAA0000A1Z5)"
+                maxLength={20}
                 className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="22AAAAA0000A1Z5"
+                placeholder="e.g. 1234567-8 or STRN / GST"
               />
             </div>
 

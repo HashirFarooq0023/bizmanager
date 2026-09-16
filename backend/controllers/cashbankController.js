@@ -1,4 +1,4 @@
-﻿import mongoose from "mongoose";
+import mongoose from "mongoose";
 import BankAccount from "../models/BankAccount.js";
 import CashbankTransaction from "../models/CashbankTransaction.js";
 import { info, error } from "../utils/logger.js";
@@ -32,8 +32,8 @@ export const createAccount = async (req, res) => {
   try {
     const { bankName, accountNumber, accountType, branch, ifsc, openingBalance } = req.body;
 
-    if (!bankName || !accountNumber || !ifsc) {
-      return res.status(400).json({ message: "Please fill all required fields" });
+    if (!bankName || !accountNumber) {
+      return res.status(400).json({ message: "Please enter bank name and account number" });
     }
 
     // Check if account already exists for this user
@@ -45,11 +45,11 @@ export const createAccount = async (req, res) => {
     const account = await BankAccount.create({
       bankName,
       accountNumber,
-      accountType,
-      branch,
-      ifsc,
-      openingBalance,
-      currentBalance: openingBalance,
+      accountType: accountType || "Savings",
+      branch: branch || "",
+      ifsc: ifsc || "",
+      openingBalance: openingBalance || 0,
+      currentBalance: openingBalance || 0,
       userId: req.user._id,
     });
 

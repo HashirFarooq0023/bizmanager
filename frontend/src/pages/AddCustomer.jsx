@@ -169,9 +169,9 @@ const AddCustomer = () => {
                 type="tel"
                 id="phone"
                 name="phone"
-                pattern="[0-9]{10}"
+                pattern="[0-9]{10,11}"
                 minLength={10}
-                maxLength={10}
+                maxLength={11}
                 value={phone}
                 onChange={(e) => {
                   onChange(e);

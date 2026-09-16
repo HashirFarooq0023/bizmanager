@@ -7,6 +7,7 @@ import { useMode } from '../contexts/ModeContext';
 import Logo from './Logo';
 import ModeOnboardingModal from './ModeOnboardingModal';
 import GoogleOnboardingModal from './GoogleOnboardingModal';
+import SubscriptionBanner from './SubscriptionBanner';
 
 const Layout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -82,6 +83,7 @@ const Layout = ({ children }) => {
             : 'lg:ml-60'
         }`}
       >
+        <SubscriptionBanner />
         <header className="flex items-center justify-between border-b border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 shadow-xs lg:hidden print:hidden sticky top-0 z-30">
           <button
             type="button"

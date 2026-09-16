@@ -9,9 +9,9 @@ import { info, error } from "../utils/logger.js";
  */
 export const addSupplier = async (req, res) => {
   try {
-    const { businessName, contactPersonName, contactNo, email, physicalAddress, gstNo, supplierType, openingBalance, balanceType, creditPeriod, status } = req.body;
+    const { businessName, contactPersonName, contactNo, email, physicalAddress, gstNo = "", supplierType, openingBalance, balanceType, creditPeriod, status } = req.body;
 
-    if (!businessName || !contactPersonName || !contactNo || !email || !physicalAddress || !gstNo || !supplierType || !status) {
+    if (!businessName || !contactPersonName || !contactNo || !email || !physicalAddress || !supplierType || !status) {
       return res.status(400).json({ message: "All required fields must be provided" });
     }
 

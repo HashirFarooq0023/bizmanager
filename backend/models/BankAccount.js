@@ -13,7 +13,7 @@ const bankAccountSchema = new mongoose.Schema(
     },
     accountType: {
       type: String,
-      enum: ["Savings", "Current", "Overdraft", "Loan"],
+      enum: ["Savings", "Current", "Overdraft", "Loan", "Mobile Wallet", "Overdraft / Running Finance", "Mobile Wallet (JazzCash/EasyPaisa)"],
       default: "Savings",
     },
     branch: {
@@ -22,7 +22,7 @@ const bankAccountSchema = new mongoose.Schema(
     },
     ifsc: {
       type: String,
-      required: [true, "Please enter IFSC code"],
+      default: "",
     },
     openingBalance: {
       type: Number,

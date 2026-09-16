@@ -19,6 +19,9 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
 import NotFound from './pages/NotFound';
 
+// Subscription Paywall Page
+const SubscriptionExpired = lazy(() => import('./pages/SubscriptionExpired'));
+
 // Code-Split Protected & Heavy ERP Modules (Performance Optimization)
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const UdhaarKhata = lazy(() => import('./pages/UdhaarKhata'));
@@ -209,6 +212,12 @@ function App() {
                         <ResetPassword />
                       </PublicRoute>
                     }
+                  />
+
+                  {/* Subscription Paywall Route */}
+                  <Route
+                    path="/subscription-expired"
+                    element={<SubscriptionExpired />}
                   />
 
                   {/* Protected Routes */}

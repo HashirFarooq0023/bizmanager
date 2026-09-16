@@ -138,11 +138,33 @@ const GRNForm = () => {
         await dispatch(createGRN(grnData));
     };
 
+    if (!poId) {
+        return (
+            <Layout>
+                <div className="container mx-auto px-4 py-8">
+                    <div className="max-w-md mx-auto text-center bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Select Purchase Order</h2>
+                        <p className="text-gray-600 dark:text-gray-400 mb-6 text-sm">A Goods Received Note (GRN) requires an active Purchase Order to receive goods against.</p>
+                        <button
+                            onClick={() => navigate('/purchase-orders')}
+                            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition"
+                        >
+                            View Purchase Orders
+                        </button>
+                    </div>
+                </div>
+            </Layout>
+        );
+    }
+
     if (!currentPO) {
         return (
-            <div className="container mx-auto px-4 py-6">
-                <p>Loading Purchase Order...</p>
-            </div>
+            <Layout>
+                <div className="container mx-auto px-4 py-12 text-center text-gray-500">
+                    <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                    <p>Loading Purchase Order...</p>
+                </div>
+            </Layout>
         );
     }
 

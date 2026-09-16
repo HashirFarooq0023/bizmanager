@@ -237,7 +237,7 @@ const POS = () => {
 
     if (existingItem) {
       if (existingItem.quantity >= item.stockQty) {
-        alert(`Only ${item.stockQty} units available in stock!`);
+        toast.warning(`Only ${item.stockQty} units available in stock!`);
         return;
       }
 
@@ -250,7 +250,7 @@ const POS = () => {
       });
     } else {
       if (item.stockQty === 0) {
-        alert('This item is out of stock!');
+        toast.warning('This item is out of stock!');
         return;
       }
 
@@ -371,7 +371,7 @@ const POS = () => {
   // Hold Order Management
   const holdCurrentOrder = () => {
     if (activeTab.cart.length === 0) {
-      alert('Cart is empty!');
+      toast.warning('Cart is empty!');
       return;
     }
 
@@ -396,7 +396,7 @@ const POS = () => {
       previousDueApplied: 0,
     });
 
-    alert('Order parked successfully!');
+    toast.success('Order parked successfully!');
   };
 
   const retrieveHoldOrder = (holdOrder) => {
@@ -582,7 +582,7 @@ const POS = () => {
     const paid = parseFloat(activeTab.paidAmount) || 0;
 
     if (paid < 0) {
-      alert('Invalid payment amount!');
+      toast.error('Invalid payment amount!');
       return;
     }
 
@@ -592,14 +592,14 @@ const POS = () => {
       const changeReturned = parseFloat(activeTab.changeReturned) || 0;
 
       if (changeReturned > changeRequired) {
-        alert('You are returning more amount than required. Please correct the change returned.');
+        toast.warning('You are returning more amount than required. Please correct the change returned.');
         return;
       }
     }
 
     // Check if walk-in customer is trying to take due
     if (!activeTab.customer && paid < total) {
-      alert('Walk-in customers must pay full amount. Please add customer details to allow credit.');
+      toast.warning('Walk-in customers must pay full amount. Please add customer details to allow credit.');
       return;
     }
 

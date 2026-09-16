@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
 
 const BusinessSetup = () => {
@@ -44,7 +45,7 @@ const BusinessSetup = () => {
     const onSubmit = (e) => {
         e.preventDefault();
         // UI only - no actual submission
-        alert('Business setup saved successfully!');
+        toast.success('Business setup saved successfully!');
     };
 
     return (

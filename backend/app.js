@@ -9,6 +9,8 @@ import cookieParser from "cookie-parser";
 
 // Routes imports
 import authRoutes from "./routes/authRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import subscriptionRoutes from "./routes/subscriptionRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
 import posRoutes from "./routes/posRoutes.js";
@@ -45,6 +47,8 @@ import requestId from "./middlewares/requestId.js";
 import { corsOptions } from "./config/cors.config.js";
 import { requestTimeout } from "./middlewares/timeout.js";
 import { tenantContext } from "./middlewares/tenantContext.js";
+import { protect } from "./middlewares/authMiddleware.js";
+import { requireActiveSubscription } from "./middlewares/subscriptionMiddleware.js";
 
 dotenv.config();
 
@@ -145,41 +149,50 @@ app.get("/", (req, res) => {
 });
 app.use("/api/health", healthRoutes);
 
-// API routes (with auth where needed)
+// API routes (Authentication & Public)
 app.use("/api/auth", authRoutes);
 app.use("/api/auth", refreshTokenRoutes);
+app.use("/api/subscriptions", subscriptionRoutes);
+
+// MegaTrix SuperAdmin Gateway
+app.use("/api/admin", adminRoutes);
 
 // Tenant context middleware (must be after auth routes to have req.user available)
 app.use(tenantContext);
 
+// User Profile & Settings routes
 app.use("/api/users", userRoutes);
-app.use("/api/inventory", inventoryRoutes);
-app.use("/api/pos", posRoutes);
-app.use("/api/sales-invoice", salesInvoiceRoutes);
-app.use("/api/customers", customerRoutes);
-app.use("/api/suppliers", supplierRoutes);
-app.use("/api/expenses", expenseRoutes);
-app.use("/api/expense-categories", expenseCategoryRoutes);
-app.use("/api/bills", billRoutes);
-app.use("/api/returns", returnRoutes);
-app.use("/api/purchase-returns", purchaseReturnRoutes);
-app.use("/api/estimates", estimateRoutes);
-app.use("/api/due", dueRoutes);
-app.use("/api/reports", reportRoutes);
-app.use("/api/cashbank", cashbankRoutes);
-app.use("/api/payment-in", paymentInRoutes);
-app.use("/api/payment-out", paymentOutRoutes);
-app.use("/api/sales-orders", salesOrderRoutes);
-app.use("/api/delivery-challan", deliveryChallanRoutes);
-app.use("/api/purchases", purchaseRoutes);
-app.use("/api/purchase-orders", purchaseOrderRoutes);
-app.use("/api/grns", grnRoutes);
-app.use("/api/approvals", approvalRoutes);
-app.use("/api/ledger", ledgerRoutes);
-app.use("/api/accounting", accountingRoutes);
-app.use("/api/financial-periods", financialPeriodRoutes);
-app.use("/api/gdpr", gdprRoutes);
-app.use("/api/compliance", complianceRoutes);
+
+// =======================
+// Core ERP Business Modules (Protected by Server-Side Subscription Gate)
+// =======================
+app.use("/api/inventory", protect, requireActiveSubscription, inventoryRoutes);
+app.use("/api/pos", protect, requireActiveSubscription, posRoutes);
+app.use("/api/sales-invoice", protect, requireActiveSubscription, salesInvoiceRoutes);
+app.use("/api/customers", protect, requireActiveSubscription, customerRoutes);
+app.use("/api/suppliers", protect, requireActiveSubscription, supplierRoutes);
+app.use("/api/expenses", protect, requireActiveSubscription, expenseRoutes);
+app.use("/api/expense-categories", protect, requireActiveSubscription, expenseCategoryRoutes);
+app.use("/api/bills", protect, requireActiveSubscription, billRoutes);
+app.use("/api/returns", protect, requireActiveSubscription, returnRoutes);
+app.use("/api/purchase-returns", protect, requireActiveSubscription, purchaseReturnRoutes);
+app.use("/api/estimates", protect, requireActiveSubscription, estimateRoutes);
+app.use("/api/due", protect, requireActiveSubscription, dueRoutes);
+app.use("/api/reports", protect, requireActiveSubscription, reportRoutes);
+app.use("/api/cashbank", protect, requireActiveSubscription, cashbankRoutes);
+app.use("/api/payment-in", protect, requireActiveSubscription, paymentInRoutes);
+app.use("/api/payment-out", protect, requireActiveSubscription, paymentOutRoutes);
+app.use("/api/sales-orders", protect, requireActiveSubscription, salesOrderRoutes);
+app.use("/api/delivery-challan", protect, requireActiveSubscription, deliveryChallanRoutes);
+app.use("/api/purchases", protect, requireActiveSubscription, purchaseRoutes);
+app.use("/api/purchase-orders", protect, requireActiveSubscription, purchaseOrderRoutes);
+app.use("/api/grns", protect, requireActiveSubscription, grnRoutes);
+app.use("/api/approvals", protect, requireActiveSubscription, approvalRoutes);
+app.use("/api/ledger", protect, requireActiveSubscription, ledgerRoutes);
+app.use("/api/accounting", protect, requireActiveSubscription, accountingRoutes);
+app.use("/api/financial-periods", protect, requireActiveSubscription, financialPeriodRoutes);
+app.use("/api/gdpr", protect, requireActiveSubscription, gdprRoutes);
+app.use("/api/compliance", protect, requireActiveSubscription, complianceRoutes);
 
 // =======================
 // Error Handler (must be last)

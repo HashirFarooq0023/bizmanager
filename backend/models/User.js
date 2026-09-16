@@ -58,7 +58,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["owner"],
+      enum: ["owner", "staff", "manager", "admin", "superadmin"],
       default: "owner",
     },
     preferredMode: {
@@ -73,6 +73,66 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpires: {
       type: Date,
       default: null,
+    },
+
+    // ==================== SUBSCRIPTION & LICENSING ====================
+    subscription: {
+      plan: {
+        type: String,
+        enum: ["trial", "starter", "pro", "enterprise", "lifetime"],
+        default: "trial",
+      },
+      status: {
+        type: String,
+        enum: ["trial", "active", "expired", "grace_period", "cancelled", "suspended"],
+        default: "trial",
+        index: true,
+      },
+      startDate: {
+        type: Date,
+        default: Date.now,
+      },
+      expiresAt: {
+        type: Date,
+        default: function () {
+          // Default 14 days trial from registration
+          return new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+        },
+        index: true,
+      },
+      trialEndsAt: {
+        type: Date,
+        default: function () {
+          return new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+        },
+      },
+      isLifetime: {
+        type: Boolean,
+        default: false,
+      },
+      lastRenewedAt: {
+        type: Date,
+        default: null,
+      },
+      assignedBy: {
+        type: String,
+        default: "system",
+      },
+      notes: {
+        type: String,
+        default: "",
+      },
+      history: [
+        {
+          plan: String,
+          status: String,
+          startDate: Date,
+          expiresAt: Date,
+          changedBy: String,
+          changedAt: { type: Date, default: Date.now },
+          note: String,
+        },
+      ],
     },
 
     // ==================== ACCOUNT LIFECYCLE ====================
