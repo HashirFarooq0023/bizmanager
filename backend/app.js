@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser";
 // Routes imports
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import impersonateRoutes from "./routes/impersonateRoutes.js";
 import subscriptionRoutes from "./routes/subscriptionRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
@@ -156,6 +157,7 @@ app.use("/api/subscriptions", subscriptionRoutes);
 
 // MegaTrix SuperAdmin Gateway
 app.use("/api/admin", adminRoutes);
+app.use("/api/admin-integration", impersonateRoutes);
 
 // Tenant context middleware (must be after auth routes to have req.user available)
 app.use(tenantContext);

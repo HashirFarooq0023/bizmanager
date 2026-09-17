@@ -18,6 +18,8 @@ import ResetPassword from './pages/ResetPassword';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
 import NotFound from './pages/NotFound';
+import Impersonate from './pages/Impersonate';
+import ImpersonationBanner from './components/ImpersonationBanner';
 
 // Subscription Paywall Page
 const SubscriptionExpired = lazy(() => import('./pages/SubscriptionExpired'));
@@ -169,6 +171,7 @@ function App() {
           <div className="min-h-screen bg-app text-main transition-colors duration-300">
             <ToastContainer />
             <Router>
+              <ImpersonationBanner />
               <MetaTracker />
               <CookieConsent />
               <Suspense fallback={<PageLoader />}>
@@ -179,6 +182,7 @@ function App() {
                   {/* Public Legal & Info Pages */}
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/terms" element={<Terms />} />
+                  <Route path="/impersonate" element={<Impersonate />} />
 
                   {/* Public Auth Routes */}
                   <Route
