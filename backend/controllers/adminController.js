@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import User from "../models/User.js";
 import RefreshToken from "../models/RefreshToken.js";
 import { logUserActivity } from "../utils/activityLogger.js";
@@ -490,6 +491,58 @@ export const getSubscriptionMetrics = async (req, res) => {
   }
 };
 
+/**
+ * @desc Administrator password reset with forced credential change
+ * @route POST /api/admin/users/:id/reset-password
+ * @access SuperAdmin
+ */
+export const adminResetPassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body || {};
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (user.role === "superadmin") {
+      return res.status(403).json({ success: false, message: "Cannot reset SuperAdmin password directly." });
+    }
+
+    const rawEntropy = crypto.randomBytes(4).toString("hex");
+    const temporaryPassword = `Temp#${rawEntropy}!9`;
+
+    user.password = temporaryPassword;
+    user.passwordChangeRequired = true;
+    user.failedLoginAttempts = 0;
+    user.accountLockedUntil = null;
+
+    // Revoke active sessions
+    await RefreshToken.updateMany(
+      { user: user._id, isRevoked: false },
+      { isRevoked: true, revokedAt: new Date() }
+    );
+
+    await user.save();
+
+    await logUserActivity(user._id, "ADMIN_PASSWORD_RESET", {
+      adminEmail: req.user?.email || "admin@megatrixai.com",
+      reason: reason || "Administrative password reset from MegaTrix Admin Core",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Password reset successfully for ${user.name}. Forced password update required on next login.`,
+      temporaryPassword,
+      passwordChangeRequired: true,
+    });
+  } catch (error) {
+    console.error("Admin Reset Password Error:", error);
+    return res.status(500).json({ success: false, message: "Failed to reset password", error: error.message });
+  }
+};
+
 export default {
   getAdminOverview,
   getAllUsers,
@@ -498,4 +551,5 @@ export default {
   deleteUser,
   updateUserSubscription,
   getSubscriptionMetrics,
+  adminResetPassword,
 };

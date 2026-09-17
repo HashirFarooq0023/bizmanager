@@ -28,7 +28,9 @@ import {
   FiMessageSquare,
   FiCheckCircle,
   FiPlay,
-  FiGlobe
+  FiGlobe,
+  FiTag,
+  FiX
 } from 'react-icons/fi';
 
 const LandingPage = () => {
@@ -43,6 +45,86 @@ const LandingPage = () => {
   const [faqCategory, setFaqCategory] = useState('all');
   const [faqSearch, setFaqSearch] = useState('');
   const [openFaq, setOpenFaq] = useState(0);
+
+  // Synchronized Pricing State (Live Sync with MegaTrix Admin Core)
+  const [pricingModalOpen, setPricingModalOpen] = useState(false);
+  const [syncedPlans, setSyncedPlans] = useState(() => {
+    try {
+      const saved = localStorage.getItem('megatrix_bizmanager_pricing');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [
+      {
+        id: 'starter',
+        name: 'Starter POS',
+        tagline: 'Ideal for neighborhood retail shops & single registers',
+        price: 'PKR 2,500',
+        billing: 'monthly',
+        features: [
+          'Single POS terminal registration',
+          'Barcode scanning & label printing',
+          'Basic customer udhaar khata',
+          'Thermal receipt printing (58mm/80mm)',
+          'Daily profit & sales reconciliation',
+          'Offline-first POS cache',
+        ],
+      },
+      {
+        id: 'pro',
+        name: 'Pro Enterprise',
+        tagline: 'Built for high-volume grocery marts & multi-counters',
+        price: 'PKR 6,500',
+        billing: 'monthly',
+        popular: true,
+        features: [
+          'Unlimited POS terminals & cashier logins',
+          'Live wholesale credit khata ledgers',
+          'Multi-currency & bank transfer support',
+          'Automatic stock low alerts & reorders',
+          'Direct WhatsApp invoice dispatch',
+          'Manager override & audit security',
+          'Dedicated MegaTrix Cloud sync',
+        ],
+      },
+      {
+        id: 'lifetime',
+        name: 'Lifetime License',
+        tagline: 'Permanent institutional ownership with zero recurring dues',
+        price: 'PKR 45,000',
+        billing: 'one-time',
+        features: [
+          'Lifetime permanent software access',
+          'Zero monthly or annual subscriptions',
+          'All present & upcoming POS features',
+          'Unlimited inventory SKU catalog',
+          'Priority 24/7 dedicated support desk',
+          'Custom invoice header branding',
+        ],
+      },
+    ];
+  });
+
+  // Listen to live pricing updates from MegaTrix Admin Core
+  useEffect(() => {
+    const handleSync = () => {
+      try {
+        const saved = localStorage.getItem('megatrix_bizmanager_pricing');
+        if (saved) setSyncedPlans(JSON.parse(saved));
+      } catch (e) {}
+    };
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('megatrix_pricing_sync', handleSync);
+
+    // Auto popup pricing if accessed via #pricing or ?view=pricing
+    if (window.location.hash === '#pricing' || window.location.search.includes('view=pricing')) {
+      setPricingModalOpen(true);
+    }
+
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('megatrix_pricing_sync', handleSync);
+    };
+  }, []);
 
   // Interactive Demo State
   const [demoCart, setDemoCart] = useState([
@@ -197,6 +279,16 @@ const LandingPage = () => {
               {t('landing:nav.demo')}
             </button>
             <button
+              onClick={() => {
+                setPricingModalOpen(true);
+                scrollToSection('pricing');
+              }}
+              className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors duration-150 cursor-pointer flex items-center gap-1.5"
+            >
+              <FiTag className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
+              <span>{language === 'ur' ? 'قیمتیں' : 'Pricing'}</span>
+            </button>
+            <button
               onClick={() => scrollToSection('faq')}
               className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors duration-150 cursor-pointer"
             >
@@ -305,6 +397,16 @@ const LandingPage = () => {
             </button>
             <button onClick={() => scrollToSection('demo')} className="block w-full text-start py-2 text-sm font-semibold text-slate-700 dark:text-zinc-200">
               {t('landing:nav.demo')}
+            </button>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setPricingModalOpen(true);
+                scrollToSection('pricing');
+              }}
+              className="block w-full text-start py-2 text-sm font-semibold text-slate-700 dark:text-zinc-200 font-urdu"
+            >
+              {language === 'ur' ? 'پلان اور قیمتیں' : 'Pricing Plans'}
             </button>
             <button onClick={() => scrollToSection('faq')} className="block w-full text-start py-2 text-sm font-semibold text-slate-700 dark:text-zinc-200">
               {t('landing:nav.faq')}
@@ -1030,6 +1132,179 @@ const LandingPage = () => {
 
         </div>
       </section>
+
+      {/* ─── Transparent Retail Pricing Section (Synchronized with Core Admin) ─── */}
+      <section id="pricing" className="py-16 sm:py-24 bg-slate-50/80 dark:bg-[#07090F]/80 border-t border-slate-200/80 dark:border-white/[0.08] relative font-urdu">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold uppercase tracking-widest text-violet-600 dark:text-violet-400 mb-2">
+              <FiTag className="w-4 h-4" />
+              <span>{language === 'ur' ? 'شفاف اور آسان پرائسنگ' : 'Transparent SaaS Pricing'}</span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
+              {language === 'ur' ? 'کاروبار کے لیے موزوں لائسنس منتخب کریں' : 'Simple, Predictable Retail Pricing'}
+            </h2>
+            <p className="text-xs sm:text-sm md:text-base text-slate-500 dark:text-zinc-400 mt-2 max-w-xl mx-auto leading-relaxed">
+              {language === 'ur'
+                ? 'کوئی پوشیدہ فیس نہیں، تمام اہم فیچرز اور خودکار بیک اپ شامل ہیں۔'
+                : 'Zero hidden charges. Complete barcode POS, customer khata, and multi-terminal sync included.'}
+            </p>
+          </div>
+
+          {/* Dynamic Plans Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto items-stretch">
+            {syncedPlans.map((plan) => (
+              <div
+                key={plan.id}
+                className={`p-6 sm:p-8 rounded-2xl sm:rounded-3xl flex flex-col justify-between transition-all duration-200 relative ${
+                  plan.popular
+                    ? 'bg-white dark:bg-zinc-900/90 border-2 border-violet-600 dark:border-violet-500 shadow-xl shadow-violet-600/10'
+                    : 'bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-white/[0.08] shadow-sm hover:border-violet-500/40'
+                }`}
+              >
+                {plan.popular && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm">
+                    {language === 'ur' ? 'سب سے مقبول' : 'Most Popular'}
+                  </span>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">{plan.name}</h3>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">{plan.tagline}</p>
+                  </div>
+
+                  {/* Price display */}
+                  <div className="py-4 border-y border-slate-100 dark:border-white/[0.06]">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl sm:text-4xl font-black font-mono text-slate-900 dark:text-white" dir="ltr">
+                        {plan.price}
+                      </span>
+                      <span className="text-xs text-slate-500 dark:text-zinc-400 font-mono">
+                        {plan.billing === 'one-time' ? (language === 'ur' ? '/ ایک بار' : '/ lifetime') : (language === 'ur' ? '/ ماہانہ' : `/${plan.billing}`)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Feature list */}
+                  <ul className="space-y-3 text-xs sm:text-sm text-slate-600 dark:text-zinc-300">
+                    {plan.features.map((feat, fIdx) => (
+                      <li key={fIdx} className="flex items-start gap-2.5">
+                        <FiCheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                        <span>{feat}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="pt-6 mt-6 border-t border-slate-100 dark:border-white/[0.06]">
+                  <button
+                    onClick={() => navigate(user ? '/dashboard' : '/register')}
+                    className={`w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                      plan.popular
+                        ? 'bg-violet-600 hover:bg-violet-500 text-white shadow-md shadow-violet-600/25'
+                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-slate-800 dark:text-white'
+                    }`}
+                  >
+                    <span>{user ? t('landing:nav.dashboard') : (language === 'ur' ? '14 دن کا مفت ٹرائل شروع کریں' : 'Start 14-Day Free Trial')}</span>
+                    <FiArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Dynamic Pricing Pop-Up Modal (Opens via Nav or Direct Query) ─── */}
+      {pricingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in font-urdu">
+          <div className="bg-white dark:bg-[#0C0F1A] border border-slate-200 dark:border-white/10 rounded-2xl sm:rounded-3xl w-full max-w-4xl p-6 sm:p-8 space-y-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div className="flex items-start justify-between pb-4 border-b border-slate-100 dark:border-white/[0.08]">
+              <div>
+                <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-violet-600 dark:text-violet-400 mb-1">
+                  <FiTag className="w-3.5 h-3.5" />
+                  <span>{language === 'ur' ? 'لائیو پرائسنگ' : 'Live Platform Pricing'}</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                  {language === 'ur' ? 'بز مینیجر ریٹیل سبسکرپشن پیکجز' : 'Biz Manager Retail POS Plans & Pricing'}
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+                  {language === 'ur'
+                    ? 'خودکار طریقے سے میگاٹرکس ایڈمن کور کے ذریعے ہم آہنگ شدہ۔'
+                    : 'Synchronized live from MegaTrix Admin Core.'}
+                </p>
+              </div>
+              <button
+                onClick={() => setPricingModalOpen(false)}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-100 dark:bg-white/[0.06] transition-colors cursor-pointer"
+                aria-label="Close pricing popup"
+              >
+                <FiX className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {syncedPlans.map((plan) => (
+                <div
+                  key={plan.id}
+                  className={`p-5 rounded-2xl flex flex-col justify-between border ${
+                    plan.popular
+                      ? 'border-violet-500 bg-violet-500/5 dark:bg-violet-950/20'
+                      : 'border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.02]'
+                  }`}
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-base font-bold text-slate-900 dark:text-white">{plan.name}</h4>
+                      {plan.popular && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-violet-600 text-white">
+                          Popular
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-2xl font-black font-mono text-slate-900 dark:text-white" dir="ltr">
+                      {plan.price}
+                    </div>
+                    <ul className="space-y-2 text-xs text-slate-600 dark:text-zinc-300">
+                      {plan.features.slice(0, 4).map((f, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <FiCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setPricingModalOpen(false);
+                      navigate(user ? '/dashboard' : '/register');
+                    }}
+                    className={`mt-5 w-full py-2.5 px-3 rounded-xl text-xs font-bold transition cursor-pointer ${
+                      plan.popular
+                        ? 'bg-violet-600 hover:bg-violet-500 text-white'
+                        : 'bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/15 text-slate-800 dark:text-white'
+                    }`}
+                  >
+                    {user ? 'Open Dashboard' : 'Select Plan'}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-end pt-3 border-t border-slate-100 dark:border-white/[0.08]">
+              <button
+                onClick={() => setPricingModalOpen(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white cursor-pointer"
+              >
+                {language === 'ur' ? 'بند کریں' : 'Close Window'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Direct MegaTrix Contact Section */}
       <section id="contact" className="py-16 sm:py-20 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 font-urdu">

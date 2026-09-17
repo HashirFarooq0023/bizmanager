@@ -82,7 +82,15 @@ export const corsOptions = {
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Request-ID"],
+    allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "X-Request-ID",
+        "x-megatrix-service-key",
+        "X-Megatrix-Service-Key",
+        "x-service-key",
+        "X-Service-Key",
+    ],
     exposedHeaders: ["X-Request-ID", "X-RateLimit-Limit", "X-RateLimit-Remaining"],
     maxAge: 86400, // 24 hours
     optionsSuccessStatus: 204,

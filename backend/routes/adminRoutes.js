@@ -7,6 +7,7 @@ import {
   deleteUser,
   updateUserSubscription,
   getSubscriptionMetrics,
+  adminResetPassword,
 } from "../controllers/adminController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 import { requireSuperAdmin } from "../middlewares/adminMiddleware.js";
@@ -24,6 +25,7 @@ router.get("/subscriptions/metrics", getSubscriptionMetrics);
 router.get("/users", getAllUsers);
 router.get("/users/:id", getUserDetails);
 router.put("/users/:id/status", toggleUserStatus);
+router.post("/users/:id/reset-password", adminResetPassword);
 router.delete("/users/:id", deleteUser);
 
 // Subscription Management Routes
