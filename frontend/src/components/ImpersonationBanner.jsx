@@ -17,19 +17,19 @@ const ImpersonationBanner = () => {
           handleEndSession();
         } else {
           setIsActive(true);
-          document.body.style.paddingTop = '40px';
+          document.documentElement.classList.add('has-impersonation');
         }
       } else {
         setIsActive(false);
-        document.body.style.paddingTop = '0px';
+        document.documentElement.classList.remove('has-impersonation');
       }
     };
 
     checkStatus();
-    const interval = setInterval(checkStatus, 60000);
+    const interval = setInterval(checkStatus, 30000);
     return () => {
       clearInterval(interval);
-      document.body.style.paddingTop = '0px';
+      document.documentElement.classList.remove('has-impersonation');
     };
   }, []);
 
@@ -37,7 +37,7 @@ const ImpersonationBanner = () => {
     localStorage.removeItem('user');
     sessionStorage.removeItem('impersonation_active');
     sessionStorage.removeItem('spoof_started_at');
-    document.body.style.paddingTop = '0px';
+    document.documentElement.classList.remove('has-impersonation');
     
     if (typeof logout === 'function') {
       dispatch(logout());
@@ -49,7 +49,6 @@ const ImpersonationBanner = () => {
       // ignore
     }
     
-    // If window.close() fails or isn't allowed, redirect
     setTimeout(() => {
       window.location.href = '/login';
     }, 100);
@@ -58,38 +57,17 @@ const ImpersonationBanner = () => {
   if (!isActive) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 9999,
-      backgroundColor: '#ef4444',
-      color: 'white',
-      padding: '8px 16px',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      fontWeight: 'bold',
-      fontSize: '14px',
-      height: '40px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-    }}>
-      <span>🔴 IMPERSONATION ACTIVE — You are viewing this account as MegaTrix Admin. All actions are logged.</span>
+    <div className="sticky top-0 left-0 right-0 w-full z-[9999] bg-red-600 text-white h-10 px-3 sm:px-6 flex items-center justify-between shadow-md text-xs sm:text-sm font-semibold select-none shrink-0 print:hidden">
+      <div className="flex items-center gap-2 truncate">
+        <span className="w-2.5 h-2.5 rounded-full bg-white shrink-0 animate-pulse" />
+        <span className="truncate">
+          <span className="font-black uppercase tracking-wider">Impersonation Active</span> — You are viewing this account as MegaTrix Admin. All actions are logged.
+        </span>
+      </div>
       <button 
+        type="button"
         onClick={handleEndSession}
-        style={{
-          marginLeft: '16px',
-          backgroundColor: 'rgba(0,0,0,0.2)',
-          border: '1px solid rgba(255,255,255,0.4)',
-          borderRadius: '4px',
-          padding: '4px 8px',
-          color: 'white',
-          cursor: 'pointer',
-          fontWeight: 'bold'
-        }}
-        onMouseOver={e => e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.4)'}
-        onMouseOut={e => e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.2)'}
+        className="ml-3 px-2.5 py-1 bg-black/25 hover:bg-black/40 border border-white/50 hover:border-white rounded text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs active:scale-95"
       >
         End Session ✕
       </button>

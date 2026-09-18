@@ -60,6 +60,8 @@ const Layout = ({ children }) => {
     };
   }, [isSidebarOpen]);
 
+  const isImpersonated = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('impersonation_active') === 'true';
+
   return (
     <div className="min-h-screen bg-[#F7F7FA] dark:bg-[#0B0F14]">
       <Sidebar
@@ -84,7 +86,7 @@ const Layout = ({ children }) => {
         }`}
       >
         <SubscriptionBanner />
-        <header className="flex items-center justify-between border-b border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 shadow-xs lg:hidden print:hidden sticky top-0 z-30">
+        <header className={`flex items-center justify-between border-b border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 shadow-xs lg:hidden print:hidden sticky ${isImpersonated ? 'top-10' : 'top-0'} z-30`}>
           <button
             type="button"
             onClick={() => setIsSidebarOpen(true)}

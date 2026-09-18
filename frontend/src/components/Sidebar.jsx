@@ -326,11 +326,13 @@ const Sidebar = ({
     });
   };
 
+  const isImpersonated = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('impersonation_active') === 'true';
+
   return (
     <>
       {/* Mobile Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/40 dark:bg-black/60 z-40 transition-opacity duration-200 lg:hidden print:hidden ${
+        className={`fixed ${isImpersonated ? 'top-10 bottom-0 left-0 right-0' : 'inset-0'} bg-black/40 dark:bg-black/60 z-40 transition-opacity duration-200 lg:hidden print:hidden ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
@@ -340,7 +342,9 @@ const Sidebar = ({
       <aside
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className={`print:hidden fixed inset-y-0 z-50 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col shadow-sm dark:shadow-lg transition-all duration-200 ease-in-out ${
+        className={`print:hidden fixed z-50 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col shadow-sm dark:shadow-lg transition-all duration-200 ease-in-out ${
+          isImpersonated ? 'top-10 bottom-0' : 'inset-y-0'
+        } ${
           isRtl
             ? 'right-0 border-l border-slate-200/80 dark:border-slate-800'
             : 'left-0 border-r border-slate-200/80 dark:border-slate-800'
