@@ -65,70 +65,72 @@ const Dashboard = () => {
     <Layout>
       <div className="space-y-6">
         {/* Header & Quick Action Row */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200/80 dark:border-gray-800 shadow-xs">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-              {isRtl ? `خوش آمدید، ${userName}` : `Welcome back, ${userName}`}
-            </h1>
-            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 font-urdu">
-              {isRtl ? (
-                <>دکان <span className="font-bold text-gray-800 dark:text-gray-200">{shopName}</span> کا آج کا تازہ ترین خلاصہ</>
-              ) : (
-                <>Here's what's happening with <span className="font-semibold text-gray-700 dark:text-gray-300">{shopName}</span> today.</>
-              )}
-            </p>
-          </div>
+        <div className="rounded-2xl p-1 border border-slate-200/70 dark:border-white/[0.06] bg-slate-50/40 dark:bg-zinc-950/40 shadow-xs">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white dark:bg-zinc-900 p-6 rounded-[calc(1rem-0.25rem)] border border-slate-200/80 dark:border-zinc-800">
+            <div>
+              <h1 className="text-2xl font-bold tracking-[-0.03em] text-zinc-900 dark:text-zinc-100">
+                {isRtl ? `خوش آمدید، ${userName}` : `Welcome back, ${userName}`}
+              </h1>
+              <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1 font-urdu">
+                {isRtl ? (
+                  <>دکان <span className="font-bold text-zinc-800 dark:text-zinc-200">{shopName}</span> کا آج کا تازہ ترین خلاصہ</>
+                ) : (
+                  <>Here's what's happening with <span className="font-semibold text-zinc-700 dark:text-zinc-300">{shopName}</span> today.</>
+                )}
+              </p>
+            </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
-            <Button
-              onClick={() => navigate('/pos')}
-              variant="primary"
-              size="md"
-              icon={
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              }
-            >
-              {isRtl ? 'نیا بل بنائیں' : 'New Sale'}
-            </Button>
-            <Button
-              onClick={() => navigate('/udhaar')}
-              variant="secondary"
-              size="md"
-              className="border-rose-300 text-rose-700 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-300"
-              icon={
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              }
-            >
-              {isRtl ? 'ادھار کھاتہ' : 'Udhaar Khata'}
-            </Button>
-            <Button
-              onClick={() => navigate('/inventory')}
-              variant="secondary"
-              size="md"
-              icon={
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              }
-            >
-              {isRtl ? 'نیا سامان' : 'Add Product'}
-            </Button>
-            <Button
-              onClick={() => navigate('/customers')}
-              variant="secondary"
-              size="md"
-              icon={
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
-              }
-            >
-              {isRtl ? 'نیا گاہک' : 'Add Customer'}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <Button
+                onClick={() => navigate('/pos')}
+                variant="primary"
+                size="md"
+                icon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                }
+              >
+                {isRtl ? 'نیا بل بنائیں' : 'New Sale'}
+              </Button>
+              <Button
+                onClick={() => navigate('/udhaar')}
+                variant="secondary"
+                size="md"
+                className="border-rose-300 text-rose-700 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-300"
+                icon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                }
+              >
+                {isRtl ? 'ادھار کھاتہ' : 'Udhaar Khata'}
+              </Button>
+              <Button
+                onClick={() => navigate('/inventory')}
+                variant="secondary"
+                size="md"
+                icon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                }
+              >
+                {isRtl ? 'نیا سامان' : 'Add Product'}
+              </Button>
+              <Button
+                onClick={() => navigate('/customers')}
+                variant="secondary"
+                size="md"
+                icon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                }
+              >
+                {isRtl ? 'نیا گاہک' : 'Add Customer'}
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -140,7 +142,7 @@ const Dashboard = () => {
             </h2>
             <button
               onClick={() => setShowDetailedMetrics(!showDetailedMetrics)}
-              className="text-xs font-semibold text-violet-700 dark:text-violet-400 hover:underline cursor-pointer"
+              className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 hover:underline cursor-pointer"
             >
               {showDetailedMetrics
                 ? (isRtl ? 'تفصیل چھپائیں' : 'Hide Detailed Breakdown')
@@ -152,8 +154,8 @@ const Dashboard = () => {
             <StatsCard
               title={isRtl ? 'کل سیلز' : 'Total Revenue'}
               value={`Rs. ${(dashboardStats?.totalRevenue || 0).toLocaleString()}`}
-              iconBgColor="bg-violet-50"
-              iconColor="text-violet-700"
+              iconBgColor="bg-zinc-100 dark:bg-zinc-800"
+              iconColor="text-zinc-800 dark:text-zinc-200"
               icon={
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -202,8 +204,8 @@ const Dashboard = () => {
             <StatsCard
               title={isRtl ? 'خالص منافع' : 'Net Profit'}
               value={`Rs. ${(dashboardStats?.operatingProfit || 0).toLocaleString()}`}
-              iconBgColor="bg-purple-50"
-              iconColor="text-purple-700"
+              iconBgColor="bg-zinc-100 dark:bg-zinc-800"
+              iconColor="text-zinc-800 dark:text-zinc-200"
               icon={
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />

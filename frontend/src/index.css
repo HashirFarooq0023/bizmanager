@@ -406,44 +406,44 @@
     --color-border-light: 243 244 246;
     /* gray-100 */
 
-    /* Refined Violet Primary Accent */
-    --color-primary: 109 40 217;
-    /* violet-700 #6D28D9 */
-    --color-primary-hover: 91 33 182;
-    /* violet-800 #5B21B6 */
+    /* Refined Neutral Primary Accent */
+    --color-primary: 24 24 27;
+    /* zinc-900 #18181B */
+    --color-primary-hover: 39 39 42;
+    /* zinc-800 #27272A */
   }
 
   /* Dark Theme */
   .dark {
     /* Backgrounds */
-    --color-bg: 0 0 0;
-    /* #000000 True Pitch Black */
-    --color-card: 12 15 22;
-    /* #0C0F16 Light Black Card */
-    --color-input: 5 7 11;
-    /* #05070B Deep Black Inset Input */
-    --color-sidebar: 6 8 13;
-    /* #06080D Deep Dark Sidebar */
-    --color-table-row: 12 15 22;
-    /* #0C0F16 */
-    --color-table-header: 6 8 13;
-    /* #06080D */
+    --color-bg: 9 9 11;
+    /* #09090B deep zinc depth */
+    --color-card: 24 24 27;
+    /* #18181B zinc-900 surface */
+    --color-input: 15 23 42;
+    /* #0F172A slate-900 */
+    --color-sidebar: 15 23 42;
+    /* #0F172A slate-900 */
+    --color-table-row: 24 24 27;
+    /* #18181B */
+    --color-table-header: 18 18 20;
+    /* #121214 */
 
     /* Text */
-    --color-text: 229 231 235;
-    --color-text-secondary: 156 163 175;
-    --color-text-muted: 107 114 128;
-    --color-placeholder: 107 114 128;
+    --color-text: 244 244 245;
+    --color-text-secondary: 161 161 170;
+    --color-text-muted: 113 113 122;
+    --color-placeholder: 113 113 122;
 
     /* Borders */
-    --color-border: 31 41 51;
-    --color-border-light: 31 41 51;
+    --color-border: 39 39 42;
+    --color-border-light: 39 39 42;
 
     /* Primary Accent for Dark */
-    --color-primary: 139 92 246;
-    /* violet-500 #8B5CF6 */
-    --color-primary-hover: 124 58 237;
-    /* violet-600 #7C3AED */
+    --color-primary: 244 244 245;
+    /* zinc-100 #F4F4F5 */
+    --color-primary-hover: 228 228 231;
+    /* zinc-200 #E4E4E7 */
   }
 
   html {

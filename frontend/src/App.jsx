@@ -122,9 +122,9 @@ const DataExport = lazy(() => import('./pages/utilities/DataExport'));
 
 // Elegant Loading Fallback for Lazy-Loaded Routes
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#07090F] text-slate-900 dark:text-slate-100">
+  <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-slate-100">
     <div className="flex flex-col items-center gap-3">
-      <div className="w-9 h-9 border-3 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      <div className="w-9 h-9 border-3 border-zinc-900 dark:border-zinc-100 border-t-transparent rounded-full animate-spin" />
       <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 font-sans tracking-wide">
         Loading BizManager...
       </span>

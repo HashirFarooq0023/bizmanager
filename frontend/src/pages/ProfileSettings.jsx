@@ -107,7 +107,7 @@ const ProfileSettings = () => {
     return (
       <Layout>
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-violet-600"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-zinc-900 dark:border-zinc-100"></div>
         </div>
       </Layout>
     );
