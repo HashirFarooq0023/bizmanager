@@ -1,0 +1,350 @@
+{
+  "runId": "run-20260919",
+  "timestamp": "2026-09-18T21:39:14.997Z",
+  "profile": "Mobile 390px (Fast 3G + 4x CPU Throttling)",
+  "budgets": {
+    "LCP_MS": 2500,
+    "CLS": 0.1,
+    "TBT_MS": 200,
+    "TTFB_MS": 600
+  },
+  "hasRegressions": true,
+  "routes": [
+    {
+      "route": "/",
+      "name": "LandingPage",
+      "metrics": {
+        "lcp": 1927,
+        "cls": 0,
+        "tbt": 248,
+        "ttfb": 2,
+        "domContentLoaded": 1927,
+        "load": 1953
+      },
+      "chunkSizeKb": null,
+      "chunkFile": null,
+      "budgetStatus": {
+        "lcp": "PASS",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED",
+      "delta": {
+        "baselineLcp": 2199,
+        "currentLcp": 1927,
+        "lcpDeltaMs": -272,
+        "lcpDeltaPct": -12.4,
+        "regressedOver10Pct": false
+      }
+    },
+    {
+      "route": "/login",
+      "name": "Login",
+      "metrics": {
+        "lcp": 1964,
+        "cls": 0,
+        "tbt": 163,
+        "ttfb": 2,
+        "domContentLoaded": 1964,
+        "load": 1986
+      },
+      "chunkSizeKb": null,
+      "chunkFile": null,
+      "budgetStatus": {
+        "lcp": "PASS",
+        "cls": "PASS",
+        "tbt": "PASS",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "PASS",
+      "delta": {
+        "baselineLcp": 4200,
+        "currentLcp": 1964,
+        "lcpDeltaMs": -2236,
+        "lcpDeltaPct": -53.2,
+        "regressedOver10Pct": false
+      }
+    },
+    {
+      "route": "/dashboard",
+      "name": "Dashboard",
+      "metrics": {
+        "lcp": 2148,
+        "cls": 0,
+        "tbt": 92,
+        "ttfb": 5,
+        "domContentLoaded": 1994,
+        "load": 2011
+      },
+      "chunkSizeKb": 25.31,
+      "chunkFile": "Dashboard-Bes12UaK.js",
+      "budgetStatus": {
+        "lcp": "PASS",
+        "cls": "PASS",
+        "tbt": "PASS",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "PASS",
+      "delta": {
+        "baselineLcp": 3996,
+        "currentLcp": 2148,
+        "lcpDeltaMs": -1848,
+        "lcpDeltaPct": -46.2,
+        "regressedOver10Pct": false
+      }
+    },
+    {
+      "route": "/pos",
+      "name": "POS",
+      "metrics": {
+        "lcp": 2288,
+        "cls": 0,
+        "tbt": 177,
+        "ttfb": 7,
+        "domContentLoaded": 2034,
+        "load": 2053
+      },
+      "chunkSizeKb": 50.71,
+      "chunkFile": "POS-C7qOgCyi.js",
+      "budgetStatus": {
+        "lcp": "PASS",
+        "cls": "PASS",
+        "tbt": "PASS",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "PASS",
+      "delta": {
+        "baselineLcp": 3536,
+        "currentLcp": 2288,
+        "lcpDeltaMs": -1248,
+        "lcpDeltaPct": -35.3,
+        "regressedOver10Pct": false
+      }
+    },
+    {
+      "route": "/inventory",
+      "name": "Inventory",
+      "metrics": {
+        "lcp": 2124,
+        "cls": 0,
+        "tbt": 150,
+        "ttfb": 3,
+        "domContentLoaded": 1921,
+        "load": 1944
+      },
+      "chunkSizeKb": 9.27,
+      "chunkFile": "Inventory-CtgDzlKv.js",
+      "budgetStatus": {
+        "lcp": "PASS",
+        "cls": "PASS",
+        "tbt": "PASS",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "PASS",
+      "delta": {
+        "baselineLcp": 3788,
+        "currentLcp": 2124,
+        "lcpDeltaMs": -1664,
+        "lcpDeltaPct": -43.9,
+        "regressedOver10Pct": false
+      }
+    },
+    {
+      "route": "/udhaar",
+      "name": "UdhaarKhata",
+      "metrics": {
+        "lcp": 2132,
+        "cls": 0,
+        "tbt": 162,
+        "ttfb": 3,
+        "domContentLoaded": 1945,
+        "load": 1970
+      },
+      "chunkSizeKb": 14.84,
+      "chunkFile": "UdhaarKhata-ChEHh5QZ.js",
+      "budgetStatus": {
+        "lcp": "PASS",
+        "cls": "PASS",
+        "tbt": "PASS",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "PASS",
+      "delta": {
+        "baselineLcp": 3516,
+        "currentLcp": 2132,
+        "lcpDeltaMs": -1384,
+        "lcpDeltaPct": -39.4,
+        "regressedOver10Pct": false
+      }
+    },
+    {
+      "route": "/sales/invoices",
+      "name": "SalesInvoices",
+      "metrics": {
+        "lcp": 2124,
+        "cls": 0,
+        "tbt": 132,
+        "ttfb": 2,
+        "domContentLoaded": 1951,
+        "load": 1968
+      },
+      "chunkSizeKb": 8.85,
+      "chunkFile": "Invoice-DwBCqsZy.js",
+      "budgetStatus": {
+        "lcp": "PASS",
+        "cls": "PASS",
+        "tbt": "PASS",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "PASS",
+      "delta": {
+        "baselineLcp": 11296,
+        "currentLcp": 2124,
+        "lcpDeltaMs": -9172,
+        "lcpDeltaPct": -81.2,
+        "regressedOver10Pct": false
+      }
+    },
+    {
+      "route": "/purchase/bills",
+      "name": "Bills",
+      "metrics": {
+        "lcp": 11652,
+        "cls": 0,
+        "tbt": 6165,
+        "ttfb": 4,
+        "domContentLoaded": 9805,
+        "load": 10111
+      },
+      "chunkSizeKb": 12.2,
+      "chunkFile": "Bills-CR8XE0xM.js",
+      "budgetStatus": {
+        "lcp": "OVER_BUDGET",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED",
+      "delta": {
+        "baselineLcp": 3528,
+        "currentLcp": 11652,
+        "lcpDeltaMs": 8124,
+        "lcpDeltaPct": 230.3,
+        "regressedOver10Pct": true
+      }
+    },
+    {
+      "route": "/cashbank/position",
+      "name": "CashBankPosition",
+      "metrics": {
+        "lcp": 2260,
+        "cls": 0,
+        "tbt": 224,
+        "ttfb": 10,
+        "domContentLoaded": 1988,
+        "load": 2007
+      },
+      "chunkSizeKb": 5.15,
+      "chunkFile": "CashBankPosition-B_qBYKbG.js",
+      "budgetStatus": {
+        "lcp": "PASS",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED",
+      "delta": {
+        "baselineLcp": 3580,
+        "currentLcp": 2260,
+        "lcpDeltaMs": -1320,
+        "lcpDeltaPct": -36.9,
+        "regressedOver10Pct": false
+      }
+    },
+    {
+      "route": "/reports",
+      "name": "ReportsDashboard",
+      "metrics": {
+        "lcp": 2276,
+        "cls": 0,
+        "tbt": 178,
+        "ttfb": 5,
+        "domContentLoaded": 2070,
+        "load": 2102
+      },
+      "chunkSizeKb": 3.59,
+      "chunkFile": "ReportsDashboard-Bu13vroD.js",
+      "budgetStatus": {
+        "lcp": "PASS",
+        "cls": "PASS",
+        "tbt": "PASS",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "PASS",
+      "delta": {
+        "baselineLcp": 12932,
+        "currentLcp": 2276,
+        "lcpDeltaMs": -10656,
+        "lcpDeltaPct": -82.4,
+        "regressedOver10Pct": false
+      }
+    },
+    {
+      "route": "/reports/sales",
+      "name": "SalesReport",
+      "metrics": {
+        "lcp": 2456,
+        "cls": 0,
+        "tbt": 159,
+        "ttfb": 4,
+        "domContentLoaded": 2243,
+        "load": 2273
+      },
+      "chunkSizeKb": 91.08,
+      "chunkFile": "SalesReport-BCV8dOGz.js",
+      "budgetStatus": {
+        "lcp": "PASS",
+        "cls": "PASS",
+        "tbt": "PASS",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "PASS",
+      "delta": {
+        "baselineLcp": 3732,
+        "currentLcp": 2456,
+        "lcpDeltaMs": -1276,
+        "lcpDeltaPct": -34.2,
+        "regressedOver10Pct": false
+      }
+    },
+    {
+      "route": "/subscription-expired",
+      "name": "SubscriptionExpired",
+      "metrics": {
+        "lcp": 2136,
+        "cls": 0,
+        "tbt": 149,
+        "ttfb": 3,
+        "domContentLoaded": 1966,
+        "load": 1985
+      },
+      "chunkSizeKb": 7.23,
+      "chunkFile": "SubscriptionExpired-F6EaQxxB.js",
+      "budgetStatus": {
+        "lcp": "PASS",
+        "cls": "PASS",
+        "tbt": "PASS",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "PASS",
+      "delta": {
+        "baselineLcp": 4208,
+        "currentLcp": 2136,
+        "lcpDeltaMs": -2072,
+        "lcpDeltaPct": -49.2,
+        "regressedOver10Pct": false
+      }
+    }
+  ]
+}

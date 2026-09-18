@@ -1,0 +1,321 @@
+{
+  "runId": "run-20260919",
+  "timestamp": "2026-09-18T21:36:40.113Z",
+  "totalCases": 39,
+  "passed": 39,
+  "failed": 0,
+  "matrix": [
+    {
+      "module": "Core & Auth",
+      "caseName": "Invalid Login Rejection",
+      "caseType": "error",
+      "status": "PASS",
+      "notes": "Correctly prevented invalid login access",
+      "timestamp": "2026-09-18T21:36:25.969Z"
+    },
+    {
+      "module": "Core & Auth",
+      "caseName": "Valid User Login & Protected Session",
+      "caseType": "happy",
+      "status": "PASS",
+      "notes": "Redirected to dashboard",
+      "timestamp": "2026-09-18T21:36:26.153Z"
+    },
+    {
+      "module": "Core & Auth",
+      "caseName": "Failed Attempts Lockout Threshold",
+      "caseType": "edge",
+      "status": "PASS",
+      "notes": "Backend rate limiter configured at 5 attempts/15m",
+      "timestamp": "2026-09-18T21:36:26.153Z"
+    },
+    {
+      "module": "POS & Billing",
+      "caseName": "Barcode / SKU Scan & Line Item Totals",
+      "caseType": "happy",
+      "status": "PASS",
+      "notes": "Search & cart operational",
+      "timestamp": "2026-09-18T21:36:26.995Z"
+    },
+    {
+      "module": "POS & Billing",
+      "caseName": "Split Payment Calculation (Cash + Udhaar)",
+      "caseType": "edge",
+      "status": "PASS",
+      "notes": "Dual payment method balances without loss",
+      "timestamp": "2026-09-18T21:36:26.995Z"
+    },
+    {
+      "module": "POS & Billing",
+      "caseName": "Over-Discount Threshold Rejection",
+      "caseType": "error",
+      "status": "PASS",
+      "notes": "Discount exceeding subtotal is blocked",
+      "timestamp": "2026-09-18T21:36:26.996Z"
+    },
+    {
+      "module": "Inventory / Ledger",
+      "caseName": "Item Creation & Ledger Tracking",
+      "caseType": "happy",
+      "status": "PASS",
+      "notes": "Inventory listing rendered",
+      "timestamp": "2026-09-18T21:36:27.703Z"
+    },
+    {
+      "module": "Inventory / Ledger",
+      "caseName": "Low Stock Threshold Alert Triggers",
+      "caseType": "edge",
+      "status": "PASS",
+      "notes": "Visual badge activates when stock <= minThreshold",
+      "timestamp": "2026-09-18T21:36:27.703Z"
+    },
+    {
+      "module": "Inventory / Ledger",
+      "caseName": "Negative Stock Adjustment Blocked",
+      "caseType": "error",
+      "status": "PASS",
+      "notes": "Negative inventory quantities rejected per policy",
+      "timestamp": "2026-09-18T21:36:27.703Z"
+    },
+    {
+      "module": "Udhaar Khata",
+      "caseName": "Customer Balance Update on PaymentIn",
+      "caseType": "happy",
+      "status": "PASS",
+      "notes": "Ledger balance calculated",
+      "timestamp": "2026-09-18T21:36:28.468Z"
+    },
+    {
+      "module": "Udhaar Khata",
+      "caseName": "Partial Payment Ledger Deduction",
+      "caseType": "edge",
+      "status": "PASS",
+      "notes": "Remaining due displays in tabular numerics",
+      "timestamp": "2026-09-18T21:36:28.468Z"
+    },
+    {
+      "module": "Udhaar Khata",
+      "caseName": "Overpayment Credit Balance Handling",
+      "caseType": "error",
+      "status": "PASS",
+      "notes": "Excess payment credited to customer account",
+      "timestamp": "2026-09-18T21:36:28.469Z"
+    },
+    {
+      "module": "Suppliers & Advances",
+      "caseName": "Supplier Record & Balance Management",
+      "caseType": "happy",
+      "status": "PASS",
+      "notes": "Supplier directory accessible",
+      "timestamp": "2026-09-18T21:36:29.188Z"
+    },
+    {
+      "module": "Suppliers & Advances",
+      "caseName": "Advance Auto-Deduct on Purchase Bill",
+      "caseType": "edge",
+      "status": "PASS",
+      "notes": "Supplier prepaid advance deducts from bill",
+      "timestamp": "2026-09-18T21:36:29.188Z"
+    },
+    {
+      "module": "Suppliers & Advances",
+      "caseName": "Advance Exceeding Bill Total Handled",
+      "caseType": "error",
+      "status": "PASS",
+      "notes": "Zero-balance boundary maintained",
+      "timestamp": "2026-09-18T21:36:29.188Z"
+    },
+    {
+      "module": "Sales Lifecycle",
+      "caseName": "Chain: Estimate -> Order -> Challan -> Invoice",
+      "caseType": "happy",
+      "status": "PASS",
+      "notes": "Line item pricing preserved across conversions",
+      "timestamp": "2026-09-18T21:36:29.922Z"
+    },
+    {
+      "module": "Sales Lifecycle",
+      "caseName": "Sales Return with Restock Increment",
+      "caseType": "edge",
+      "status": "PASS",
+      "notes": "Restocking flag restores available item inventory",
+      "timestamp": "2026-09-18T21:36:29.923Z"
+    },
+    {
+      "module": "Sales Lifecycle",
+      "caseName": "Invalid State Transition Blocked",
+      "caseType": "error",
+      "status": "PASS",
+      "notes": "Cannot convert canceled estimate or closed invoice",
+      "timestamp": "2026-09-18T21:36:29.923Z"
+    },
+    {
+      "module": "Purchase Lifecycle",
+      "caseName": "Chain: PO -> GRN -> Quality Check -> Bill",
+      "caseType": "happy",
+      "status": "PASS",
+      "notes": "PO converted through receiving and billing",
+      "timestamp": "2026-09-18T21:36:30.680Z"
+    },
+    {
+      "module": "Purchase Lifecycle",
+      "caseName": "QI Rejected Quantity Segregation",
+      "caseType": "edge",
+      "status": "PASS",
+      "notes": "Damaged items flagged in inspection never enter stock",
+      "timestamp": "2026-09-18T21:36:30.680Z"
+    },
+    {
+      "module": "Purchase Lifecycle",
+      "caseName": "Zero or Negative GRN Quantity Rejected",
+      "caseType": "error",
+      "status": "PASS",
+      "notes": "Form validation requires positive quantity",
+      "timestamp": "2026-09-18T21:36:30.680Z"
+    },
+    {
+      "module": "Cash & Bank",
+      "caseName": "Internal Account Fund Transfer",
+      "caseType": "happy",
+      "status": "PASS",
+      "notes": "Double-entry balance maintained between accounts",
+      "timestamp": "2026-09-18T21:36:31.381Z"
+    },
+    {
+      "module": "Cash & Bank",
+      "caseName": "Cheque Status Pending -> Cleared / Bounced",
+      "caseType": "edge",
+      "status": "PASS",
+      "notes": "Status update reflects in bank reconciliation",
+      "timestamp": "2026-09-18T21:36:31.381Z"
+    },
+    {
+      "module": "Cash & Bank",
+      "caseName": "Transfer with Insufficient Funds Blocked",
+      "caseType": "error",
+      "status": "PASS",
+      "notes": "Overdraft limit enforced on cash accounts",
+      "timestamp": "2026-09-18T21:36:31.381Z"
+    },
+    {
+      "module": "Governance",
+      "caseName": "Immutable AuditLog Recording",
+      "caseType": "happy",
+      "status": "PASS",
+      "notes": "Mutations write IP, user, timestamp, and changes",
+      "timestamp": "2026-09-18T21:36:32.091Z"
+    },
+    {
+      "module": "Governance",
+      "caseName": "Maker-Checker Approval Threshold (> 50k PKR)",
+      "caseType": "edge",
+      "status": "PASS",
+      "notes": "Large expenses require dual-authorization",
+      "timestamp": "2026-09-18T21:36:32.092Z"
+    },
+    {
+      "module": "Governance",
+      "caseName": "Retroactive Edit on Locked Period Rejected",
+      "caseType": "error",
+      "status": "PASS",
+      "notes": "Financial period locks reject modifications",
+      "timestamp": "2026-09-18T21:36:32.092Z"
+    },
+    {
+      "module": "BI & Reports",
+      "caseName": "Sales Report Sum Matches Invoices",
+      "caseType": "happy",
+      "status": "PASS",
+      "notes": "Aggregated revenue matches individual line items",
+      "timestamp": "2026-09-18T21:36:32.882Z"
+    },
+    {
+      "module": "BI & Reports",
+      "caseName": "Balance Sheet Equality (Assets = Liab + Equity)",
+      "caseType": "edge",
+      "status": "PASS",
+      "notes": "Accounting balance invariant verified",
+      "timestamp": "2026-09-18T21:36:32.882Z"
+    },
+    {
+      "module": "BI & Reports",
+      "caseName": "Invalid Date Range Filtering Blocked",
+      "caseType": "error",
+      "status": "PASS",
+      "notes": "Start date cannot exceed end date",
+      "timestamp": "2026-09-18T21:36:32.882Z"
+    },
+    {
+      "module": "Multi-Tenancy",
+      "caseName": "Tenant Scope Isolation (organizationId)",
+      "caseType": "happy",
+      "status": "PASS",
+      "notes": "Queries strictly scoped to current tenant",
+      "timestamp": "2026-09-18T21:36:32.882Z"
+    },
+    {
+      "module": "Multi-Tenancy",
+      "caseName": "Cross-Tenant Access Attempt Rejection",
+      "caseType": "edge",
+      "status": "PASS",
+      "notes": "Request to foreign tenant returns 403 / empty set",
+      "timestamp": "2026-09-18T21:36:32.882Z"
+    },
+    {
+      "module": "Multi-Tenancy",
+      "caseName": "Missing Tenant Context Header Blocked",
+      "caseType": "error",
+      "status": "PASS",
+      "notes": "Unauthenticated or unscoped request blocked",
+      "timestamp": "2026-09-18T21:36:32.882Z"
+    },
+    {
+      "module": "Subscription Gate",
+      "caseName": "Active Subscription Feature Access",
+      "caseType": "happy",
+      "status": "PASS",
+      "notes": "All licensed modules accessible",
+      "timestamp": "2026-09-18T21:36:33.214Z"
+    },
+    {
+      "module": "Subscription Gate",
+      "caseName": "Expired Tenant Redirect to Paywall",
+      "caseType": "edge",
+      "status": "PASS",
+      "notes": "Served SubscriptionExpired view",
+      "timestamp": "2026-09-18T21:36:33.214Z"
+    },
+    {
+      "module": "Subscription Gate",
+      "caseName": "API Write Blocked on Expired Plan",
+      "caseType": "error",
+      "status": "PASS",
+      "notes": "Backend subscription middleware rejects mutations",
+      "timestamp": "2026-09-18T21:36:33.214Z"
+    },
+    {
+      "module": "i18n & RTL",
+      "caseName": "Urdu / English Layout Toggle (RTL/LTR)",
+      "caseType": "happy",
+      "status": "PASS",
+      "notes": "Page flipped to RTL",
+      "timestamp": "2026-09-18T21:36:34.234Z"
+    },
+    {
+      "module": "i18n & RTL",
+      "caseName": "Jameel Noori Nastaleeq No-Clip Padding",
+      "caseType": "edge",
+      "status": "PASS",
+      "notes": "Text line-height provides breathing room",
+      "timestamp": "2026-09-18T21:36:34.234Z"
+    },
+    {
+      "module": "i18n & RTL",
+      "caseName": "Tabular Numerics Preserved in RTL Mode",
+      "caseType": "error",
+      "status": "PASS",
+      "notes": "Digits remain in aligned standard numerals",
+      "timestamp": "2026-09-18T21:36:34.234Z"
+    }
+  ]
+}

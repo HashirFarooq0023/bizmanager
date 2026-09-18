@@ -1,0 +1,265 @@
+{
+  "runId": "run-20260919",
+  "timestamp": "2026-09-18T21:28:47.605Z",
+  "profile": "Mobile 390px (Fast 3G + 4x CPU Throttling)",
+  "budgets": {
+    "LCP_MS": 2500,
+    "CLS": 0.1,
+    "TBT_MS": 200,
+    "TTFB_MS": 600
+  },
+  "routes": [
+    {
+      "route": "/",
+      "name": "LandingPage",
+      "metrics": {
+        "lcp": 2199,
+        "cls": 0,
+        "tbt": 308,
+        "ttfb": 11,
+        "domContentLoaded": 2199,
+        "load": 2218
+      },
+      "chunkSizeKb": null,
+      "chunkFile": null,
+      "budgetStatus": {
+        "lcp": "PASS",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED"
+    },
+    {
+      "route": "/login",
+      "name": "Login",
+      "metrics": {
+        "lcp": 4200,
+        "cls": 0,
+        "tbt": 233,
+        "ttfb": 3,
+        "domContentLoaded": 2074,
+        "load": 2096
+      },
+      "chunkSizeKb": null,
+      "chunkFile": null,
+      "budgetStatus": {
+        "lcp": "OVER_BUDGET",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED"
+    },
+    {
+      "route": "/dashboard",
+      "name": "Dashboard",
+      "metrics": {
+        "lcp": 3996,
+        "cls": 0,
+        "tbt": 1094,
+        "ttfb": 4,
+        "domContentLoaded": 1984,
+        "load": 2008
+      },
+      "chunkSizeKb": 25.31,
+      "chunkFile": "Dashboard-Bes12UaK.js",
+      "budgetStatus": {
+        "lcp": "OVER_BUDGET",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED"
+    },
+    {
+      "route": "/pos",
+      "name": "POS",
+      "metrics": {
+        "lcp": 3536,
+        "cls": 0,
+        "tbt": 238,
+        "ttfb": 3,
+        "domContentLoaded": 1937,
+        "load": 1958
+      },
+      "chunkSizeKb": 50.71,
+      "chunkFile": "POS-C7qOgCyi.js",
+      "budgetStatus": {
+        "lcp": "OVER_BUDGET",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED"
+    },
+    {
+      "route": "/inventory",
+      "name": "Inventory",
+      "metrics": {
+        "lcp": 3788,
+        "cls": 0.019,
+        "tbt": 713,
+        "ttfb": 10,
+        "domContentLoaded": 1991,
+        "load": 2013
+      },
+      "chunkSizeKb": 9.27,
+      "chunkFile": "Inventory-CtgDzlKv.js",
+      "budgetStatus": {
+        "lcp": "OVER_BUDGET",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED"
+    },
+    {
+      "route": "/udhaar",
+      "name": "UdhaarKhata",
+      "metrics": {
+        "lcp": 3516,
+        "cls": 0.019,
+        "tbt": 419,
+        "ttfb": 5,
+        "domContentLoaded": 1992,
+        "load": 2014
+      },
+      "chunkSizeKb": 14.84,
+      "chunkFile": "UdhaarKhata-ChEHh5QZ.js",
+      "budgetStatus": {
+        "lcp": "OVER_BUDGET",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED"
+    },
+    {
+      "route": "/sales/invoices",
+      "name": "SalesInvoices",
+      "metrics": {
+        "lcp": 11296,
+        "cls": 0.019,
+        "tbt": 3043,
+        "ttfb": 42,
+        "domContentLoaded": 9645,
+        "load": 9682
+      },
+      "chunkSizeKb": 8.85,
+      "chunkFile": "Invoice-DwBCqsZy.js",
+      "budgetStatus": {
+        "lcp": "OVER_BUDGET",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED"
+    },
+    {
+      "route": "/purchase/bills",
+      "name": "Bills",
+      "metrics": {
+        "lcp": 3528,
+        "cls": 0.019,
+        "tbt": 252,
+        "ttfb": 9,
+        "domContentLoaded": 2013,
+        "load": 2033
+      },
+      "chunkSizeKb": 12.2,
+      "chunkFile": "Bills-CR8XE0xM.js",
+      "budgetStatus": {
+        "lcp": "OVER_BUDGET",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED"
+    },
+    {
+      "route": "/cashbank/position",
+      "name": "CashBankPosition",
+      "metrics": {
+        "lcp": 3580,
+        "cls": 0.019,
+        "tbt": 373,
+        "ttfb": 5,
+        "domContentLoaded": 1988,
+        "load": 2009
+      },
+      "chunkSizeKb": 5.15,
+      "chunkFile": "CashBankPosition-B_qBYKbG.js",
+      "budgetStatus": {
+        "lcp": "OVER_BUDGET",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED"
+    },
+    {
+      "route": "/reports",
+      "name": "ReportsDashboard",
+      "metrics": {
+        "lcp": 12932,
+        "cls": 0.019,
+        "tbt": 6722,
+        "ttfb": 3,
+        "domContentLoaded": 11260,
+        "load": 11285
+      },
+      "chunkSizeKb": 3.59,
+      "chunkFile": "ReportsDashboard-Bu13vroD.js",
+      "budgetStatus": {
+        "lcp": "OVER_BUDGET",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED"
+    },
+    {
+      "route": "/reports/sales",
+      "name": "SalesReport",
+      "metrics": {
+        "lcp": 3732,
+        "cls": 0.019,
+        "tbt": 340,
+        "ttfb": 11,
+        "domContentLoaded": 2262,
+        "load": 2288
+      },
+      "chunkSizeKb": 91.08,
+      "chunkFile": "SalesReport-BCV8dOGz.js",
+      "budgetStatus": {
+        "lcp": "OVER_BUDGET",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED"
+    },
+    {
+      "route": "/subscription-expired",
+      "name": "SubscriptionExpired",
+      "metrics": {
+        "lcp": 4208,
+        "cls": 0,
+        "tbt": 267,
+        "ttfb": 10,
+        "domContentLoaded": 2008,
+        "load": 2040
+      },
+      "chunkSizeKb": 7.23,
+      "chunkFile": "SubscriptionExpired-F6EaQxxB.js",
+      "budgetStatus": {
+        "lcp": "OVER_BUDGET",
+        "cls": "PASS",
+        "tbt": "OVER_BUDGET",
+        "ttfb": "PASS"
+      },
+      "overallStatus": "FLAGGED"
+    }
+  ]
+}
