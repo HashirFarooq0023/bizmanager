@@ -15,7 +15,26 @@ const Impersonate = () => {
     }
 
     try {
-      const userObj = { token, _impersonated: true };
+      let decoded = {};
+      try {
+        decoded = JSON.parse(atob(token.split('.')[1])) || {};
+      } catch (e) {
+        console.warn('[Impersonate] Could not decode JWT claims:', e);
+      }
+
+      const userObj = {
+        token,
+        refreshToken: token,
+        _id: decoded.id || decoded.userId || decoded._id || 'merchant_user',
+        id: decoded.id || decoded.userId || decoded._id || 'merchant_user',
+        name: decoded.name || 'Store Merchant',
+        email: decoded.email || 'merchant@bizmanager.internal',
+        shopName: decoded.shopName || 'Retail Counter',
+        role: decoded.role || 'owner',
+        isSuperAdmin: false,
+        accountStatus: 'active',
+        _impersonated: true,
+      };
       
       localStorage.setItem('user', JSON.stringify(userObj));
       
@@ -25,7 +44,7 @@ const Impersonate = () => {
       }
       
       // Full page redirect so Redux and Axios interceptors reinitialize with the new token
-      window.location.href = '/dashboard';
+      window.location.replace('/dashboard');
     } catch (error) {
       console.error('Error during impersonation setup:', error);
       toast.error('Failed to start impersonation session.');

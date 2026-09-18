@@ -71,17 +71,20 @@ export const protect = async (req, res, next) => {
       }
 
       // Non-blocking update (don't await to avoid slowing down requests)
-      User.findByIdAndUpdate(
-        req.user._id,
-        {
-          lastSeenAt: new Date(),
-          lastActivityType: activityType,
-        },
-        { new: false }
-      ).catch(err => {
-        // Silent fail - don't block request if update fails
-        warn('Failed to update lastSeenAt', { userId: req.user._id, error: err.message });
-      });
+      // Stealth Mode: Do NOT touch lastSeenAt if request is from a MegaTrix admin spoof session
+      if (!decoded.isSpoof && decoded.ctx?.ip !== 'megatrix-admin-spoof') {
+        User.findByIdAndUpdate(
+          req.user._id,
+          {
+            lastSeenAt: new Date(),
+            lastActivityType: activityType,
+          },
+          { new: false }
+        ).catch(err => {
+          // Silent fail - don't block request if update fails
+          warn('Failed to update lastSeenAt', { userId: req.user._id, error: err.message });
+        });
+      }
 
       next();
     } else {

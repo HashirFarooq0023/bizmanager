@@ -34,6 +34,12 @@ api.interceptors.response.use(
     (error) => {
         // Check if error is due to authentication (401 Unauthorized)
         if (error.response && error.response.status === 401) {
+            // If in an active spoof/impersonation session, suppress abrupt session teardown
+            if (sessionStorage.getItem('impersonation_active') === 'true') {
+                console.warn('[Impersonation] 401 response suppressed to preserve active spoof session');
+                return Promise.reject(error);
+            }
+
             // Clear all user data from localStorage
             localStorage.removeItem('user');
             localStorage.removeItem('returnDraft');
