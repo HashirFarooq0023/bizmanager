@@ -16,7 +16,12 @@
     "dev:frontend": "npm --prefix frontend run dev",
     "promote:admin": "node backend/scripts/promote-admin.js",
     "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend",
-    "start": "concurrently -k -n \"backend,frontend\" -c \"cyan,magenta\" \"npm --prefix backend start\" \"npm --prefix frontend run dev\""
+    "start": "concurrently -k -n \"backend,frontend\" -c \"cyan,magenta\" \"npm --prefix backend start\" \"npm --prefix frontend run dev\"",
+    "qa:lint": "node qa/lint/inventory.js",
+    "qa:perf": "node qa/perf/benchmark.js",
+    "qa:e2e": "node qa/e2e/functional_matrix.js",
+    "qa:report": "node qa/reports/generate_report.js",
+    "qa": "npm run qa:lint && npm run qa:e2e && npm run qa:perf && npm run qa:report"
   },
   "dependencies": {
     "@sentry/node": "^7.99.0",
