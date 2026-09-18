@@ -16,14 +16,14 @@ const Button = ({
   onClick,
   ...props
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer select-none';
+  const baseClasses = 'inline-flex items-center justify-center font-medium transition-all duration-150 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer select-none';
 
   const variantClasses = {
-    primary: 'bg-violet-700 hover:bg-violet-800 text-white shadow-xs focus:ring-violet-500/40 dark:bg-violet-600 dark:hover:bg-violet-700',
+    primary: 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-xs focus:ring-zinc-500/40 dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 dark:focus:ring-zinc-400/40',
     secondary: 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-300/80 shadow-xs focus:ring-gray-400/20 dark:bg-gray-800 dark:hover:bg-gray-700/80 dark:text-gray-200 dark:border-gray-700',
     ghost: 'bg-transparent hover:bg-gray-100/80 text-gray-600 hover:text-gray-900 focus:ring-gray-400/20 dark:hover:bg-gray-800 dark:text-gray-400 dark:hover:text-gray-200',
     danger: 'bg-rose-600 hover:bg-rose-700 text-white shadow-xs focus:ring-rose-500/40 dark:bg-rose-600 dark:hover:bg-rose-700',
-    outline: 'bg-transparent hover:bg-violet-50 text-violet-700 border border-violet-300 focus:ring-violet-500/30 dark:hover:bg-violet-950/30 dark:text-violet-400 dark:border-violet-700'
+    outline: 'bg-transparent hover:bg-zinc-100 text-zinc-900 border border-zinc-300 focus:ring-zinc-400/30 dark:hover:bg-zinc-800 dark:text-zinc-100 dark:border-zinc-700'
   };
 
   const sizeClasses = {
@@ -52,7 +52,9 @@ const Button = ({
       <span>{children}</span>
 
       {!isLoading && icon && iconPosition === 'right' && (
-        <span className="flex-shrink-0">{icon}</span>
+        <span className="w-6 h-6 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
+          {icon}
+        </span>
       )}
     </button>
   );
