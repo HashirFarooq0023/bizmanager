@@ -24,6 +24,7 @@ import Button from "../../components/Button";
 import EmptyState from "../../components/EmptyState";
 import LoadingSkeleton from "../../components/LoadingSkeleton";
 import Modal from "../../components/Modal";
+import DualMonthRangePicker from "../../components/DualMonthRangePicker";
 
 const PurchaseOrderList = () => {
     const dispatch = useDispatch();
@@ -235,24 +236,12 @@ const PurchaseOrderList = () => {
                                         <option value="Cancelled">Cancelled</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
-                                    <input
-                                        type="date"
-                                        name="startDate"
-                                        value={filters.startDate || ''}
-                                        onChange={handleFilterChange}
-                                        className="w-full px-3 py-2 text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
-                                    <input
-                                        type="date"
-                                        name="endDate"
-                                        value={filters.endDate || ''}
-                                        onChange={handleFilterChange}
-                                        className="w-full px-3 py-2 text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none"
+                                <div className="md:col-span-2">
+                                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Date Range</label>
+                                    <DualMonthRangePicker
+                                        startDate={filters.startDate || ''}
+                                        endDate={filters.endDate || ''}
+                                        onChange={({ startDate, endDate }) => dispatch(setFilters({ startDate, endDate }))}
                                     />
                                 </div>
                                 <div className="md:col-span-3 flex gap-2 justify-end">

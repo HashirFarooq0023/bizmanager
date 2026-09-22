@@ -25,19 +25,26 @@ const CustomersWithDues = () => {
         };
     }, [dispatch]);
 
+    // Safe customers array
+    const customersList = Array.isArray(customers) ? customers : [];
+
     // Filter customers with outstanding dues (dues > 0)
-    const customersWithDues = customers.filter((c) => c.dues > 0);
+    const customersWithDues = customersList.filter((c) => c && Number(c.dues || 0) > 0);
 
     const filteredCustomers = customersWithDues.filter(
-        (customer) =>
-            customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            customer.phone.includes(searchTerm) ||
-            (customer.email &&
-                customer.email.toLowerCase().includes(searchTerm.toLowerCase()))
+        (customer) => {
+            if (!customer) return false;
+            const query = (searchTerm || '').trim().toLowerCase();
+            if (!query) return true;
+            const name = String(customer.name || '').toLowerCase();
+            const phone = String(customer.phone || '');
+            const email = String(customer.email || '').toLowerCase();
+            return name.includes(query) || phone.includes(query) || email.includes(query);
+        }
     );
 
     const totalOutstandingDues = customersWithDues.reduce(
-        (sum, c) => sum + c.dues,
+        (sum, c) => sum + Number(c?.dues || 0),
         0
     );
 
@@ -193,63 +200,69 @@ const CustomersWithDues = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white dark:bg-[rgb(var(--color-table-row))] divide-y divide-gray-200 dark:divide-[rgb(var(--color-border))]">
-                                    {filteredCustomers.map((customer) => (
-                                        <tr
-                                            key={customer._id}
-                                            className="hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]"
-                                        >
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex items-center">
-                                                    <div className="w-10 h-10 bg-indigo-600 dark:bg-[rgb(var(--color-primary))] rounded-full flex items-center justify-center">
-                                                        <span className="text-white font-bold">
-                                                            {customer.name.charAt(0).toUpperCase()}
-                                                        </span>
-                                                    </div>
-                                                    <div className="ml-4">
-                                                        <div className="text-sm font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
-                                                            {customer.name}
+                                    {filteredCustomers.map((customer, idx) => {
+                                        const duesAmt = Number(customer?.dues || 0);
+                                        const custName = String(customer?.name || 'Customer').trim();
+                                        const custInitial = (custName || 'C')[0]?.toUpperCase() || 'C';
+
+                                        return (
+                                            <tr
+                                                key={customer?._id || `cust-due-${idx}`}
+                                                className="hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]"
+                                            >
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex items-center">
+                                                        <div className="w-10 h-10 bg-violet-600 rounded-full flex items-center justify-center">
+                                                            <span className="text-white font-bold">
+                                                                {custInitial}
+                                                            </span>
+                                                        </div>
+                                                        <div className="ml-4">
+                                                            <div className="text-sm font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
+                                                                {custName}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">
-                                                    {customer.phone}
-                                                </div>
-                                                <div className="text-sm text-gray-500 dark:text-[rgb(var(--color-text-secondary))]">
-                                                    {customer.email || t('noEmail', 'No email')}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">
-                                                    {customer.address || "—"}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                    Rs. {customer.dues.toFixed(2)}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => navigate(`/customers/${customer._id}`)}
-                                                    className="text-indigo-600 dark:text-[rgb(var(--color-primary))] hover:text-indigo-900 dark:hover:text-[rgb(var(--color-primary-hover))] mr-4"
-                                                >
-                                                    {t('common:view', 'View')}
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        navigate(`/customers/adjust-due/${customer._id}`)
-                                                    }
-                                                    className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-500"
-                                                >
-                                                    {t('adjustDue', 'Adjust Due')}
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">
+                                                        {customer?.phone || "—"}
+                                                    </div>
+                                                    <div className="text-sm text-gray-500 dark:text-[rgb(var(--color-text-secondary))]">
+                                                        {customer?.email || t('noEmail', 'No email')}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="text-sm text-gray-900 dark:text-[rgb(var(--color-text))]">
+                                                        {customer?.address || "—"}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                        Rs. {duesAmt.toFixed(2)}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => navigate(`/customers/${customer?._id}`)}
+                                                        className="text-indigo-600 dark:text-[rgb(var(--color-primary))] hover:text-indigo-900 dark:hover:text-[rgb(var(--color-primary-hover))] mr-4"
+                                                    >
+                                                        {t('common:view', 'View')}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            navigate(`/customers/adjust-due/${customer?._id}`)
+                                                        }
+                                                        className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-500"
+                                                    >
+                                                        {t('adjustDue', 'Adjust Due')}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>

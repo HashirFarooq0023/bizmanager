@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
 import PageHeader from '../../components/PageHeader';
+import DualMonthRangePicker from '../../components/DualMonthRangePicker';
 import api from '../../services/api';
 
 const PurchaseReturnAnalytics = () => {
@@ -51,36 +52,22 @@ const PurchaseReturnAnalytics = () => {
             />
 
             {/* Date Range Filter */}
-            <div className="bg-card rounded-xl border border-border p-6 mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-main mb-1">{t('reports:startDate')}</label>
-                        <input
-                            type="date"
-                            dir="ltr"
-                            value={dateRange.startDate}
-                            onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
-                            className="w-full px-3 py-2 bg-card border border-border rounded-lg text-main focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+            <div className="bg-card rounded-xl border border-border p-5 mb-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="w-full sm:w-80">
+                        <label className="block text-xs font-medium text-main mb-1.5">{t('reports:dateRange') || 'Date Range'}</label>
+                        <DualMonthRangePicker
+                            startDate={dateRange.startDate}
+                            endDate={dateRange.endDate}
+                            onChange={({ startDate, endDate }) => setDateRange({ startDate, endDate })}
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-main mb-1">{t('reports:endDate')}</label>
-                        <input
-                            type="date"
-                            dir="ltr"
-                            value={dateRange.endDate}
-                            onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
-                            className="w-full px-3 py-2 bg-card border border-border rounded-lg text-main focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
-                        />
-                    </div>
-                    <div className="flex items-end">
-                        <button
-                            onClick={fetchAnalytics}
-                            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
-                        >
-                            {t('reports:applyFilter')}
-                        </button>
-                    </div>
+                    <button
+                        onClick={fetchAnalytics}
+                        className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition font-semibold text-sm cursor-pointer shadow-xs"
+                    >
+                        {t('reports:applyFilter')}
+                    </button>
                 </div>
             </div>
 

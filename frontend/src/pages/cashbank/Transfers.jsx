@@ -1,11 +1,13 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import Layout from '../../components/Layout';
 import PageHeader from '../../components/PageHeader';
 import { getAccounts, createTransfer, reset, getCashBankPosition } from '../../redux/slices/cashbankSlice';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const Transfers = () => {
+    const { isUrdu } = useLanguage();
     const [formData, setFormData] = useState({
         fromAccount: '',
         toAccount: '',
@@ -55,12 +57,14 @@ const Transfers = () => {
         dispatch(createTransfer(formData));
     };
 
+    const safeAccounts = Array.isArray(accounts) ? accounts : [];
+
     const accountOptions = [
-        ...accounts.map(acc => ({
+        ...safeAccounts.map(acc => ({
             value: acc._id,
-            label: `${acc.bankName} - ${acc.accountType} (Rs. ${acc.currentBalance.toLocaleString()})`
+            label: `${acc.bankName} - ${acc.accountType} (Rs. ${(acc.currentBalance || 0).toLocaleString()})`
         })),
-        { value: 'cash', label: `Cash in Hand (Rs. ${position?.cashInHand?.toLocaleString() || 0})` }
+        { value: 'cash', label: `Cash in Hand / کیش ان ہینڈ (Rs. ${position?.cashInHand?.toLocaleString() || 0})` }
     ];
 
     const selectedTo = accountOptions.find(opt => opt.value === formData.toAccount);
@@ -68,111 +72,124 @@ const Transfers = () => {
     // Dynamic balance check
     const fromBalance = formData.fromAccount === 'cash'
         ? (position?.cashInHand || 0)
-        : (accounts.find(acc => acc._id === formData.fromAccount)?.currentBalance || 0);
+        : (safeAccounts.find(acc => acc._id === formData.fromAccount)?.currentBalance || 0);
 
     const insufficientBalance = formData.amount > fromBalance;
 
     return (
         <Layout>
-            <PageHeader title="Transfers" description="Transfer money between accounts" />
+            <PageHeader 
+                title={isUrdu ? "Transfers (فنڈز کی منتقلی)" : "Transfers"} 
+                description={isUrdu ? "Transfer money between accounts / کھاتوں کے درمیان رقم منتقل کریں" : "Transfer money between accounts"} 
+            />
 
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto" dir="ltr">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Transfer Visualization */}
-                    <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-8 transform transition-all duration-300 hover:shadow-xl animate-fade-in">
-                        <h2 className="text-xl font-bold text-gray-900 mb-6 text-center animate-slide-down">New Transfer</h2>
+                    <div className="bg-card border border-default rounded-2xl shadow-xl p-6 sm:p-8 transition-all duration-300 text-left">
+                        <h2 className="text-xl font-bold text-main mb-6 text-center flex items-center justify-center gap-2">
+                            <span>New Transfer</span>
+                            {isUrdu && <span className="text-sm font-urdu text-secondary font-normal">(نئی منتقلی)</span>}
+                        </h2>
 
-                        <div className="flex items-center justify-between mb-8">
+                        <div className="grid grid-cols-1 md:grid-cols-11 gap-4 items-center mb-8">
                             {/* From Account */}
-                            <div className="flex-1 max-w-sm group">
-                                <label className="block text-sm font-medium text-gray-700 mb-3 transition-colors group-hover:text-indigo-600">From Account</label>
-                                <div className="relative transform transition-all duration-200 group-hover:scale-105">
-                                    <select
-                                        value={formData.fromAccount}
-                                        onChange={(e) => setFormData({ ...formData, fromAccount: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-lg appearance-none bg-white transition-all duration-200"
-                                        required
-                                    >
-                                        <option value="">Select source account</option>
-                                        {accountOptions.map(option => (
-                                            <option key={option.value} value={option.value}>{option.label}</option>
-                                        ))}
-                                    </select>
-                                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </div>
+                            <div className="md:col-span-5">
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="text-sm font-semibold text-main">From Account *</label>
+                                    {isUrdu && <span className="text-xs font-urdu text-secondary">کس کھاتے سے</span>}
                                 </div>
+                                <select
+                                    value={formData.fromAccount}
+                                    onChange={(e) => setFormData({ ...formData, fromAccount: e.target.value })}
+                                    className="w-full px-4 py-3 bg-input border border-default rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-main transition text-left"
+                                    required
+                                >
+                                    <option value="">{isUrdu ? 'Select source account (ذریعہ منتخب کریں)' : 'Select source account'}</option>
+                                    {accountOptions.map(option => (
+                                        <option key={option.value} value={option.value}>{option.label}</option>
+                                    ))}
+                                </select>
                                 {formData.fromAccount && (
-                                    <div className={`mt-3 p-3 rounded-lg transform transition-all duration-300 animate-fade-in ${insufficientBalance ? 'bg-red-50' : 'bg-gray-50'}`}>
-                                        <div className="flex items-center">
-                                            <span className={`text-sm font-medium ${insufficientBalance ? 'text-red-700' : 'text-gray-700'}`}>Available Balance:</span>
+                                    <div className={`mt-3 p-3.5 rounded-xl border transition-all ${insufficientBalance ? 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400' : 'bg-hover border-default text-main'}`}>
+                                        <div className="flex items-center justify-between text-xs text-muted mb-1">
+                                            <span>Available Balance</span>
+                                            {isUrdu && <span className="font-urdu">دستیاب رقم</span>}
                                         </div>
-                                        <p className={`text-lg font-bold ${insufficientBalance ? 'text-red-600' : 'text-green-600'}`}>Rs. {fromBalance.toLocaleString()}</p>
+                                        <p className={`text-lg font-bold ${insufficientBalance ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                                            Rs. {fromBalance.toLocaleString()}
+                                        </p>
                                         {insufficientBalance && (
-                                            <p className="text-xs text-red-500 mt-1 font-medium">Insufficient funds for this transfer</p>
+                                            <p className="text-xs text-rose-500 mt-1 font-medium">
+                                                {isUrdu ? 'Insufficient funds for this transfer (رقم ناکافی ہے)' : 'Insufficient funds for this transfer'}
+                                            </p>
                                         )}
                                     </div>
                                 )}
                             </div>
 
                             {/* Transfer Arrow */}
-                            <div className="flex-shrink-0 mx-6">
-                                <div className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${formData.fromAccount && formData.toAccount ? 'bg-indigo-600 text-white animate-bounce' : 'bg-gray-100 text-gray-400'}`}>
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="md:col-span-1 flex justify-center py-2 md:py-0">
+                                <div className={`flex items-center justify-center w-12 h-12 rounded-full border transition-all duration-300 ${formData.fromAccount && formData.toAccount ? 'bg-violet-600 border-violet-500 text-white shadow-md' : 'bg-hover border-default text-muted'}`}>
+                                    <svg className="w-6 h-6 rotate-90 md:rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                     </svg>
                                 </div>
                             </div>
 
                             {/* To Account */}
-                            <div className="flex-1 max-w-sm group">
-                                <label className="block text-sm font-medium text-gray-700 mb-3 transition-colors group-hover:text-indigo-600">To Account</label>
-                                <div className="relative transform transition-all duration-200 group-hover:scale-105">
-                                    <select
-                                        value={formData.toAccount}
-                                        onChange={(e) => setFormData({ ...formData, toAccount: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-lg appearance-none bg-white transition-all duration-200"
-                                        required
-                                    >
-                                        <option value="">Select destination account</option>
-                                        {accountOptions.map(option => (
-                                            <option key={option.value} value={option.value}>{option.label}</option>
-                                        ))}
-                                    </select>
-                                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </div>
+                            <div className="md:col-span-5">
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="text-sm font-semibold text-main">To Account *</label>
+                                    {isUrdu && <span className="text-xs font-urdu text-secondary">کس کھاتے میں</span>}
                                 </div>
+                                <select
+                                    value={formData.toAccount}
+                                    onChange={(e) => setFormData({ ...formData, toAccount: e.target.value })}
+                                    className="w-full px-4 py-3 bg-input border border-default rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-main transition text-left"
+                                    required
+                                >
+                                    <option value="">{isUrdu ? 'Select destination account (منزل منتخب کریں)' : 'Select destination account'}</option>
+                                    {accountOptions.map(option => (
+                                        <option key={option.value} value={option.value}>{option.label}</option>
+                                    ))}
+                                </select>
                                 {selectedTo && (
-                                    <div className="mt-3 p-3 bg-gray-50 rounded-lg transform transition-all duration-300 animate-fade-in">
-                                        <span className="text-sm font-medium text-gray-700">Current Balance:</span>
-                                        <p className="text-lg font-bold text-blue-600">Rs. {
-                                            formData.toAccount === 'cash'
-                                                ? (position?.cashInHand || 0).toLocaleString()
-                                                : (accounts.find(acc => acc._id === formData.toAccount)?.currentBalance || 0).toLocaleString()
-                                        }</p>
+                                    <div className="mt-3 p-3.5 bg-hover border border-default rounded-xl transition-all">
+                                        <div className="flex items-center justify-between text-xs text-muted mb-1">
+                                            <span>Current Balance</span>
+                                            {isUrdu && <span className="font-urdu">موجودہ رقم</span>}
+                                        </div>
+                                        <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                                            Rs. {
+                                                formData.toAccount === 'cash'
+                                                    ? (position?.cashInHand || 0).toLocaleString()
+                                                    : (accounts.find(acc => acc._id === formData.toAccount)?.currentBalance || 0).toLocaleString()
+                                            }
+                                        </p>
                                     </div>
                                 )}
                             </div>
                         </div>
 
                         {/* Amount Section */}
-                        <div className="border-t pt-6">
+                        <div className="border-t border-default pt-6">
                             <div className="max-w-xs mx-auto">
-                                <label className="block text-sm font-medium text-gray-700 mb-3 text-center">Transfer Amount</label>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="text-sm font-semibold text-main text-center w-full">
+                                        <span>Transfer Amount</span>
+                                        {isUrdu && <span className="ml-1.5 text-xs font-urdu text-secondary font-normal">(منتقلی کی رقم)</span>}
+                                    </label>
+                                </div>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span className="text-gray-500 sm:text-sm">Rs. </span>
+                                        <span className="text-muted font-bold">Rs. </span>
                                     </div>
                                     <input
                                         type="number"
                                         value={formData.amount}
                                         onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
-                                        className={`block w-full pl-7 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-lg text-center text-xl font-bold transition-all duration-200 ${insufficientBalance ? 'border-red-300 bg-red-50 text-red-900' : 'border-gray-300'}`}
+                                        className={`block w-full pl-10 pr-4 py-3 bg-input border rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-center text-xl font-bold transition shadow-xs ${insufficientBalance ? 'border-rose-500 bg-rose-500/10 text-rose-600 dark:text-rose-400' : 'border-default text-main'}`}
                                         placeholder="0.00"
                                         required
                                         min="0.01"
@@ -183,25 +200,28 @@ const Transfers = () => {
                         </div>
 
                         {/* Description */}
-                        <div className="border-t pt-6">
+                        <div className="border-t border-default pt-6">
                             <div className="max-w-md mx-auto">
-                                <label className="block text-sm font-medium text-gray-700 mb-3">Description (Optional)</label>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="text-sm font-semibold text-main">Description (Optional)</label>
+                                    {isUrdu && <span className="text-xs font-urdu text-secondary">تفصیل (اختیاری)</span>}
+                                </div>
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     rows={3}
-                                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
-                                    placeholder="Add a note for this transfer..."
+                                    className="block w-full px-4 py-2.5 bg-input border border-default rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-main resize-none transition shadow-xs"
+                                    placeholder={isUrdu ? "Add a note for this transfer... (کوئی نوٹ درج کریں)" : "Add a note for this transfer..."}
                                 />
                             </div>
                         </div>
 
                         {/* Submit Button */}
-                        <div className="border-t pt-6 flex justify-center">
+                        <div className="border-t border-default pt-6 flex justify-center">
                             <button
                                 type="submit"
                                 disabled={isLoading || !formData.fromAccount || !formData.toAccount || formData.amount <= 0 || insufficientBalance || formData.fromAccount === formData.toAccount}
-                                className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center transform transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl"
+                                className="px-8 py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition shadow-lg hover:shadow-violet-500/25 active:scale-95"
                             >
                                 {isLoading ? (
                                     <>
@@ -209,14 +229,19 @@ const Transfers = () => {
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                        Processing Transfer...
+                                        <span>{isUrdu ? 'Processing Transfer... (منتقلی جاری ہے...)' : 'Processing Transfer...'}</span>
                                     </>
                                 ) : (
                                     <>
                                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                         </svg>
-                                        {insufficientBalance ? 'Insufficient Balance' : 'Transfer Money'}
+                                        <span>
+                                            {insufficientBalance 
+                                                ? (isUrdu ? 'Insufficient Balance / رقم ناکافی ہے' : 'Insufficient Balance')
+                                                : (isUrdu ? 'Transfer Money / رقم منتقل کریں' : 'Transfer Money')
+                                            }
+                                        </span>
                                     </>
                                 )}
                             </button>

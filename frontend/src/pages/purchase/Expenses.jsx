@@ -358,118 +358,126 @@ const Expenses = () => {
                 </div>
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                     {/* Total Expenses */}
-                    <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg p-4 border dark:border-[rgb(var(--color-border))] transition-all duration-200 hover:shadow-lg">
+                    <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-xs border border-slate-200/80 dark:border-zinc-800/80 p-4 sm:p-5 transition-shadow hover:shadow-sm">
                         <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-full">
-                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="p-3 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 rounded-xl">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
-                            <div>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">{summary?.totalExpenses?.amount ? formatCurrency(summary.totalExpenses.amount) : formatCurrency(0)}</p>
-                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">{t('purchase:totalExpenses', 'Total Expenses')}</p>
-                                <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{t('purchase:entriesCount', { count: summary?.totalExpenses?.count || 0, defaultValue: `${summary?.totalExpenses?.count || 0} entries` })}</p>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-xl sm:text-2xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100 truncate">{summary?.totalExpenses?.amount ? formatCurrency(summary.totalExpenses.amount) : formatCurrency(0)}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-wide font-medium">{t('purchase:totalExpenses', 'Total Expenses')}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('purchase:entriesCount', { count: summary?.totalExpenses?.count || 0, defaultValue: `${summary?.totalExpenses?.count || 0} entries` })}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* This Month */}
-                    <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg p-4 border dark:border-[rgb(var(--color-border))] transition-all duration-200 hover:shadow-lg">
+                    <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-xs border border-slate-200/80 dark:border-zinc-800/80 p-4 sm:p-5 transition-shadow hover:shadow-sm">
                         <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 rounded-full">
-                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-xl">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <div>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">{summary?.thisMonth?.amount ? formatCurrency(summary.thisMonth.amount) : formatCurrency(0)}</p>
-                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">{t('purchase:thisMonth', 'This Month')}</p>
-                                <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{t('purchase:expensesCount', { count: summary?.thisMonth?.count || 0, defaultValue: `${summary?.thisMonth?.count || 0} expenses` })}</p>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-xl sm:text-2xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100 truncate">{summary?.thisMonth?.amount ? formatCurrency(summary.thisMonth.amount) : formatCurrency(0)}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-wide font-medium">{t('purchase:thisMonth', 'This Month')}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('purchase:expensesCount', { count: summary?.thisMonth?.count || 0, defaultValue: `${summary?.thisMonth?.count || 0} expenses` })}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Top Category */}
-                    <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg p-4 border dark:border-[rgb(var(--color-border))] transition-all duration-200 hover:shadow-lg">
+                    <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-xs border border-slate-200/80 dark:border-zinc-800/80 p-4 sm:p-5 transition-shadow hover:shadow-sm">
                         <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 rounded-full">
-                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="p-3 bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 rounded-xl">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                 </svg>
                             </div>
-                            <div>
-                                <p className="text-lg font-bold text-gray-900 dark:text-[rgb(var(--color-text))] truncate">{summary?.categoryBreakdown && summary.categoryBreakdown.length > 0 ? summary.categoryBreakdown[0].categoryName : 'N/A'}</p>
-                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">{t('purchase:topCategory', 'Top Category')}</p>
-                                <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{summary?.categoryBreakdown && summary.categoryBreakdown.length > 0 ? formatCurrency(summary.categoryBreakdown[0].total) : 'No data'}</p>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-zinc-100 truncate">{summary?.categoryBreakdown && summary.categoryBreakdown.length > 0 ? summary.categoryBreakdown[0].categoryName : 'N/A'}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-wide font-medium">{t('purchase:topCategory', 'Top Category')}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{summary?.categoryBreakdown && summary.categoryBreakdown.length > 0 ? formatCurrency(summary.categoryBreakdown[0].total) : 'No data'}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Average Expense */}
-                    <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg p-4 border dark:border-[rgb(var(--color-border))] transition-all duration-200 hover:shadow-lg">
+                    <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-xs border border-slate-200/80 dark:border-zinc-800/80 p-4 sm:p-5 transition-shadow hover:shadow-sm">
                         <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-gradient-to-br from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700 rounded-full">
-                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="p-3 bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 rounded-xl">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                                 </svg>
                             </div>
-                            <div>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">{summary?.totalExpenses?.count && summary?.totalExpenses?.amount ? formatCurrency(summary.totalExpenses.amount / summary.totalExpenses.count) : formatCurrency(0)}</p>
-                                <p className="text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))] uppercase tracking-wide">{t('purchase:averageExpense', 'Average Expense')}</p>
-                                <p className="text-xs text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">{t('purchase:perTransaction', 'Per transaction')}</p>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-xl sm:text-2xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100 truncate">{summary?.totalExpenses?.count && summary?.totalExpenses?.amount ? formatCurrency(summary.totalExpenses.amount / summary.totalExpenses.count) : formatCurrency(0)}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-wide font-medium">{t('purchase:averageExpense', 'Average Expense')}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400">{t('purchase:perTransaction', 'Per transaction')}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Action Bar */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
                         <button
                             onClick={() => {
                                 setEditingExpense(null);
                                 setShowForm(true);
                             }}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-xs cursor-pointer"
                         >
-                            <FiPlus className="w-5 h-5" />
+                            <FiPlus className="w-4 h-4" />
                             {t('purchase:addExpense', 'Add Expense')}
                         </button>
                         <button
                             onClick={() => setShowFilters(!showFilters)}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            className={`flex items-center gap-2 px-3.5 py-2 text-sm font-medium border rounded-xl transition-colors cursor-pointer ${
+                                showFilters
+                                    ? 'border-violet-600 bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:border-violet-600 dark:text-violet-300 ring-2 ring-violet-500/20'
+                                    : 'border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-700'
+                            }`}
                         >
-                            <FiFilter className="w-5 h-5" />
-                            {t('purchase:filters', 'Filters')}
-                            {showFilters ? <FiChevronUp /> : <FiChevronDown />}
+                            <FiFilter className={`w-4 h-4 ${showFilters ? 'text-violet-600 dark:text-violet-400' : 'text-slate-500 dark:text-zinc-400'}`} />
+                            <span>{t('purchase:filters', 'Filters')}</span>
+                            {Object.keys(filters).some(k => !['page', 'limit', 'sortBy', 'sortOrder'].includes(k) && filters[k]) && (
+                                <span className="w-2 h-2 rounded-full bg-violet-600 dark:bg-violet-400" />
+                            )}
+                            {showFilters ? <FiChevronUp className="w-3.5 h-3.5" /> : <FiChevronDown className="w-3.5 h-3.5" />}
                         </button>
                         <button
                             onClick={() => {
                                 dispatch(getAllExpenses(filters));
                                 dispatch(getExpenseSummary());
                             }}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+                            title={t('purchase:refresh', 'Refresh')}
                         >
-                            <FiRefreshCw className="w-5 h-5" />
-                            {t('purchase:refresh', 'Refresh')}
+                            <FiRefreshCw className="w-4 h-4" />
+                            <span className="hidden xs:inline">{t('purchase:refresh', 'Refresh')}</span>
                         </button>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <button
                             onClick={() => handleExport('pdf')}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
                         >
-                            <FiDownload className="w-5 h-5" />
+                            <FiDownload className="w-4 h-4" />
                             {t('purchase:exportPdf', 'Export PDF')}
                         </button>
                         <button
                             onClick={() => handleExport('excel')}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
                         >
-                            <FiDownload className="w-5 h-5" />
+                            <FiDownload className="w-4 h-4" />
                             {t('purchase:exportExcel', 'Export Excel')}
                         </button>
                     </div>
@@ -497,35 +505,37 @@ const Expenses = () => {
                 )}
 
                 {/* Data Table */}
-                <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))]">
-                    <DataTable
-                        columns={columns}
-                        data={expenses || []}
-                        isLoading={isLoading}
-                        emptyMessage={t('purchase:noExpensesFound', "No expenses found. Click 'Add Expense' to create your first expense.")}
-                    />
+                <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-xs border border-slate-200/80 dark:border-zinc-800/80 overflow-hidden">
+                    <div className="overflow-x-auto min-w-0">
+                        <DataTable
+                            columns={columns}
+                            data={expenses || []}
+                            isLoading={isLoading}
+                            emptyMessage={t('purchase:noExpensesFound', "No expenses found. Click 'Add Expense' to create your first expense.")}
+                        />
+                    </div>
 
                     {/* Pagination */}
                     {pagination && pagination.totalPages > 1 && (
-                        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                            <div className="text-sm text-gray-700">
+                        <div className="px-4 sm:px-6 py-3 border-t border-slate-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <div className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 text-center sm:text-left">
                                 {t('purchase:showingResults', { from: ((pagination.currentPage - 1) * filters.limit) + 1, to: Math.min(pagination.currentPage * filters.limit, pagination.totalItems), total: pagination.totalItems, defaultValue: `Showing ${((pagination.currentPage - 1) * filters.limit) + 1} to ${Math.min(pagination.currentPage * filters.limit, pagination.totalItems)} of ${pagination.totalItems} results` })}
                             </div>
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => handlePageChange(pagination.currentPage - 1)}
                                     disabled={!pagination.hasPrevPage}
-                                    className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                    className="px-3 py-1.5 text-xs sm:text-sm font-medium border border-slate-200 dark:border-zinc-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
                                 >
                                     {t('common:previous', 'Previous')}
                                 </button>
-                                <span className="text-sm text-gray-700">
+                                <span className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
                                     {t('purchase:pageOf', { current: pagination.currentPage, total: pagination.totalPages, defaultValue: `Page ${pagination.currentPage} of ${pagination.totalPages}` })}
                                 </span>
                                 <button
                                     onClick={() => handlePageChange(pagination.currentPage + 1)}
                                     disabled={!pagination.hasNextPage}
-                                    className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                    className="px-3 py-1.5 text-xs sm:text-sm font-medium border border-slate-200 dark:border-zinc-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors"
                                 >
                                     {t('common:next', 'Next')}
                                 </button>

@@ -3,14 +3,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../contexts/LanguageContext';
 import { getAllItems } from '../redux/slices/inventorySlice';
 import { getAllCustomers, addCustomer, reset as resetCustomer } from '../redux/slices/customerSlice';
 import { createInvoice, reset, clearInvoice } from '../redux/slices/posSlice';
 import { getAccounts } from '../redux/slices/cashbankSlice';
 import Layout from '../components/Layout';
+import POSReturnModal from '../components/POSReturnModal';
+import DenominationBreakdown from '../components/DenominationBreakdown';
 
 const POS = () => {
   const { t } = useTranslation(['pos', 'common']);
+  const { isUrdu } = useLanguage();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { items = [] } = useSelector((state) => state.inventory);
@@ -73,7 +77,7 @@ const POS = () => {
   const [barcodeInput, setBarcodeInput] = useState('');
   const [showUnpaidConfirm, setShowUnpaidConfirm] = useState(false);
   const [showOverpaymentConfirm, setShowOverpaymentConfirm] = useState(false);
-  const [showWalkinChangeConfirm, setShowWalkinChangeConfirm] = useState(false);
+  const [showReturnModal, setShowReturnModal] = useState(false);
 
   // Hold orders state - Load from localStorage
   const [holdOrders, setHoldOrders] = useState(() => {
@@ -94,6 +98,13 @@ const POS = () => {
     dispatch(getAllCustomers());
     dispatch(getAccounts());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (isError && message) {
+      toast.error(message);
+      dispatch(reset());
+    }
+  }, [isError, message, dispatch]);
 
   useEffect(() => {
     if (isSuccess && invoice) {
@@ -457,7 +468,8 @@ const POS = () => {
   };
 
   const applySplitPayment = () => {
-    const total = calculateSplitTotal();
+    const splitTotal = calculateSplitTotal();
+    const saleTotal = calculateTotal();
     // Convert string amounts to numbers and filter out zero/empty amounts
     const validSplitPayments = splitPayments
       .map(p => ({
@@ -466,8 +478,11 @@ const POS = () => {
       }))
       .filter(p => p.amount > 0);
 
+    const change = Math.max(0, splitTotal - saleTotal);
+
     updateTabData({
-      paidAmount: total.toString(),
+      paidAmount: splitTotal.toString(),
+      changeReturned: change > 0 ? change.toFixed(2) : '',
       paymentMethod: 'split',
       splitPaymentDetails: validSplitPayments
     });
@@ -545,19 +560,13 @@ const POS = () => {
           </tr>
           ${balance > 0 ? `
             <tr>
-              <td>${t('pos:changeReturnedLabel')}</td>
-              <td class="right">Rs. ${(parseFloat(activeTab.changeReturned) || 0).toFixed(2)}</td>
+              <td>${t('pos:changeToReturn', 'Change to Return:')}</td>
+              <td class="right bold">Rs. ${balance.toFixed(2)}</td>
             </tr>
-            ${parseFloat(activeTab.changeReturned) < balance ? `
-              <tr>
-                <td>${t('pos:balanceDue')}</td>
-                <td class="right bold">Rs. ${(balance - parseFloat(activeTab.changeReturned || 0)).toFixed(2)}</td>
-              </tr>
-            ` : ''}
           ` : `
             <tr>
               <td>${t('pos:balanceDue')}</td>
-              <td class="right bold">Rs. ${Math.max(0, balance).toFixed(2)}</td>
+              <td class="right bold">Rs. ${Math.max(0, -balance).toFixed(2)}</td>
             </tr>
           `}
         </table>
@@ -574,27 +583,18 @@ const POS = () => {
   // Checkout
   const handleCheckout = () => {
     if (activeTab.cart.length === 0) {
-      alert('Cart is empty!');
+      toast.warning(t('pos:cartEmptyWarning', 'Cart is empty! Please add items to proceed.'));
       return;
     }
 
     const total = calculateTotal();
-    const paid = parseFloat(activeTab.paidAmount) || 0;
+    const paid = activeTab.paidAmount !== '' && activeTab.paidAmount !== undefined
+      ? (parseFloat(activeTab.paidAmount) || 0)
+      : total;
 
     if (paid < 0) {
       toast.error('Invalid payment amount!');
       return;
-    }
-
-    // CRITICAL VALIDATION: Prevent Change Returned from exceeding Change to Return
-    if (paid > total) {
-      const changeRequired = paid - total;
-      const changeReturned = parseFloat(activeTab.changeReturned) || 0;
-
-      if (changeReturned > changeRequired) {
-        toast.warning('You are returning more amount than required. Please correct the change returned.');
-        return;
-      }
     }
 
     // Check if walk-in customer is trying to take due
@@ -603,41 +603,20 @@ const POS = () => {
       return;
     }
 
-    // Enforce full change return for walk-in customers on overpayment
-    if (!activeTab.customer && paid > total) {
-      const changeRequired = paid - total;
-      const changeReturned = parseFloat(activeTab.changeReturned) || 0;
-      if (changeReturned < changeRequired) {
-        setShowWalkinChangeConfirm(true);
-        return;
-      }
-    }
-
     // Show confirmation popup for unpaid invoices (only for registered customers)
     if (activeTab.customer && paid < total) {
       setShowUnpaidConfirm(true);
       return;
     }
 
-    // Check for overpayment without full change returned (only for saved customers)
-    if (activeTab.customer && paid > total) {
-      const changeRequired = paid - total;
-      const changeReturned = parseFloat(activeTab.changeReturned) || 0;
-
-      // If not all change is returned, show confirmation
-      if (changeReturned < changeRequired) {
-        setShowOverpaymentConfirm(true);
-        return;
-      }
-    }
-
-    // Proceed with checkout for fully paid invoices or after confirmation
+    // Proceed with checkout for fully paid/overpaid invoices or after confirmation
     proceedWithCheckout();
   };
 
   // Actual checkout logic
   const proceedWithCheckout = () => {
     setShowUnpaidConfirm(false);
+    setShowOverpaymentConfirm(false);
 
     // Validate bank account selection
     if (activeTab.paymentMethod === 'bank_transfer' && !activeTab.bankAccount) {
@@ -645,9 +624,23 @@ const POS = () => {
       return;
     }
 
-    console.log('Active tab:', { paymentMethod: activeTab.paymentMethod, bankAccount: activeTab.bankAccount });
-
+    const total = calculateTotal();
+    const paid = activeTab.paidAmount !== '' && activeTab.paidAmount !== undefined
+      ? (parseFloat(activeTab.paidAmount) || 0)
+      : total;
     const creditApplied = getCreditApplied();
+    const changeRequired = Math.max(0, paid - total);
+
+    // Default changeReturned to full changeRequired automatically
+    let changeReturned = changeRequired;
+    if (activeTab.customer && activeTab.changeReturned !== '' && activeTab.changeReturned !== undefined && activeTab.changeReturned !== null) {
+      const explicitReturned = parseFloat(activeTab.changeReturned);
+      if (!isNaN(explicitReturned) && explicitReturned <= changeRequired) {
+        changeReturned = explicitReturned;
+      }
+    }
+
+    console.log('Active tab:', { paymentMethod: activeTab.paymentMethod, bankAccount: activeTab.bankAccount });
 
     const invoiceData = {
       customerId: activeTab.customer?._id || null,
@@ -664,7 +657,7 @@ const POS = () => {
       previousDueAmount: parseFloat(activeTab.previousDueApplied) || 0,
       paymentMethod: activeTab.paymentMethod,
       bankAccount: activeTab.paymentMethod === 'bank_transfer' ? activeTab.bankAccount : null,
-      changeReturned: parseFloat(activeTab.changeReturned) || 0,
+      changeReturned,
       splitPaymentDetails: activeTab.splitPaymentDetails || [],
     };
 
@@ -680,22 +673,36 @@ const POS = () => {
 
   return (
     <Layout>
-      <div className="space-y-5">
+      <div className="space-y-5" dir="ltr">
         {/* Header */}
-        <div className="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-left">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">{t('pos:title')}</h1>
-            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">{t('pos:subtitle')}</p>
+            <h1 className="text-2xl font-bold tracking-tight text-main flex items-center gap-2">
+              <span>Billing Counter (POS)</span>
+              {isUrdu && <span className="text-lg font-urdu text-secondary font-normal">(بلنگ کاؤنٹر / بل بنائیں)</span>}
+            </h1>
+            <p className="text-xs sm:text-sm text-secondary mt-0.5">
+              {isUrdu ? 'Fast counter billing & instant checkout (تیز ترین کاؤنٹر بلنگ اور رسید)' : 'Fast point of sale & billing'}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setShowReturnModal(true)}
+              className="flex items-center gap-2 px-3.5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-semibold shadow-xs transition duration-150 cursor-pointer"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+              </svg>
+              <span>{isUrdu ? 'Sales Return / سامان واپسی' : 'Sales Return'}</span>
+            </button>
+            <button
               onClick={() => setShowHoldOrders(true)}
-              className="flex items-center gap-2 px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold shadow-xs transition duration-150 relative cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-semibold shadow-xs transition duration-150 relative cursor-pointer"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
               </svg>
-              <span>{t('pos:holdOrders')}</span>
+              <span>{isUrdu ? 'Hold Orders / پارک شدہ بل' : 'Hold Orders'}</span>
               {holdOrders.length > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 bg-rose-600 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white">
                   {holdOrders.length}
@@ -704,26 +711,26 @@ const POS = () => {
             </button>
             <button
               onClick={() => navigate('/pos/invoices')}
-              className="flex items-center gap-2 px-3.5 py-2 bg-white hover:bg-gray-50 border border-gray-300/80 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg text-xs font-semibold shadow-xs transition duration-150 cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-2 bg-card hover:bg-hover border border-default text-main rounded-xl text-xs font-semibold shadow-xs transition duration-150 cursor-pointer"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <span>{t('pos:viewInvoices')}</span>
+              <span>{isUrdu ? 'View Invoices / تمام بل' : 'View Invoices'}</span>
             </button>
           </div>
         </div>
 
         {/* Error Message */}
         {isError && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 rounded-lg">
-            <p className="text-red-600 dark:text-red-400 text-sm">{message}</p>
+          <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-left">
+            <p className="text-rose-600 dark:text-rose-400 text-sm font-medium">{message}</p>
           </div>
         )}
 
         {/* Tab System */}
-        <div className="mb-6 bg-card rounded-xl shadow-sm">
-          <div className="flex items-center space-x-1 p-2 border-b overflow-x-auto">
+        <div className="mb-4 bg-card rounded-xl border border-default shadow-xs text-left">
+          <div className="flex items-center gap-1.5 p-2 overflow-x-auto">
             {tabs.map((tab) => (
               <div
                 key={tab.id}
@@ -731,20 +738,21 @@ const POS = () => {
                 onDragStart={(e) => handleDragStart(e, tab.id)}
                 onDragOver={(e) => handleDragOver(e, tab.id)}
                 onDragEnd={handleDragEnd}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg cursor-grab transition select-none ${activeTabId === tab.id
-                  ? 'bg-primary text-white'
-                  : 'bg-surface text-secondary hover:bg-gray-200 dark:hover:bg-gray-700'
+                className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg cursor-grab transition select-none text-xs sm:text-sm ${activeTabId === tab.id
+                  ? 'bg-violet-600 text-white font-semibold shadow-xs'
+                  : 'bg-hover text-secondary hover:text-main'
                   } ${draggedTabId === tab.id ? 'opacity-50' : ''}`}
               >
                 <button
                   onClick={() => setActiveTabId(tab.id)}
                   className="flex items-center space-x-2"
                 >
-                  <span className="font-medium">
-                    {tab.name.startsWith('Tab ') ? `${t('pos:tab')} ${tab.name.replace('Tab ', '')}` : tab.name}
+                  <span>
+                    {tab.name.startsWith('Tab ') ? `Tab ${tab.name.replace('Tab ', '')}` : tab.name}
+                    {isUrdu && ` (ٹیب ${tab.name.replace('Tab ', '')})`}
                   </span>
                   {tab.cart.length > 0 && (
-                    <span className={`px-2 py-0.5 rounded-full text-xs ${activeTabId === tab.id ? 'bg-white text-primary dark:text-indigo-600' : 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300'
+                    <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${activeTabId === tab.id ? 'bg-white/20 text-white' : 'bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300'
                       }`}>
                       {tab.cart.length}
                     </span>
@@ -757,11 +765,11 @@ const POS = () => {
                       closeTab(tab.id);
                     }}
                     className={`ml-1 rounded-full p-0.5 transition-colors ${activeTabId === tab.id
-                      ? 'hover:bg-indigo-500 text-white/70 hover:text-white'
-                      : 'hover:bg-gray-300 text-secondary hover:text-secondary'
+                      ? 'hover:bg-violet-500 text-white/70 hover:text-white'
+                      : 'hover:bg-slate-300 dark:hover:bg-zinc-600 text-muted hover:text-main'
                       }`}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
@@ -770,50 +778,55 @@ const POS = () => {
             ))}
             <button
               onClick={addNewTab}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 whitespace-nowrap"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-500/10 hover:bg-violet-500/20 text-violet-600 dark:text-violet-400 border border-violet-500/20 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors"
             >
-              {t('pos:newTab')}
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>{isUrdu ? '+ New Tab (+ نیا ٹیب)' : '+ New Tab'}</span>
             </button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Side - Products */}
-          <div className="lg:col-span-2 space-y-4">
+          {/* Left Side - Products & Customer */}
+          <div className="lg:col-span-2 space-y-4 text-left">
             {/* Customer Selection */}
-            <div className="bg-card rounded-xl shadow-sm p-4">
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-secondary">
-                  {t('pos:customer')}
-                </label>
+            <div className="bg-card rounded-2xl border border-default shadow-sm p-4 sm:p-5 text-left">
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-semibold text-main">Customer</label>
+                  {isUrdu && <span className="text-xs font-urdu text-secondary font-normal">(گاہک منتخب کریں)</span>}
+                </div>
                 <button
                   onClick={() => setShowAddCustomer(true)}
-                  className="text-primary hover:text-primary-hover text-sm font-medium"
+                  className="text-violet-600 dark:text-violet-400 hover:text-violet-700 text-xs sm:text-sm font-semibold flex items-center gap-1"
                 >
-                  {t('pos:addNewCustomer')}
+                  <span>{isUrdu ? '+ New Customer (+ نیا گاہک بنائیں)' : '+ Add New Customer'}</span>
                 </button>
               </div>
 
               {activeTab.customer ? (
                 <div>
-                  <div className="flex items-center justify-between p-3 bg-surface rounded-lg">
+                  <div className="flex items-center justify-between p-3.5 bg-hover border border-default rounded-xl">
                     <div className="flex-1">
-                      <div className="font-medium text-main">{activeTab.customer.name}</div>
-                      <div className="text-sm text-secondary">{activeTab.customer.phone}</div>
+                      <div className="font-bold text-main">{activeTab.customer.name}</div>
+                      <div className="text-xs text-secondary">{activeTab.customer.phone}</div>
                       {getAvailableCredit() > 0 && (
                         <div className="mt-1 flex items-center space-x-1">
-                          <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
-                          <span className="text-sm font-medium text-green-600">
-                            {t('pos:availableCredit')}: Rs. {getAvailableCredit().toFixed(2)}
+                          <span className="text-xs font-semibold text-emerald-600">
+                            {isUrdu ? `Available Credit / دستیاب کریڈٹ: Rs. ${getAvailableCredit().toFixed(2)}` : `Available Credit: Rs. ${getAvailableCredit().toFixed(2)}`}
                           </span>
                         </div>
                       )}
                     </div>
                     <button
                       onClick={() => updateTabData({ customer: null, applyCreditEnabled: false, availableCredit: 0, creditUsed: 0 })}
-                      className="text-red-600 hover:text-red-700"
+                      className="text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-500/10 transition"
+                      title="Remove customer"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -824,92 +837,95 @@ const POS = () => {
               ) : (
                 <button
                   onClick={() => setShowCustomerSelect(true)}
-                  className="w-full px-4 py-3 border-2 border-dashed border-default rounded-lg text-secondary hover:border-indigo-500 hover:text-indigo-600 transition"
+                  className="w-full px-4 py-3.5 border-2 border-dashed border-default hover:border-violet-500 rounded-xl text-secondary hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-500/5 transition flex items-center justify-between text-left cursor-pointer"
                 >
-                  {t('pos:walkInCustomer')}
+                  <span className="text-sm font-medium">Walk-in Customer</span>
+                  {isUrdu && <span className="text-xs font-urdu text-muted">عام خریدار (گاہک تبدیل کرنے کے لیے کلک کریں)</span>}
                 </button>
               )}
 
               {/* Credit Balance Display */}
-              {
-                activeTab.customer && activeTab.availableCredit > 0 && (
-                  <div className="mt-3 p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800/50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-sm font-medium text-green-800 dark:text-green-300">{t('pos:availableCredit')}</span>
+              {activeTab.customer && activeTab.availableCredit > 0 && (
+                <div className="mt-3 p-3.5 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs sm:text-sm font-semibold text-emerald-800 dark:text-emerald-300">Available Credit</span>
+                        {isUrdu && <span className="text-xs font-urdu text-emerald-700 dark:text-emerald-400">(دستیاب کریڈٹ)</span>}
                       </div>
-                      <span className="text-lg font-bold text-green-600 dark:text-green-400">Rs. {activeTab.availableCredit.toFixed(2)}</span>
                     </div>
+                    <span className="text-base font-bold font-mono text-emerald-600 dark:text-emerald-400">Rs. {activeTab.availableCredit.toFixed(2)}</span>
                   </div>
-                )
-              }
+                </div>
+              )}
 
               {/* Pending Dues Display */}
-              {
-                activeTab.customer && activeTab.customer.dues > 0 && (
-                  <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-800/50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                        <span className="text-sm font-medium text-red-800 dark:text-red-300">{t('pos:pendingDues')}</span>
+              {activeTab.customer && activeTab.customer.dues > 0 && (
+                <div className="mt-3 p-3.5 bg-rose-500/10 rounded-xl border border-rose-500/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <svg className="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs sm:text-sm font-semibold text-rose-800 dark:text-rose-300">Previous Pending Dues</span>
+                        {isUrdu && <span className="text-xs font-urdu text-rose-700 dark:text-rose-400">(سابقہ بقایا ادھار)</span>}
                       </div>
-                      <span className="text-lg font-bold text-red-600 dark:text-red-400">Rs. {activeTab.customer.dues.toFixed(2)}</span>
                     </div>
+                    <span className="text-base font-bold font-mono text-rose-600 dark:text-rose-400">Rs. {activeTab.customer.dues.toFixed(2)}</span>
                   </div>
-                )
-              }
+                </div>
+              )}
             </div>
 
-            {/* Product Search */}
-            <div className="bg-card rounded-xl shadow-sm p-4">
+            {/* Product Search & Barcode */}
+            <div className="bg-card rounded-2xl border border-default shadow-sm p-4 sm:p-5 text-left">
               {/* Barcode Scanner Input */}
               <div className="mb-4">
-                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-sm font-semibold text-main flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                     </svg>
                     <span>Barcode Scanner</span>
                   </span>
-                  <span className="text-xs text-muted font-urdu">بارکوڈ اسکینر</span>
-                </label>
+                  {isUrdu && <span className="text-xs text-secondary font-urdu">بارکوڈ اسکینر</span>}
+                </div>
                 <input
                   type="text"
                   dir="ltr"
                   value={barcodeInput}
                   onChange={(e) => setBarcodeInput(e.target.value)}
                   onKeyPress={handleBarcodeInput}
-                  placeholder={t('pos:scanBarcodePlaceholder', 'Scan barcode or type SKU and press Enter...')}
-                  className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent font-mono text-left"
+                  placeholder={isUrdu ? "Scan barcode or type SKU and press Enter... (بارکوڈ اسکین کریں یا کوڈ لکھ کر Enter دبائیں)" : "Scan barcode or type SKU and press Enter..."}
+                  className="w-full px-4 py-2.5 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 font-mono text-left transition shadow-xs"
                 />
               </div>
 
               {/* Item Search Input */}
               <div className="mb-4">
-                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
-                  <span className="flex items-center gap-1.5">
-                    <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-sm font-semibold text-main flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <span>Search Products</span>
                   </span>
-                  <span className="text-xs text-muted font-urdu">سامان تلاش کریں</span>
-                </label>
+                  {isUrdu && <span className="text-xs text-secondary font-urdu">سامان تلاش کریں</span>}
+                </div>
                 <div className="relative">
                   <input
                     type="text"
                     dir="ltr"
-                    placeholder={t('pos:searchProductsPlaceholder', 'Search by product name or SKU...')}
+                    placeholder={isUrdu ? "Search by product name or SKU... (نام یا کوڈ سے سامان تلاش کریں)" : "Search by product name or SKU..."}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent text-left"
+                    className="w-full pl-10 pr-4 py-2.5 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-left transition shadow-xs"
                   />
-                  <svg className="absolute left-3 top-2.5 w-5 h-5 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="absolute left-3.5 top-3 w-4 h-4 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
@@ -922,61 +938,76 @@ const POS = () => {
                     key={item._id}
                     onClick={() => addToCart(item)}
                     disabled={item.stockQty === 0}
-                    className={`p-4 border-2 rounded-lg text-left transition ${item.stockQty === 0
-                      ? 'border-default bg-surface cursor-not-allowed opacity-50'
-                      : 'border-default hover:border-primary hover:shadow-md dark:hover:bg-[rgb(var(--color-card))]'
+                    className={`p-3.5 border rounded-xl text-left transition-all duration-150 ${item.stockQty === 0
+                      ? 'border-default bg-hover/50 cursor-not-allowed opacity-50'
+                      : 'border-default bg-card hover:border-violet-500 hover:bg-violet-500/5 hover:shadow-xs cursor-pointer'
                       }`}
                   >
-                    <div className="font-medium text-main mb-1 truncate">{item.name}</div>
-                    <div className="text-lg font-bold text-primary">Rs. {item.sellingPrice}</div>
-                    <div className="text-xs text-muted mt-1">{t('pos:stock')}: {item.stockQty} {item.unit}</div>
-                    {item.sku && <div className="text-xs text-muted mt-1">{t('pos:sku')}: {item.sku}</div>}
+                    <div className="font-bold text-main mb-1 truncate text-sm">{item.name}</div>
+                    <div className="text-base font-bold tabular-nums text-violet-600 dark:text-violet-400">Rs. {item.sellingPrice}</div>
+                    <div className="text-xs text-secondary mt-1 flex items-center justify-between">
+                      <span>Stock: {item.stockQty} {item.unit}</span>
+                      {isUrdu && <span className="font-urdu text-[11px]">اسٹاک</span>}
+                    </div>
+                    {item.sku && (
+                      <div className="text-[11px] text-muted mt-0.5 truncate flex items-center justify-between">
+                        <span>SKU: {item.sku}</span>
+                        {isUrdu && <span className="font-urdu text-[10px]">کوڈ</span>}
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
             </div>
-          </div >
+          </div>
 
           {/* Right Side - Cart & Checkout */}
-          < div className="lg:col-span-1" >
-            <div className="bg-card rounded-xl shadow-sm p-6 sticky top-4">
-              <h2 className="text-xl font-bold text-main mb-4">{t('pos:cart')}</h2>
+          <div className="lg:col-span-1" dir="ltr">
+            <div className="bg-card rounded-2xl border border-default shadow-sm p-5 sm:p-6 sticky top-4 text-left">
+              <div className="flex items-center justify-between mb-4 border-b border-default pb-3">
+                <h2 className="text-lg font-bold text-main">Sale Bill / Invoice</h2>
+                {isUrdu && <span className="text-sm font-urdu text-secondary">خریداری کا بل</span>}
+              </div>
 
               {/* Cart Items */}
-              <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
+              <div className="space-y-2.5 mb-4 max-h-64 overflow-y-auto">
                 {activeTab.cart.length === 0 ? (
-                  <p className="text-secondary text-center py-8">{t('pos:cartEmpty')}</p>
+                  <div className="text-secondary text-center py-8">
+                    <p className="font-medium text-sm">Cart is currently empty</p>
+                    {isUrdu && <p className="text-xs font-urdu text-muted mt-1">(بل ابھی خالی ہے)</p>}
+                  </div>
                 ) : (
                   activeTab.cart.map((item) => (
-                    <div key={item.item} className="flex items-center justify-between p-3 bg-surface rounded-lg">
-                      <div className="flex-1">
-                        <div className="font-medium text-main text-sm">{item.name}</div>
-                        <div className="text-xs text-secondary">Rs. {item.price} {t('pos:each')}</div>
+                    <div key={item.item} className="flex items-center justify-between p-3 bg-hover border border-default rounded-xl">
+                      <div className="flex-1 min-w-0 pr-2">
+                        <div className="font-semibold text-main text-sm truncate">{item.name}</div>
+                        <div className="text-xs text-secondary">Rs. {item.price} {isUrdu ? '/ فی دانہ' : 'each'}</div>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1.5">
                         <button
                           onClick={() => updateQuantity(item.item, item.quantity - 1)}
-                          className="w-7 h-7 bg-surface rounded hover:bg-gray-300 dark:hover:bg-gray-600 text-main"
+                          className="w-6 h-6 bg-card border border-default rounded-md hover:bg-hover text-main font-bold flex items-center justify-center text-xs"
                         >
                           -
                         </button>
-                        <span className="w-8 text-center font-medium text-main">{item.quantity}</span>
+                        <span className="w-6 text-center font-bold text-main text-xs">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.item, item.quantity + 1)}
-                          className="w-7 h-7 bg-surface rounded hover:bg-gray-300 dark:hover:bg-gray-600 text-main"
+                          className="w-6 h-6 bg-card border border-default rounded-md hover:bg-hover text-main font-bold flex items-center justify-center text-xs"
                         >
                           +
                         </button>
                         <button
                           onClick={() => removeFromCart(item.item)}
-                          className="ml-2 text-red-600 hover:text-red-800"
+                          className="ml-1.5 text-rose-500 hover:text-rose-700 p-1"
+                          title="Remove item"
                         >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
                       </div>
-                      <div className="ml-3 font-bold text-main w-20 text-right">Rs. {item.total.toFixed(2)}</div>
+                      <div className="ml-2 font-bold text-main text-sm text-right tabular-nums">Rs. {item.total.toFixed(2)}</div>
                     </div>
                   ))
                 )}
@@ -984,10 +1015,10 @@ const POS = () => {
 
               {/* Discount */}
               <div className="mb-4">
-                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-2">
-                  <span>{t('pos:discountLabel', 'Discount (Rs.)')}</span>
-                  <span className="text-xs text-muted font-urdu">رعایت (روپے)</span>
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs sm:text-sm font-semibold text-main">Discount (Rs.)</label>
+                  {isUrdu && <span className="text-xs font-urdu text-secondary">رعایت (روپے)</span>}
+                </div>
                 <input
                   type="number"
                   dir="ltr"
@@ -995,175 +1026,160 @@ const POS = () => {
                   onChange={(e) => updateTabData({ discount: parseFloat(e.target.value) || 0 })}
                   min="0"
                   step="0.01"
-                  className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent font-mono text-left"
-                  placeholder={t('pos:enterDiscount', '0.00')}
+                  className="w-full px-3.5 py-2 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 font-mono text-left shadow-xs transition"
+                  placeholder="0.00"
                 />
               </div>
 
               {/* Apply Customer Credit */}
               {activeTab.customer && getAvailableCredit() > 0 && (
                 <div className="mb-4">
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={activeTab.applyCreditEnabled}
-                      onChange={(e) => updateTabData({ applyCreditEnabled: e.target.checked })}
-                      className="w-4 h-4 text-green-600 border-default rounded focus:ring-green-500"
-                    />
-                    <span className="text-sm font-medium text-secondary">
-                      {t('pos:applyCustomerCredit', { amount: getAvailableCredit().toFixed(2) })}
-                    </span>
+                  <label className="flex items-center justify-between cursor-pointer p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={activeTab.applyCreditEnabled}
+                        onChange={(e) => updateTabData({ applyCreditEnabled: e.target.checked })}
+                        className="w-4 h-4 text-emerald-600 border-default rounded focus:ring-emerald-500"
+                      />
+                      <span className="text-xs sm:text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+                        Apply Customer Credit (Rs. {getAvailableCredit().toFixed(2)})
+                      </span>
+                    </div>
+                    {isUrdu && <span className="text-xs font-urdu text-emerald-700 dark:text-emerald-400">کریڈٹ استعمال کریں</span>}
                   </label>
                   {activeTab.applyCreditEnabled && (
-                    <div className="mt-2 p-2 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/50 rounded text-sm text-green-800 dark:text-green-300">
-                      {t('pos:creditWillBeApplied', { amount: getCreditApplied().toFixed(2) })}
+                    <div className="mt-2 p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-xs text-emerald-700 dark:text-emerald-300">
+                      {isUrdu 
+                        ? `Rs. ${getCreditApplied().toFixed(2)} will be deducted from customer credit (کریڈٹ کٹوتی ہوگی)`
+                        : `Rs. ${getCreditApplied().toFixed(2)} will be applied from customer credit`
+                      }
                     </div>
                   )}
                 </div>
               )}
 
               {/* Totals */}
-              <div className="border-t border-default pt-4 mb-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-secondary">{t('pos:subtotal')}</span>
-                  <span className="font-medium">Rs. {subtotal.toFixed(2)}</span>
+              <div className="border-t border-default pt-3.5 mb-4 space-y-2">
+                <div className="flex items-center justify-between text-xs sm:text-sm">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-secondary">Subtotal:</span>
+                    {isUrdu && <span className="text-xs font-urdu text-muted">(سب ٹوٹل)</span>}
+                  </div>
+                  <span className="font-semibold text-main tabular-nums">Rs. {subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-secondary">{t('pos:discount')}</span>
-                  <span className="font-medium">-Rs. {activeTab.discount.toFixed(2)}</span>
+
+                <div className="flex items-center justify-between text-xs sm:text-sm">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-secondary">Discount:</span>
+                    {isUrdu && <span className="text-xs font-urdu text-muted">(رعایت)</span>}
+                  </div>
+                  <span className="font-semibold text-main tabular-nums">-Rs. {activeTab.discount.toFixed(2)}</span>
                 </div>
 
                 {/* Previous Due Handling */}
                 {activeTab.customer && (activeTab.customer.dues || 0) > 0 && (
-                  <div className="space-y-2">
+                  <div className="space-y-2 pt-1 border-t border-dashed border-default">
                     {activeTab.previousDueApplied > 0 ? (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">{t('pos:previousDueAdded')}</span>
-                        <span className="font-medium text-amber-600">+Rs. {activeTab.previousDueApplied.toFixed(2)}</span>
+                      <div className="flex items-center justify-between text-xs sm:text-sm">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-amber-600 font-medium">Previous Due Added:</span>
+                          {isUrdu && <span className="text-xs font-urdu text-amber-500">(سابقہ ادھار شامل)</span>}
+                        </div>
+                        <span className="font-bold text-amber-600 tabular-nums">+Rs. {activeTab.previousDueApplied.toFixed(2)}</span>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">{t('pos:outstandingPreviousDue')}</span>
-                        <span className="font-medium">Rs. {(activeTab.customer.dues || 0).toFixed(2)}</span>
+                      <div className="flex items-center justify-between text-xs sm:text-sm">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-secondary">Outstanding Previous Due:</span>
+                          {isUrdu && <span className="text-xs font-urdu text-muted">(سابقہ بقایا)</span>}
+                        </div>
+                        <span className="font-semibold text-main tabular-nums">Rs. {(activeTab.customer.dues || 0).toFixed(2)}</span>
                       </div>
                     )}
 
                     {activeTab.previousDueApplied > 0 ? (
                       <button
                         onClick={() => updateTabData({ previousDueApplied: 0 })}
-                        className="w-full px-3 py-2 text-sm bg-amber-100 hover:bg-amber-200 text-amber-800 rounded"
+                        className="w-full px-3 py-1.5 text-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded-lg font-medium transition"
                       >
-                        {t('pos:removePreviousDue')}
+                        {isUrdu ? 'Remove Previous Due (سابقہ ادھار ختم کریں)' : 'Remove Previous Due'}
                       </button>
                     ) : (
                       <button
                         onClick={() => updateTabData({ previousDueApplied: Math.max(0, activeTab.customer.dues || 0) })}
-                        className="w-full px-3 py-2 text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded"
+                        className="w-full px-3 py-1.5 text-xs bg-violet-500/10 hover:bg-violet-500/20 text-violet-700 dark:text-violet-300 rounded-lg font-semibold transition"
                       >
-                        {t('pos:addPreviousDue')}
+                        {isUrdu ? '+ Add Previous Due (+ سابقہ ادھار بل میں شامل کریں)' : '+ Add Previous Due to Bill'}
                       </button>
                     )}
                   </div>
                 )}
 
-                <div className="flex justify-between text-lg font-bold border-t pt-2">
-                  <span>{t('pos:total')}</span>
-                  <span className="text-indigo-600">Rs. {(subtotal - activeTab.discount + (parseFloat(activeTab.previousDueApplied) || 0)).toFixed(2)}</span>
-                </div>
-                {activeTab.applyCreditEnabled && getCreditApplied() > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-secondary">{t('pos:creditApplied')}</span>
-                    <span className="font-medium text-green-600">-Rs. {getCreditApplied().toFixed(2)}</span>
+                <div className="flex items-center justify-between text-base font-bold border-t border-default pt-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-main">Total Amount:</span>
+                    {isUrdu && <span className="text-xs font-urdu text-secondary font-normal">(کل رقم)</span>}
                   </div>
-                )}
+                  <span className="text-violet-600 dark:text-violet-400 tabular-nums">
+                    Rs. {(subtotal - activeTab.discount + (parseFloat(activeTab.previousDueApplied) || 0)).toFixed(2)}
+                  </span>
+                </div>
+
                 {activeTab.applyCreditEnabled && getCreditApplied() > 0 && (
-                  <div className="flex justify-between text-lg font-bold text-indigo-600 border-t pt-2">
-                    <span>{t('pos:amountToPay')}</span>
-                    <span>Rs. {total.toFixed(2)}</span>
+                  <div className="flex items-center justify-between text-xs sm:text-sm text-emerald-600">
+                    <div className="flex items-center gap-1.5">
+                      <span>Credit Applied:</span>
+                      {isUrdu && <span className="font-urdu">(کریڈٹ کٹوتی)</span>}
+                    </div>
+                    <span className="font-bold tabular-nums">-Rs. {getCreditApplied().toFixed(2)}</span>
                   </div>
                 )}
 
-                {/* Payment Method Display with Split Info */}
                 {activeTab.applyCreditEnabled && getCreditApplied() > 0 && (
-                  <div className="mt-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                    <div className="text-xs font-semibold text-purple-700 mb-2">{t('pos:paymentBreakdown')}</div>
-                    <div className="space-y-1 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-purple-700">{t('pos:availableCredit')}:</span>
-                        <span className="font-medium text-purple-900">Rs. {getCreditApplied().toFixed(2)}</span>
-                      </div>
-                      {paid > 0 && (
-                        <div className="flex justify-between">
-                          <span className="text-purple-700">{activeTab.paymentMethod.charAt(0).toUpperCase() + activeTab.paymentMethod.slice(1)}:</span>
-                          <span className="font-medium text-purple-900">Rs. {paid.toFixed(2)}</span>
-                        </div>
-                      )}
+                  <div className="flex items-center justify-between text-base font-bold text-violet-600 dark:text-violet-400 border-t border-default pt-2">
+                    <div className="flex items-center gap-1.5">
+                      <span>Amount to Pay:</span>
+                      {isUrdu && <span className="text-xs font-urdu text-secondary font-normal">(قابل ادائیگی)</span>}
                     </div>
+                    <span className="tabular-nums">Rs. {total.toFixed(2)}</span>
                   </div>
                 )}
               </div>
 
               {/* Payment Method */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-secondary mb-2">{t('pos:paymentMethod')}</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs sm:text-sm font-semibold text-main">Payment Method</label>
+                  {isUrdu && <span className="text-xs font-urdu text-secondary">ادائیگی کا طریقہ</span>}
+                </div>
                 <select
                   value={activeTab.paymentMethod}
                   onChange={(e) => updateTabData({ paymentMethod: e.target.value })}
-                  className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-left transition shadow-xs"
                 >
-                  <option value="cash">{t('pos:cash')}</option>
-                  <option value="upi">{t('pos:upiOrDigital')}</option>
-                  <option value="card">{t('pos:card')}</option>
-                  <option value="bank_transfer">{t('pos:bankTransfer')}</option>
-                  {activeTab.customer && <option value="due">{t('pos:creditDue')}</option>}
+                  <option value="cash">{isUrdu ? 'Cash / نقد' : 'Cash'}</option>
+                  <option value="upi">{isUrdu ? 'Online / UPI / ڈیجیٹل' : 'Online / UPI'}</option>
+                  <option value="card">{isUrdu ? 'Card / کارڈ' : 'Card'}</option>
+                  <option value="bank_transfer">{isUrdu ? 'Bank Transfer / بینک ٹرانسفر' : 'Bank Transfer'}</option>
+                  {activeTab.customer && <option value="due">{isUrdu ? 'Credit / Due (ادھار کھاتہ)' : 'Credit / Due (Udhaar)'}</option>}
                 </select>
               </div>
-
-              {/* Paid Amount */}
-              <div className="mb-4">
-                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-2">
-                  <span>{t('pos:amountPaidLabel', 'Amount Paid (Rs.)')}</span>
-                  <span className="text-xs text-muted font-urdu">ادا شدہ رقم</span>
-                </label>
-                <input
-                  type="number"
-                  dir="ltr"
-                  value={activeTab.paidAmount}
-                  onChange={(e) => updateTabData({ paidAmount: e.target.value })}
-                  min="0"
-                  step="0.01"
-                  className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent font-mono text-left"
-                  placeholder={t('pos:enterAmount', '0.00')}
-                />
-              </div>
-
-              {/* Balance */}
-              {
-                activeTab.paidAmount && (
-                  <div className={`mb-4 p-3 rounded-lg ${balance >= 0 ? 'bg-green-50 dark:bg-green-950/30' : 'bg-red-50 dark:bg-red-950/30'}`}>
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium text-secondary">
-                        {balance >= 0 ? t('pos:changeToReturn') : t('pos:balanceDue')}
-                      </span>
-                      <span className={`text-xl font-bold ${balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        Rs. {Math.abs(balance).toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                )
-              }
 
               {/* Bank Account Selection */}
               {activeTab.paymentMethod === 'bank_transfer' && (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-secondary mb-2">{t('pos:selectBankAccount')}</label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs sm:text-sm font-semibold text-main">Select Bank Account</label>
+                    {isUrdu && <span className="text-xs font-urdu text-secondary">بینک کھاتہ منتخب کریں</span>}
+                  </div>
                   <select
                     value={activeTab.bankAccount}
                     onChange={(e) => updateTabData({ bankAccount: e.target.value })}
-                    className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-left transition shadow-xs"
                     required
                   >
-                    <option value="">{t('pos:chooseAccount')}</option>
+                    <option value="">{isUrdu ? 'Choose Account (کھاتہ منتخب کریں)' : 'Choose Account'}</option>
                     {accounts.map(account => (
                       <option key={account._id} value={account._id}>
                         {account.bankName} - {account.accountType} (Rs. {account.currentBalance})
@@ -1173,621 +1189,644 @@ const POS = () => {
                 </div>
               )}
 
-              {/* Change Returned Input - only show if customer paid MORE than total */}
-              {balance > 0 && (
-                <div className="mt-3 pt-3 border-t border-green-200">
-                  <label className="flex items-center justify-between text-sm font-medium text-secondary mb-2">
-                    <span>{t('pos:changeReturnedLabel', 'Change Returned (Rs.)')}</span>
-                    <span className="text-xs text-muted font-urdu">واپس کی گئی رقم</span>
-                  </label>
-                  <input
-                    type="number"
-                    dir="ltr"
-                    value={activeTab.changeReturned}
-                    onChange={(e) => updateTabData({ changeReturned: e.target.value })}
-                    min="0"
-                    max={balance}
-                    step="0.01"
-                    className="w-full px-3 py-2 border border-default rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent font-mono text-left"
-                    placeholder={t('pos:enterChangeReturned', '0.00')}
-                  />
+              {/* Paid Amount & Quick Note Selector */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs sm:text-sm font-semibold text-main">Amount Paid / Received (Rs.)</label>
+                  {isUrdu && <span className="text-xs font-urdu text-secondary">وصول شدہ رقم (روپے)</span>}
+                </div>
 
-                  {/* Remaining Change/Credit */}
-                  {activeTab.changeReturned && parseFloat(activeTab.changeReturned) < balance && (
-                    <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-yellow-800 font-medium">
-                          {activeTab.customer ? t('pos:creditDueToCustomer') : t('pos:remainingChangeUnpaid')}
+                {/* Quick Currency Tender Buttons (For illiterate / fast retail shopkeepers) */}
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => updateTabData({ paidAmount: total > 0 ? total.toString() : '' })}
+                    className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-violet-500/10 hover:bg-violet-500/20 text-violet-700 dark:text-violet-300 border border-violet-500/20 transition cursor-pointer"
+                  >
+                    {isUrdu ? `پورا بل (Rs. ${total.toFixed(0)})` : `Exact (Rs. ${total.toFixed(0)})`}
+                  </button>
+
+                  {[5000, 1000, 500, 100].map((noteVal) => (
+                    <button
+                      key={noteVal}
+                      type="button"
+                      onClick={() => updateTabData({ paidAmount: noteVal.toString() })}
+                      className="px-2 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 transition cursor-pointer flex items-center gap-1 font-mono"
+                    >
+                      <span>Rs. {noteVal.toLocaleString()}</span>
+                      <span className="text-[9px] opacity-75">{isUrdu ? 'نوٹ' : 'Note'}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <input
+                  type="number"
+                  dir="ltr"
+                  value={activeTab.paidAmount}
+                  onChange={(e) => updateTabData({ paidAmount: e.target.value })}
+                  min="0"
+                  step="0.01"
+                  className="w-full px-3.5 py-2 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 font-mono text-left transition shadow-xs font-bold text-base"
+                  placeholder="0.00"
+                />
+              </div>
+
+              {/* Balance / Change Banner */}
+              {activeTab.paidAmount && (
+                <div className={`mb-3 p-3.5 rounded-xl border transition-all ${
+                  balance >= 0
+                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-300'
+                    : 'bg-rose-500/10 border-rose-500/20 text-rose-800 dark:text-rose-300'
+                }`}>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold uppercase tracking-wider block">
+                          {balance >= 0 ? 'Change to Return' : 'Balance Due / Udhaar'}
                         </span>
-                        <span className="font-bold text-yellow-900">
-                          Rs. {(balance - parseFloat(activeTab.changeReturned || 0)).toFixed(2)}
-                        </span>
+                        {isUrdu && <span className="text-xs font-urdu font-normal">({balance >= 0 ? 'بقایا واپسی' : 'باقی ادھار'})</span>}
                       </div>
-                      {activeTab.customer && (
-                        <p className="text-xs text-yellow-700 mt-1">
-                          {t('pos:addedAsCreditNotice')}
-                        </p>
+                      {balance > 0 && (
+                        <span className="text-[11px] text-emerald-600/80 dark:text-emerald-400/80">
+                          {isUrdu ? 'گاہک کو واپس کریں' : 'Will be returned to customer'}
+                        </span>
+                      )}
+                      {balance < 0 && (
+                        <span className="text-[11px] text-rose-600/80 dark:text-rose-400/80">
+                          {isUrdu ? 'کھاتے میں ادھار درج ہوگا' : 'Will be added to customer dues'}
+                        </span>
                       )}
                     </div>
-                  )}
-
-                  {/* Full Change Returned Confirmation */}
-                  {activeTab.changeReturned && parseFloat(activeTab.changeReturned) === balance && (
-                    <div className="mt-2 p-2 bg-green-100 border border-green-300 rounded flex items-center text-sm text-green-800">
-                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <span className="font-medium">{t('pos:fullChangeReturnedNotice')}</span>
-                    </div>
-                  )}
+                    <span className={`text-xl font-bold font-mono tabular-nums ${
+                      balance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                    }`}>
+                      Rs. {Math.abs(balance).toFixed(2)}
+                    </span>
+                  </div>
                 </div>
               )}
 
+              {/* Pakistani Currency Denomination Breakdown of Change */}
+              {activeTab.paidAmount && balance > 0 && (
+                <DenominationBreakdown
+                  amount={balance}
+                  label="Change Denomination Breakdown"
+                  urduLabel="بقایا واپسی کے نوٹ (گاہک کو دیں)"
+                  className="mb-4"
+                />
+              )}
+
               {/* Walk-in Customer Warning */}
-              {
-                !activeTab.customer && paid < total && (
-                  <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800/50 rounded-lg">
-                    <p className="text-xs text-yellow-800 dark:text-yellow-300">
-                      {t('pos:walkInWarning')}
-                    </p>
-                  </div>
-                )
-              }
+              {!activeTab.customer && paid < total && (
+                <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                  <p className="text-xs text-amber-700 dark:text-amber-300 font-medium">
+                    {isUrdu 
+                      ? 'Walk-in customers must pay full amount. Please select or add customer for credit. (عام خریدار کے لیے مکمل رقم ضروری ہے۔ ادھار کے لیے گاہک منتخب کریں۔)' 
+                      : 'Walk-in customers must pay full amount. Please add customer details to allow credit.'
+                    }
+                  </p>
+                </div>
+              )}
 
               {/* Checkout Button */}
               <button
                 onClick={handleCheckout}
                 disabled={activeTab.cart.length === 0 || isLoading}
-                className="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition"
+                className="w-full py-3.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg hover:shadow-violet-500/25 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
               >
-                {isLoading ? t('pos:processing') : t('pos:completeSale')}
+                {isLoading ? (
+                  <span>{isUrdu ? 'Processing Sale... (بل تیار ہو رہا ہے...)' : 'Processing Sale...'}</span>
+                ) : (
+                  <span>{isUrdu ? 'Complete Sale / بل محفوظ کریں' : 'Complete Sale & Bill'}</span>
+                )}
               </button>
 
               {/* Additional Actions */}
-              <div className="grid grid-cols-3 gap-2 mt-2">
+              <div className="grid grid-cols-3 gap-2 mt-3">
                 <button
                   onClick={holdCurrentOrder}
                   disabled={activeTab.cart.length === 0}
-                  className="py-2 border border-yellow-600 text-yellow-600 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-950/30 disabled:opacity-50 text-sm"
+                  className="py-2 px-2 border border-amber-500/40 hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-xl disabled:opacity-40 text-xs font-semibold transition"
                 >
-                  {t('pos:hold')}
+                  {isUrdu ? 'Hold / ہولڈ' : 'Hold'}
                 </button>
                 <button
                   onClick={() => setShowSplitPayment(true)}
                   disabled={activeTab.cart.length === 0}
-                  className="py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-950/30 disabled:opacity-50 text-sm"
+                  className="py-2 px-2 border border-violet-500/40 hover:bg-violet-500/10 text-violet-600 dark:text-violet-400 rounded-xl disabled:opacity-40 text-xs font-semibold transition"
                 >
-                  {t('pos:splitPay')}
+                  {isUrdu ? 'Split / تقسیم' : 'Split Pay'}
                 </button>
                 <button
                   onClick={printReceipt}
                   disabled={activeTab.cart.length === 0}
-                  className="py-2 border border-gray-600 text-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 text-sm"
+                  className="py-2 px-2 border border-default hover:bg-hover text-main rounded-xl disabled:opacity-40 text-xs font-semibold transition"
                 >
-                  {t('pos:print')}
+                  {isUrdu ? 'Print / پرنٹ' : 'Print'}
                 </button>
               </div>
 
               {/* Clear Cart */}
-              {
-                activeTab.cart.length > 0 && (
-                  <button
-                    onClick={() => updateTabData({ cart: [] })}
-                    className="w-full mt-2 py-2 border border-default text-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
-                  >
-                    {t('pos:clearCart')}
-                  </button>
-                )
-              }
+              {activeTab.cart.length > 0 && (
+                <button
+                  onClick={() => updateTabData({ cart: [] })}
+                  className="w-full mt-2.5 py-2 border border-default hover:bg-hover text-secondary hover:text-rose-500 rounded-xl text-xs font-medium transition"
+                >
+                  {isUrdu ? 'Clear Cart / بل خالی کریں' : 'Clear Cart'}
+                </button>
+              )}
             </div>
-          </div >
-        </div >
+          </div>
+        </div>
 
         {/* Add Customer Modal */}
-        {
-          showAddCustomer && (
-            <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-              <div className="bg-card rounded-xl p-6 max-w-md w-full mx-4">
-                <h3 className="text-lg font-bold text-main mb-4">{t('pos:addNewCustomerTitle')}</h3>
-                <form onSubmit={handleAddCustomer} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-secondary mb-1 flex items-center justify-between">
-                      <span>{t('pos:name', 'Name')} *</span>
-                      <span className="text-xs text-muted font-urdu">نام</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={newCustomer.name}
-                      onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
-                      required
-                      placeholder={t('pos:customerNamePlaceholder', 'Customer full name')}
-                      className="w-full px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary"
-                    />
+        {showAddCustomer && (
+          <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" dir="ltr">
+            <div className="bg-card rounded-2xl p-6 max-w-md w-full border border-default shadow-2xl text-left">
+              <h3 className="text-lg font-bold text-main mb-4 flex items-center gap-2">
+                <span>Add New Customer</span>
+                {isUrdu && <span className="text-sm font-urdu text-secondary font-normal">(نیا گاہک بنائیں)</span>}
+              </h3>
+              <form onSubmit={handleAddCustomer} className="space-y-4 text-left">
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-sm font-semibold text-main">Customer Name *</label>
+                    {isUrdu && <span className="text-xs font-urdu text-secondary">گاہک کا نام</span>}
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-secondary mb-1 flex items-center justify-between">
-                      <span>{t('pos:phone', 'Phone')} *</span>
-                      <span className="text-xs text-muted font-urdu">فون نمبر</span>
-                    </label>
-                    <input
-                      type="tel"
-                      dir="ltr"
-                      value={newCustomer.phone}
-                      onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
-                      required
-                      placeholder="03001234567"
-                      className="w-full px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary font-mono text-left"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-secondary mb-1 flex items-center justify-between">
-                      <span>{t('pos:email', 'Email')} <span className="text-xs text-muted font-normal">({t('common:optional', 'Optional')})</span></span>
-                      <span className="text-xs text-muted font-urdu">ای میل (اختیاری)</span>
-                    </label>
-                    <input
-                      type="email"
-                      dir="ltr"
-                      value={newCustomer.email}
-                      onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
-                      placeholder="customer@example.com"
-                      className="w-full px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary font-mono text-left"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-secondary mb-1 flex items-center justify-between">
-                      <span>{t('pos:address', 'Address')} <span className="text-xs text-muted font-normal">({t('common:optional', 'Optional')})</span></span>
-                      <span className="text-xs text-muted font-urdu">پتہ (اختیاری)</span>
-                    </label>
-                    <textarea
-                      value={newCustomer.address}
-                      onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
-                      rows={2}
-                      placeholder={t('pos:addressPlaceholder', 'Shop / street address, city...')}
-                      className="w-full px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary"
-                    />
-                  </div>
-                  <div className="flex space-x-4 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowAddCustomer(false);
-                        setNewCustomer({ name: '', phone: '', email: '', address: '' });
-                      }}
-                      className="flex-1 px-4 py-2 border border-default text-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]"
-                    >
-                      {t('pos:cancel')}
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-semibold"
-                    >
-                      {t('pos:addCustomerBtn')}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )
-        }
-
-        {/* Customer Select Modal */}
-        {
-          showCustomerSelect && (
-            <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-              <div className="bg-card rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto border border-default">
-                <h3 className="text-lg font-bold text-main mb-4">{t('pos:selectCustomerTitle')}</h3>
-
-                {/* Customer Search */}
-                <div className="mb-4">
                   <input
                     type="text"
-                    placeholder={t('pos:searchCustomerPlaceholder')}
-                    value={customerSearchTerm}
-                    onChange={(e) => setCustomerSearchTerm(e.target.value)}
-                    className="w-full px-4 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary"
-                    autoFocus
+                    value={newCustomer.name}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
+                    required
+                    placeholder={isUrdu ? "Customer full name (گاہک کا پورا نام)" : "Customer full name"}
+                    className="w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-left transition shadow-xs"
                   />
                 </div>
-
-                <div className="space-y-2">
-                  {filteredCustomers.length === 0 ? (
-                    <p className="text-center text-secondary py-4">{t('pos:noCustomersFound')}</p>
-                  ) : (
-                    filteredCustomers.map((customer) => (
-                      <button
-                        key={customer._id}
-                        onClick={() => selectCustomer(customer)}
-                        className="w-full p-4 border border-default rounded-lg hover:border-primary hover:bg-indigo-50 dark:hover:bg-[rgb(var(--color-input))] text-left transition"
-                      >
-                        <div className="font-medium text-main">{customer.name}</div>
-                        <div className="text-sm text-secondary">{customer.phone}</div>
-                        {customer.dues > 0 && (
-                          <div className="text-sm text-red-600 dark:text-red-400 mt-1">{t('pos:outstandingDues', { amount: customer.dues.toFixed(2) })}</div>
-                        )}
-                      </button>
-                    ))
-                  )}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-sm font-semibold text-main">Phone Number *</label>
+                    {isUrdu && <span className="text-xs font-urdu text-secondary">فون نمبر</span>}
+                  </div>
+                  <input
+                    type="tel"
+                    dir="ltr"
+                    value={newCustomer.phone}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
+                    required
+                    placeholder="03001234567"
+                    className="w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 font-mono text-left transition shadow-xs"
+                  />
                 </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-sm font-semibold text-main">Email (Optional)</label>
+                    {isUrdu && <span className="text-xs font-urdu text-secondary">ای میل (اختیاری)</span>}
+                  </div>
+                  <input
+                    type="email"
+                    dir="ltr"
+                    value={newCustomer.email}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
+                    placeholder="customer@example.com"
+                    className="w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 font-mono text-left transition shadow-xs"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-sm font-semibold text-main">Address (Optional)</label>
+                    {isUrdu && <span className="text-xs font-urdu text-secondary">پتہ (اختیاری)</span>}
+                  </div>
+                  <textarea
+                    value={newCustomer.address}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
+                    rows={2}
+                    placeholder={isUrdu ? "Shop / street address, city... (دکان یا گھر کا پتہ)" : "Shop / street address, city..."}
+                    className="w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-left transition shadow-xs resize-none"
+                  />
+                </div>
+                <div className="flex space-x-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddCustomer(false);
+                      setNewCustomer({ name: '', phone: '', email: '', address: '' });
+                    }}
+                    className="flex-1 px-4 py-2.5 border border-default text-secondary hover:text-main rounded-xl hover:bg-hover font-medium transition"
+                  >
+                    {isUrdu ? 'Cancel / منسوخ' : 'Cancel'}
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold transition shadow-xs"
+                  >
+                    {isUrdu ? 'Save / محفوظ کریں' : 'Add Customer'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Customer Select Modal */}
+        {showCustomerSelect && (
+          <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" dir="ltr">
+            <div className="bg-card rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-default shadow-2xl text-left">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-main flex items-center gap-2">
+                  <span>Select Customer</span>
+                  {isUrdu && <span className="text-sm font-urdu text-secondary font-normal">(گاہک منتخب کریں)</span>}
+                </h3>
                 <button
                   onClick={() => {
                     setShowCustomerSelect(false);
                     setCustomerSearchTerm('');
                   }}
-                  className="w-full mt-4 px-4 py-2 border border-default text-secondary rounded-lg hover:bg-surface dark:hover:bg-[rgb(var(--color-input))]"
+                  className="text-muted hover:text-main p-1 rounded-lg hover:bg-hover transition"
                 >
-                  {t('pos:cancel')}
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
+
+              {/* Customer Search */}
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder={isUrdu ? "Search by customer name or phone... (گاہک کے نام یا فون سے تلاش کریں)" : "Search by customer name or phone..."}
+                  value={customerSearchTerm}
+                  onChange={(e) => setCustomerSearchTerm(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-left transition shadow-xs"
+                  autoFocus
+                />
+              </div>
+
+              <div className="space-y-2">
+                {filteredCustomers.length === 0 ? (
+                  <p className="text-center text-secondary py-8 font-medium">
+                    {isUrdu ? 'No customers found (کوئی گاہک نہیں ملا)' : 'No customers found'}
+                  </p>
+                ) : (
+                  filteredCustomers.map((customer) => (
+                    <button
+                      key={customer._id}
+                      onClick={() => selectCustomer(customer)}
+                      className="w-full p-4 border border-default rounded-xl hover:border-violet-500 hover:bg-violet-500/5 text-left transition cursor-pointer"
+                    >
+                      <div className="font-bold text-main">{customer.name}</div>
+                      <div className="text-sm text-secondary">{customer.phone}</div>
+                      {customer.dues > 0 && (
+                        <div className="text-xs font-semibold text-rose-600 dark:text-rose-400 mt-1">
+                          {isUrdu ? `Outstanding Dues / سابقہ بقایا: Rs. ${customer.dues.toFixed(2)}` : `Outstanding Dues: Rs. ${customer.dues.toFixed(2)}`}
+                        </div>
+                      )}
+                    </button>
+                  ))
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  setShowCustomerSelect(false);
+                  setCustomerSearchTerm('');
+                }}
+                className="w-full mt-4 px-4 py-2.5 border border-default text-secondary hover:text-main rounded-xl hover:bg-hover font-medium transition"
+              >
+                {isUrdu ? 'Cancel / منسوخ کریں' : 'Cancel'}
+              </button>
             </div>
-          )
-        }
+          </div>
+        )}
 
         {/* Hold Orders Modal */}
-        {
-          showHoldOrders && (
-            <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-              <div className="bg-card rounded-xl p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto border border-default">
-                <h3 className="text-lg font-bold text-main mb-4">
-                  {t('pos:parkedOrders', { count: holdOrders.length })}
+        {showHoldOrders && (
+          <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" dir="ltr">
+            <div className="bg-card rounded-2xl p-6 max-w-4xl w-full max-h-[80vh] overflow-y-auto border border-default shadow-2xl text-left">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-main flex items-center gap-2">
+                  <span>Parked Orders ({holdOrders.length})</span>
+                  {isUrdu && <span className="text-sm font-urdu text-secondary font-normal">(محفوظ شدہ بل)</span>}
                 </h3>
-
-                {holdOrders.length === 0 ? (
-                  <p className="text-center text-secondary py-8">{t('pos:noParkedOrders')}</p>
-                ) : (
-                  <div className="space-y-3">
-                    {holdOrders.map((order) => (
-                      <div key={order.id} className="border border-default rounded-lg p-4 hover:border-indigo-500 transition">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <div className="font-medium text-main">{order.customerName}</div>
-                            <div className="text-sm text-secondary">
-                              {new Date(order.timestamp).toLocaleString()}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm text-secondary">{t('pos:itemsCount', { count: order.cart.length })}</div>
-                            <div className="font-bold text-indigo-600">
-                              Rs. {(order.cart.reduce((sum, item) => sum + item.total, 0) - order.discount).toFixed(2)}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex space-x-2 mt-3">
-                          <button
-                            onClick={() => retrieveHoldOrder(order)}
-                            className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover"
-                          >
-                            {t('pos:retrieve')}
-                          </button>
-                          <button
-                            onClick={() => deleteHoldOrder(order.id)}
-                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                          >
-                            {t('pos:delete')}
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
                 <button
                   onClick={() => setShowHoldOrders(false)}
-                  className="w-full mt-4 px-4 py-2 border border-default text-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]"
+                  className="text-muted hover:text-main p-1 rounded-lg hover:bg-hover transition"
                 >
-                  {t('pos:close')}
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
+
+              {holdOrders.length === 0 ? (
+                <p className="text-center text-secondary py-12 font-medium">
+                  {isUrdu ? 'No parked orders available (کوئی ہولڈ شدہ بل نہیں ہے)' : 'No parked orders available'}
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {holdOrders.map((order) => (
+                    <div key={order.id} className="border border-default rounded-xl p-4 hover:border-violet-500 transition text-left">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <div className="font-bold text-main">{order.customerName}</div>
+                          <div className="text-xs text-secondary">
+                            {new Date(order.timestamp).toLocaleString()}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-secondary">{order.cart.length} items</div>
+                          <div className="font-bold text-violet-600 dark:text-violet-400">
+                            Rs. {(order.cart.reduce((sum, item) => sum + item.total, 0) - order.discount).toFixed(2)}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2 mt-3">
+                        <button
+                          onClick={() => retrieveHoldOrder(order)}
+                          className="flex-1 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold transition text-xs shadow-xs"
+                        >
+                          {isUrdu ? 'Retrieve Bill / بل واپس لائیں' : 'Retrieve Order'}
+                        </button>
+                        <button
+                          onClick={() => deleteHoldOrder(order.id)}
+                          className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-semibold transition text-xs shadow-xs"
+                        >
+                          {isUrdu ? 'Delete / حذف کریں' : 'Delete'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <button
+                onClick={() => setShowHoldOrders(false)}
+                className="w-full mt-4 px-4 py-2.5 border border-default text-secondary hover:text-main rounded-xl hover:bg-hover font-medium transition"
+              >
+                {isUrdu ? 'Close / بند کریں' : 'Close'}
+              </button>
             </div>
-          )
-        }
+          </div>
+        )}
 
         {/* Split Payment Modal */}
-        {
-          showSplitPayment && (
-            <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-              <div className="bg-card rounded-xl p-6 max-w-md w-full mx-4 border border-default">
-                <h3 className="text-lg font-bold text-main mb-4">{t('pos:splitPaymentTitle')}</h3>
-                <div className="mb-4 p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-secondary">{t('pos:totalAmount')}</span>
-                    <span className="font-bold text-primary">Rs. {total.toFixed(2)}</span>
-                  </div>
-                </div>
+        {showSplitPayment && (
+          <div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" dir="ltr">
+            <div className="bg-card rounded-2xl p-5 sm:p-6 max-w-lg w-full border border-default shadow-2xl space-y-4 text-left">
+              <div className="flex items-center justify-between pb-2 border-b border-default">
+                <h3 className="text-base sm:text-lg font-bold text-main flex items-center gap-2">
+                  <span>Split Payment</span>
+                  {isUrdu && <span className="text-sm font-urdu text-secondary font-normal">(ادائیگی تقسیم کریں)</span>}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowSplitPayment(false);
+                    setSplitPayments([{ method: 'cash', amount: '' }]);
+                  }}
+                  className="p-1 rounded-lg text-muted hover:text-main transition"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
 
-                <div className="space-y-3 mb-4">
-                  {splitPayments.map((payment, index) => (
-                    <div key={index} className="flex space-x-2">
-                      <select
-                        value={payment.method}
-                        onChange={(e) => updateSplitPayment(index, 'method', e.target.value)}
-                        className="flex-1 px-3 py-2 border border-default rounded-lg bg-input text-main focus:ring-2 focus:ring-primary"
-                      >
-                        <option value="cash">{t('pos:cash')}</option>
-                        <option value="upi">{t('pos:upiOrDigital')}</option>
-                        <option value="card">{t('pos:card')}</option>
-                      </select>
+              <div className="p-3 bg-violet-500/10 border border-violet-500/20 rounded-xl">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-secondary font-medium">{isUrdu ? 'Total Amount (کل رقم)' : 'Total Amount'}</span>
+                  <span className="font-bold text-violet-600 dark:text-violet-400 font-mono text-base tabular-nums">Rs. {total.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2.5 max-h-60 overflow-y-auto pe-1">
+                {splitPayments.map((payment, index) => (
+                  <div key={index} className="flex items-center gap-2 w-full">
+                    <select
+                      value={payment.method}
+                      onChange={(e) => updateSplitPayment(index, 'method', e.target.value)}
+                      className="w-[125px] sm:w-[150px] shrink-0 px-3 py-2 border border-default rounded-xl bg-input text-main text-xs sm:text-sm focus:ring-2 focus:ring-violet-500 font-medium"
+                    >
+                      <option value="cash">{isUrdu ? 'Cash (نقد)' : 'Cash'}</option>
+                      <option value="upi">{isUrdu ? 'Online / UPI' : 'Online / UPI'}</option>
+                      <option value="card">{isUrdu ? 'Card (کارڈ)' : 'Card'}</option>
+                      <option value="bank_transfer">{isUrdu ? 'Bank Transfer' : 'Bank Transfer'}</option>
+                    </select>
+                    <div className="flex-1 min-w-0">
                       <input
                         type="number"
                         dir="ltr"
                         value={payment.amount}
                         onChange={(e) => updateSplitPayment(index, 'amount', e.target.value)}
-                        placeholder={t('pos:enterAmount', '0.00')}
-                        className="flex-1 px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary font-mono text-left"
+                        placeholder="0.00"
+                        className="w-full px-3 py-2 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 font-mono text-left text-xs sm:text-sm shadow-xs"
                       />
-                      {splitPayments.length > 1 && (
-                        <button
-                          onClick={() => removeSplitPayment(index)}
-                          className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                        >
-                          ×
-                        </button>
-                      )}
                     </div>
-                  ))}
+                    {splitPayments.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeSplitPayment(index)}
+                        className="shrink-0 p-2 text-rose-600 hover:text-rose-700 hover:bg-rose-500/10 rounded-lg transition"
+                        title="Remove"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={addSplitPayment}
+                className="w-full py-2 border border-dashed border-violet-500/40 text-violet-600 dark:text-violet-400 hover:bg-violet-500/10 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span>{isUrdu ? '+ Add Another Method (+ دوسرا طریقہ شامل کریں)' : '+ Add Another Method'}</span>
+              </button>
+
+              <div className="p-3.5 bg-hover rounded-xl border border-default space-y-2">
+                <div className="flex justify-between items-center text-xs sm:text-sm">
+                  <span className="text-secondary font-medium">{isUrdu ? 'Total Paid (کل وصولی):' : 'Total Paid:'}</span>
+                  <span className={`font-bold font-mono tabular-nums ${calculateSplitTotal() >= (total - 0.01) ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                    Rs. {calculateSplitTotal().toFixed(2)}
+                  </span>
                 </div>
-
-                <button
-                  onClick={addSplitPayment}
-                  className="w-full mb-4 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/30"
-                >
-                  {t('pos:addPaymentMethod')}
-                </button>
-
-                <div className="mb-4 p-3 bg-gray-50 dark:bg-[rgb(var(--color-input))] rounded-lg">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-secondary">{t('pos:totalPaid')}</span>
-                    <span className={`font-bold ${calculateSplitTotal() >= total ? 'text-green-600' : 'text-red-600'}`}>
-                      Rs. {calculateSplitTotal().toFixed(2)}
+                {calculateSplitTotal() > total ? (
+                  <div className="flex justify-between items-center text-xs sm:text-sm pt-2 border-t border-default">
+                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{isUrdu ? 'Change to Return (بقایا واپسی):' : 'Change to Return:'}</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono tabular-nums text-sm sm:text-base">
+                      Rs. {(calculateSplitTotal() - total).toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-secondary">{t('pos:balance')}</span>
-                    <span className={`font-bold ${calculateSplitTotal() >= total ? 'text-green-600' : 'text-red-600'}`}>
+                ) : calculateSplitTotal() >= (total - 0.01) ? (
+                  <div className="flex justify-between items-center text-xs sm:text-sm pt-2 border-t border-default">
+                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Balance / بقایا:</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">
+                      Rs. 0.00
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-center text-xs sm:text-sm pt-2 border-t border-default">
+                    <span className="text-rose-600 dark:text-rose-400 font-semibold">{isUrdu ? 'Remaining Due (باقی رقم):' : 'Remaining Due:'}</span>
+                    <span className="font-bold text-rose-600 dark:text-rose-400 font-mono tabular-nums">
                       Rs. {(total - calculateSplitTotal()).toFixed(2)}
                     </span>
                   </div>
-                </div>
-
-                {/* Payment Methods Summary */}
-                {splitPayments.some(p => p.amount) && (
-                  <div className="mb-4 p-3 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/50 rounded-lg">
-                    <div className="text-xs font-semibold text-purple-700 dark:text-purple-300 mb-2">{t('pos:paymentMethod')}</div>
-                    <div className="space-y-1">
-                      {splitPayments.map((payment, index) => (
-                        payment.amount && (
-                          <div key={index} className="flex justify-between text-sm">
-                            <span className="text-purple-700 dark:text-purple-300">{payment.method.charAt(0).toUpperCase() + payment.method.slice(1)}:</span>
-                            <span className="font-medium text-purple-900 dark:text-purple-200">Rs. {parseFloat(payment.amount || 0).toFixed(2)}</span>
-                          </div>
-                        )
-                      ))}
-                    </div>
-                  </div>
                 )}
+              </div>
 
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => {
-                      setShowSplitPayment(false);
-                      setSplitPayments([{ method: 'cash', amount: '' }]);
-                    }}
-                    className="flex-1 px-4 py-2 border border-default text-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]"
-                  >
-                    {t('pos:cancel')}
-                  </button>
-                  <button
-                    onClick={applySplitPayment}
-                    disabled={calculateSplitTotal() !== total}
-                    className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover disabled:opacity-50"
-                  >
-                    {t('pos:apply')}
-                  </button>
-                </div>
+              <div className="flex gap-2.5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSplitPayment(false);
+                    setSplitPayments([{ method: 'cash', amount: '' }]);
+                  }}
+                  className="flex-1 px-4 py-2.5 border border-default text-secondary hover:text-main hover:bg-hover rounded-xl font-medium transition text-xs sm:text-sm cursor-pointer"
+                >
+                  {isUrdu ? 'Cancel / منسوخ' : 'Cancel'}
+                </button>
+                <button
+                  type="button"
+                  onClick={applySplitPayment}
+                  disabled={activeTab.customer ? calculateSplitTotal() <= 0 : calculateSplitTotal() < (total - 0.01)}
+                  className="flex-1 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold shadow-xs disabled:opacity-40 transition text-xs sm:text-sm cursor-pointer"
+                >
+                  {isUrdu ? 'Apply / لاگو کریں' : 'Apply Payment'}
+                </button>
               </div>
             </div>
-          )
-        }
+          </div>
+        )}
 
         {/* Unpaid Invoice Confirmation Modal */}
-        {
-          showUnpaidConfirm && (
-            <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-              <div className="bg-card rounded-xl p-6 max-w-md w-full mx-4 border border-default">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
-                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-bold text-main">{t('pos:unpaidConfirmTitle')}</h3>
+        {showUnpaidConfirm && (
+          <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" dir="ltr">
+            <div className="bg-card rounded-2xl p-6 max-w-md w-full border border-default shadow-2xl text-left">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl border border-amber-500/20 flex items-center justify-center mr-4">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
                 </div>
-
-                <div className="mb-4">
-                  <p className="text-secondary mb-3">
-                    {t('pos:unpaidConfirmDesc')}
-                  </p>
-                  <div className="bg-surface p-4 rounded-lg space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-secondary">{t('pos:customer')}:</span>
-                      <span className="font-medium text-main">{activeTab.customer?.name}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-secondary">{t('pos:total')}:</span>
-                      <span className="font-bold text-main">Rs. {total.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-secondary">{t('pos:amountPaidLabel')}:</span>
-                      <span className="text-main">Rs. {paid.toFixed(2)}</span>
-                    </div>
-                    <div className="border-t pt-2 flex justify-between">
-                      <span className="font-medium text-red-600">{t('pos:balanceDue')}:</span>
-                      <span className="font-bold text-red-600 text-lg">Rs. {(total - paid).toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-sm text-secondary mb-6">
-                  {t('pos:unpaidNotice', { amount: (total - paid).toFixed(2) })}
-                </p>
-
-                <div className="flex space-x-3">
-                  <button
-                    onClick={() => setShowUnpaidConfirm(false)}
-                    className="flex-1 px-4 py-2 border border-default text-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))] font-medium"
-                  >
-                    {t('pos:cancel')}
-                  </button>
-                  <button
-                    onClick={proceedWithCheckout}
-                    className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium"
-                  >
-                    {t('pos:confirmAndCreate')}
-                  </button>
+                <div>
+                  <h3 className="text-lg font-bold text-main">Unpaid Invoice Confirmation</h3>
+                  {isUrdu && <p className="text-xs font-urdu text-secondary">غیر ادا شدہ بل کی تصدیق</p>}
                 </div>
               </div>
-            </div>
-          )
-        }
 
-        {/* Overpayment Confirmation Modal - for saved customers */}
-        {
-          showOverpaymentConfirm && (
-            <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-              <div className="bg-card rounded-xl p-6 max-w-md w-full mx-4 border border-default">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-bold text-main">{t('pos:partialChangeTitle')}</h3>
-                </div>
-
-                <div className="mb-4">
-                  <p className="text-secondary mb-3">
-                    {t('pos:partialChangeDesc')}
-                  </p>
-                  <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg space-y-2 border border-blue-200 dark:border-blue-800/50">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-secondary">{t('pos:customer')}:</span>
-                      <span className="font-medium text-main">{activeTab.customer?.name}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-secondary">{t('pos:total')}:</span>
-                      <span className="font-bold text-main">Rs. {total.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-secondary">{t('pos:amountPaidLabel')}:</span>
-                      <span className="text-main">Rs. {paid.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-secondary">{t('pos:changeRequired')}</span>
-                      <span className="font-bold text-indigo-600">Rs. {(paid - total).toFixed(2)}</span>
-                    </div>
-                    <div className="border-t pt-2 flex justify-between">
-                      <span className="text-secondary">{t('pos:changeReturnedLabel')}</span>
-                      <span className="font-bold text-main">Rs. {(parseFloat(activeTab.changeReturned) || 0).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm bg-yellow-100 p-2 rounded border border-yellow-300">
-                      <span className="font-medium text-yellow-800">{t('pos:remainingCredit')}</span>
-                      <span className="font-bold text-yellow-900">Rs. {((paid - total) - (parseFloat(activeTab.changeReturned) || 0)).toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/50 rounded-lg">
-                  <p className="text-sm text-green-800 dark:text-green-300 font-medium mb-1">{t('pos:whatHappensNext')}</p>
-                  <p className="text-sm text-green-700 dark:text-green-400">
-                    {t('pos:creditSaveNotice', { amount: ((paid - total) - (parseFloat(activeTab.changeReturned) || 0)).toFixed(2) })}
-                  </p>
-                </div>
-
-                <p className="text-xs text-secondary mb-6">
-                  {t('pos:accountingNotice')}
+              <div className="mb-4">
+                <p className="text-secondary text-sm mb-3">
+                  {isUrdu 
+                    ? 'Customer is paying less than total amount. Remaining balance will be added to their credit / udhaar account.' 
+                    : 'Customer is paying less than total amount. Remaining balance will be added to their credit / udhaar account.'}
                 </p>
-
-                <div className="flex space-x-3">
-                  <button
-                    onClick={() => setShowOverpaymentConfirm(false)}
-                    className="flex-1 px-4 py-2 border border-default text-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))] font-medium"
-                  >
-                    {t('pos:cancel')}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowOverpaymentConfirm(false);
-                      proceedWithCheckout();
-                    }}
-                    className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium"
-                  >
-                    {t('pos:proceed')}
-                  </button>
+                <div className="bg-hover p-4 rounded-xl border border-default space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-secondary">{isUrdu ? 'Customer (گاہک):' : 'Customer:'}</span>
+                    <span className="font-semibold text-main">{activeTab.customer?.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-secondary">{isUrdu ? 'Total Amount (کل رقم):' : 'Total Amount:'}</span>
+                    <span className="font-bold text-main">Rs. {total.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-secondary">{isUrdu ? 'Amount Paid (وصول شدہ):' : 'Amount Paid:'}</span>
+                    <span className="text-main font-semibold">Rs. {paid.toFixed(2)}</span>
+                  </div>
+                  <div className="border-t border-default pt-2 flex justify-between">
+                    <span className="font-bold text-rose-600 dark:text-rose-400">{isUrdu ? 'Balance Due / Udhaar (باقی ادھار):' : 'Balance Due / Udhaar:'}</span>
+                    <span className="font-bold text-rose-600 dark:text-rose-400 text-base">Rs. {(total - paid).toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          )
-        }
 
-        {/* Walk-in Overpayment Modal (must return full change) */}
-        {
-          showWalkinChangeConfirm && (
-            <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-              <div className="bg-card rounded-xl p-6 max-w-md w-full mx-4 border border-default">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
-                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-bold text-main">{t('pos:returnFullChangeTitle')}</h3>
-                </div>
-
-                <div className="mb-4">
-                  <p className="text-secondary mb-3">
-                    {t('pos:returnFullChangeDesc')}
-                  </p>
-                  <div className="bg-yellow-50 dark:bg-yellow-950/30 p-4 rounded-lg space-y-2 border border-yellow-200 dark:border-yellow-800/50">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-secondary">{t('pos:total')}:</span>
-                      <span className="font-bold text-main">Rs. {total.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-secondary">{t('pos:amountPaidLabel')}:</span>
-                      <span className="text-main">Rs. {paid.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-secondary">{t('pos:changeRequired')}</span>
-                      <span className="font-bold text-indigo-600">Rs. {(paid - total).toFixed(2)}</span>
-                    </div>
-                    <div className="border-t pt-2 flex justify-between">
-                      <span className="text-secondary">{t('pos:changeReturnedLabel')}</span>
-                      <span className="font-bold text-main">Rs. {(parseFloat(activeTab.changeReturned) || 0).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm bg-yellow-100 p-2 rounded border border-yellow-300">
-                      <span className="font-medium text-yellow-800">{t('pos:remainingChangeUnpaid')}</span>
-                      <span className="font-bold text-yellow-900">Rs. {((paid - total) - (parseFloat(activeTab.changeReturned) || 0)).toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-xs text-secondary mb-6">
-                  {t('pos:walkInChangeNotice')}
-                </p>
-
-                <div className="flex">
-                  <button
-                    onClick={() => setShowWalkinChangeConfirm(false)}
-                    className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover font-medium"
-                  >
-                    {t('pos:gotIt')}
-                  </button>
-                </div>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowUnpaidConfirm(false)}
+                  className="flex-1 px-4 py-2.5 border border-default text-secondary hover:text-main rounded-xl hover:bg-hover font-medium transition"
+                >
+                  {isUrdu ? 'Cancel / منسوخ' : 'Cancel'}
+                </button>
+                <button
+                  onClick={proceedWithCheckout}
+                  className="flex-1 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold shadow-xs transition"
+                >
+                  {isUrdu ? 'Confirm & Save / تصدیق کریں' : 'Confirm & Create'}
+                </button>
               </div>
             </div>
-          )
-        }
-      </div >
-    </Layout >
+          </div>
+        )}
+
+        {/* Overpayment Confirmation Modal */}
+        {showOverpaymentConfirm && (
+          <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" dir="ltr">
+            <div className="bg-card rounded-2xl p-6 max-w-md w-full border border-default shadow-2xl text-left">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl border border-blue-500/20 flex items-center justify-center mr-4">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-main">Overpayment Details</h3>
+                  {isUrdu && <p className="text-xs font-urdu text-secondary">اضافی ادائیگی کی تفصیل</p>}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <div className="bg-hover p-4 rounded-xl border border-default space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-secondary">{isUrdu ? 'Customer (گاہک):' : 'Customer:'}</span>
+                    <span className="font-semibold text-main">{activeTab.customer?.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-secondary">{isUrdu ? 'Total Amount (کل رقم):' : 'Total Amount:'}</span>
+                    <span className="font-bold text-main">Rs. {total.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-secondary">{isUrdu ? 'Amount Paid (وصول شدہ):' : 'Amount Paid:'}</span>
+                    <span className="text-main font-semibold">Rs. {paid.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-secondary">{isUrdu ? 'Change Required (بقایا رقم):' : 'Change Required:'}</span>
+                    <span className="font-bold text-violet-600 dark:text-violet-400">Rs. {(paid - total).toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowOverpaymentConfirm(false)}
+                  className="flex-1 px-4 py-2.5 border border-default text-secondary hover:text-main rounded-xl hover:bg-hover font-medium transition"
+                >
+                  {isUrdu ? 'Cancel / منسوخ' : 'Cancel'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowOverpaymentConfirm(false);
+                    proceedWithCheckout();
+                  }}
+                  className="flex-1 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold shadow-xs transition"
+                >
+                  {isUrdu ? 'Proceed / جاری رکھیں' : 'Proceed'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* POS Return by Invoice Modal */}
+        <POSReturnModal
+          isOpen={showReturnModal}
+          onClose={() => setShowReturnModal(false)}
+        />
+
+      </div>
+    </Layout>
   );
 };
 

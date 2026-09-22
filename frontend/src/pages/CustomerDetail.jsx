@@ -177,7 +177,7 @@ const CustomerDetail = () => {
             </div>
             <button
               onClick={() => navigate(`/customers/edit/${id}`)}
-              className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 dark:bg-[rgb(var(--color-primary))] text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-[rgb(var(--color-primary-hover))]"
+              className="flex items-center space-x-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg transition shadow-xs"
             >
               <svg
                 className="w-5 h-5"
@@ -209,16 +209,16 @@ const CustomerDetail = () => {
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center mb-6">
             <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
               <span className="text-3xl font-bold text-white">
-                {customer.name.charAt(0).toUpperCase()}
+                {(customer?.name || 'C').charAt(0).toUpperCase()}
               </span>
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-900  dark:text-[rgb(var(--color-text))]">
-                {customer.name}
+                {customer?.name || 'Customer'}
               </h2>
               <p className="text-gray-500  dark:text-[rgb(var(--color-text-secondary))]">
                 Customer since{" "}
-                {new Date(customer.createdAt).toLocaleDateString()}
+                {customer?.createdAt ? new Date(customer.createdAt).toLocaleDateString() : '—'}
               </p>
             </div>
           </div>
@@ -243,7 +243,7 @@ const CustomerDetail = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Phone</p>
-                <p className="text-gray-900 font-medium  dark:text-[rgb(var(--color-text))]">{customer.phone}</p>
+                <p className="text-gray-900 font-medium  dark:text-[rgb(var(--color-text))]">{customer?.phone || '—'}</p>
               </div>
             </div>
 
@@ -348,17 +348,17 @@ const CustomerDetail = () => {
                   {customer.dues < 0 ? "Pending Return" : "Outstanding Dues"}
                 </p>
                 <p
-                  className={`font-bold text-lg ${customer.dues > 0
+                  className={`font-bold text-lg ${Number(customer?.dues || 0) > 0
                       ? "text-red-600"
-                      : customer.dues < 0
+                      : Number(customer?.dues || 0) < 0
                         ? "text-yellow-600"
                         : "text-green-600"
                     }`}
                 >
                   {/* Absolute value used to display returns as positive (e.g. Rs. 9 instead of Rs. -9) */}
-                  Rs. {Math.abs(customer.dues || 0).toFixed(2)}
+                  Rs. {Math.abs(Number(customer?.dues || 0)).toFixed(2)}
                 </p>
-                {customer.dues > 0 && (
+                {Number(customer?.dues || 0) > 0 && (
                   <p className="text-xs text-indigo-600 dark:text-[rgb(var(--color-primary))] mt-1">
                     Click to adjust due →
                   </p>
@@ -375,8 +375,8 @@ const CustomerDetail = () => {
               Transaction History
             </h3>
             <p className="text-sm text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">
-              {transactions.length} transaction
-              {transactions.length !== 1 ? "s" : ""} found
+              {(Array.isArray(transactions) ? transactions : []).length} transaction
+              {(Array.isArray(transactions) ? transactions : []).length !== 1 ? "s" : ""} found
             </p>
           </div>
 
@@ -384,7 +384,7 @@ const CustomerDetail = () => {
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-[rgb(var(--color-primary))]"></div>
             </div>
-          ) : transactions.length === 0 ? (
+          ) : (!Array.isArray(transactions) || transactions.length === 0) ? (
             <div className="text-center py-12">
               <svg
                 className="w-16 h-16 text-gray-400 mx-auto mb-4"
@@ -427,39 +427,42 @@ const CustomerDetail = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-[rgb(var(--color-table-row))] divide-y divide-gray-200 dark:divide-[rgb(var(--color-border))]">
-                  {transactions.map((transaction) => (
-                    <tr key={transaction._id} className="hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900  dark:text-[rgb(var(--color-text))]">
-                        {new Date(transaction.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full capitalize ${getTransactionTypeColor(
-                            transaction.type,
-                            transaction.amount?.toFixed(2)
-                          )}`}
-                        >
-                          {transaction.type === "due" && transaction.amount < 0
-                            ? "due (return)"
-                            : transaction.type}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900  dark:text-[rgb(var(--color-text))]">
-                        Rs. {Math.abs(transaction.amount?.toFixed(2))}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center space-x-2">
-                          {getPaymentMethodIcon(transaction.paymentMethod)}
-                          <span className="text-sm text-gray-900 capitalize  dark:text-[rgb(var(--color-text))]">
-                            {transaction.paymentMethod}
+                  {transactions.map((transaction, idx) => {
+                    const amountVal = Number(transaction?.amount || 0);
+                    return (
+                      <tr key={transaction?._id || `txn-${idx}`} className="hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))]">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900  dark:text-[rgb(var(--color-text))]">
+                          {transaction?.createdAt ? new Date(transaction.createdAt).toLocaleDateString() : '—'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full capitalize ${getTransactionTypeColor(
+                              transaction?.type,
+                              amountVal.toFixed(2)
+                            )}`}
+                          >
+                            {transaction?.type === "due" && amountVal < 0
+                              ? "due (return)"
+                              : (transaction?.type || 'payment')}
                           </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        {transaction.description || "-"}
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900  dark:text-[rgb(var(--color-text))]">
+                          Rs. {Math.abs(amountVal).toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center space-x-2">
+                            {getPaymentMethodIcon(transaction?.paymentMethod)}
+                            <span className="text-sm text-gray-900 capitalize  dark:text-[rgb(var(--color-text))]">
+                              {transaction?.paymentMethod || 'cash'}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          {transaction?.description || "-"}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

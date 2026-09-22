@@ -1,11 +1,13 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import useDraftSave from '../hooks/useDraftSave';
+import { useLanguage } from '../contexts/LanguageContext';
 import { addItem, reset } from '../redux/slices/inventorySlice';
 import Layout from '../components/Layout';
 
 const AddItem = () => {
+  const { isUrdu } = useLanguage();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isLoading, isSuccess, isError, message } = useSelector(
@@ -62,12 +64,12 @@ const AddItem = () => {
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto">
+      <div dir="ltr" className="max-w-4xl mx-auto text-left">
         {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => navigate('/inventory')}
-            className="flex items-center text-secondary hover:text-main mb-4"
+            className="flex items-center text-secondary hover:text-main mb-4 transition-colors"
           >
             <svg
               className="w-5 h-5 mr-2"
@@ -82,10 +84,14 @@ const AddItem = () => {
                 d="M15 19l-7-7 7-7"
               />
             </svg>
-            Back to Inventory
+            {isUrdu ? 'Back to Inventory / انونٹری کی فہرست' : 'Back to Inventory'}
           </button>
-          <h1 className="text-3xl font-bold text-main mb-2">Add New Item</h1>
-          <p className="text-secondary">Add a new product to your inventory</p>
+          <h1 className="text-3xl font-bold text-main mb-2">
+            {isUrdu ? 'Add New Item (نیا آئٹم شامل کریں)' : 'Add New Item'}
+          </h1>
+          <p className="text-secondary">
+            {isUrdu ? 'Add a new product to your inventory (انونٹری میں نیا پروڈکٹ شامل کریں)' : 'Add a new product to your inventory'}
+          </p>
         </div>
 
         {/* Error Message */}
@@ -96,20 +102,25 @@ const AddItem = () => {
         )}
 
         {/* Form Card */}
-        <div className="bg-card rounded-xl shadow-sm p-8">
+        <div className="bg-card rounded-xl shadow-sm p-8 border border-default">
           <form onSubmit={onSubmit} className="space-y-6">
             {/* Basic Info Section */}
             <div>
-              <h3 className="text-lg font-semibold text-main mb-4">Basic Information</h3>
+              <h3 className="text-lg font-semibold text-main mb-4">
+                {isUrdu ? 'Basic Information (بنیادی معلومات)' : 'Basic Information'}
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Name Input */}
                 <div className="md:col-span-2">
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-secondary mb-2"
-                  >
-                    Item Name <span className="text-red-500">*</span>
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-medium text-secondary"
+                    >
+                      Item Name <span className="text-red-500">*</span>
+                    </label>
+                    {isUrdu && <span className="text-xs text-secondary font-urdu">آئٹم کا نام</span>}
+                  </div>
                   <input
                     type="text"
                     id="name"
@@ -117,63 +128,74 @@ const AddItem = () => {
                     value={name}
                     onChange={onChange}
                     required
-                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="e.g., Rice Bag 25kg"
+                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
+                    placeholder={isUrdu ? "e.g., Rice Bag 25kg / نام درج کریں" : "e.g., Rice Bag 25kg"}
                   />
                 </div>
 
                 {/* SKU Input */}
                 <div>
-                  <label
-                    htmlFor="sku"
-                    className="block text-sm font-medium text-secondary mb-2"
-                  >
-                    SKU / Barcode
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label
+                      htmlFor="sku"
+                      className="block text-sm font-medium text-secondary"
+                    >
+                      SKU / Barcode
+                    </label>
+                    {isUrdu && <span className="text-xs text-secondary font-urdu">بارکوڈ / کوڈ</span>}
+                  </div>
                   <input
                     type="text"
                     id="sku"
                     name="sku"
                     value={sku}
                     onChange={onChange}
-                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
                     placeholder="e.g., RICE-001"
                   />
                 </div>
 
                 {/* Category Input */}
                 <div>
-                  <label
-                    htmlFor="category"
-                    className="block text-sm font-medium text-secondary mb-2"
-                  >
-                    Category
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label
+                      htmlFor="category"
+                      className="block text-sm font-medium text-secondary"
+                    >
+                      Category
+                    </label>
+                    {isUrdu && <span className="text-xs text-secondary font-urdu">کیٹیگری</span>}
+                  </div>
                   <input
                     type="text"
                     id="category"
                     name="category"
                     value={category}
                     onChange={onChange}
-                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="e.g., Grocery"
+                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
+                    placeholder={isUrdu ? "e.g., Grocery / کریانہ" : "e.g., Grocery"}
                   />
                 </div>
               </div>
             </div>
 
             {/* Pricing Section */}
-            <div>
-              <h3 className="text-lg font-semibold text-main mb-4">Pricing</h3>
+            <div className="border-t border-default pt-6">
+              <h3 className="text-lg font-semibold text-main mb-4">
+                {isUrdu ? 'Pricing (قیمت)' : 'Pricing'}
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Cost Price */}
                 <div>
-                  <label
-                    htmlFor="costPrice"
-                    className="block text-sm font-medium text-secondary mb-2"
-                  >
-                    Cost Price (Rs. ) <span className="text-red-500">*</span>
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label
+                      htmlFor="costPrice"
+                      className="block text-sm font-medium text-secondary"
+                    >
+                      Cost Price (Rs.) <span className="text-red-500">*</span>
+                    </label>
+                    {isUrdu && <span className="text-xs text-secondary font-urdu">خریداری قیمت (روپے)</span>}
+                  </div>
                   <input
                     type="number"
                     id="costPrice"
@@ -183,20 +205,25 @@ const AddItem = () => {
                     required
                     step="0.01"
                     min="0"
-                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
                     placeholder="0.00"
                   />
-                  <p className="mt-1 text-sm text-muted">Purchase/Cost price per unit</p>
+                  <p className="mt-1 text-xs text-muted">
+                    {isUrdu ? 'Purchase/Cost price per unit / فی یونٹ خریداری کی قیمت' : 'Purchase/Cost price per unit'}
+                  </p>
                 </div>
 
                 {/* Selling Price */}
                 <div>
-                  <label
-                    htmlFor="sellingPrice"
-                    className="block text-sm font-medium text-secondary mb-2"
-                  >
-                    Selling Price (Rs. ) <span className="text-red-500">*</span>
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label
+                      htmlFor="sellingPrice"
+                      className="block text-sm font-medium text-secondary"
+                    >
+                      Selling Price (Rs.) <span className="text-red-500">*</span>
+                    </label>
+                    {isUrdu && <span className="text-xs text-secondary font-urdu">فروخت قیمت (روپے)</span>}
+                  </div>
                   <input
                     type="number"
                     id="sellingPrice"
@@ -206,21 +233,23 @@ const AddItem = () => {
                     required
                     step="0.01"
                     min="0"
-                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
                     placeholder="0.00"
                   />
-                  <p className="mt-1 text-sm text-muted">Retail/Selling price per unit</p>
+                  <p className="mt-1 text-xs text-muted">
+                    {isUrdu ? 'Retail/Selling price per unit / فی یونٹ فروخت کی قیمت' : 'Retail/Selling price per unit'}
+                  </p>
                 </div>
 
                 {/* Profit Margin Display */}
                 {costPrice && sellingPrice && (
-                  <div className="md:col-span-2 p-4 bg-green-50 rounded-lg">
+                  <div className="md:col-span-2 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                     <p className="text-sm text-secondary">
-                      <span className="font-medium">Profit Margin:</span>{' '}
-                      <span className="text-green-600 font-bold">
+                      <span className="font-medium">{isUrdu ? 'Profit Margin / منافع کی شرح:' : 'Profit Margin:'}</span>{' '}
+                      <span className="text-green-600 dark:text-green-400 font-bold">
                         {((sellingPrice - costPrice) / costPrice * 100).toFixed(1)}%
                       </span>
-                      {' '}(Rs. {(sellingPrice - costPrice).toFixed(2)} profit per unit)
+                      {' '}(Rs. {(sellingPrice - costPrice).toFixed(2)} {isUrdu ? 'profit per unit / منافع فی یونٹ' : 'profit per unit'})
                     </p>
                   </div>
                 )}
@@ -228,17 +257,22 @@ const AddItem = () => {
             </div>
 
             {/* Stock Section */}
-            <div>
-              <h3 className="text-lg font-semibold text-main mb-4">Stock Information</h3>
+            <div className="border-t border-default pt-6">
+              <h3 className="text-lg font-semibold text-main mb-4">
+                {isUrdu ? 'Stock Information (اسٹاک کی معلومات)' : 'Stock Information'}
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Stock Quantity */}
                 <div>
-                  <label
-                    htmlFor="stockQty"
-                    className="block text-sm font-medium text-secondary mb-2"
-                  >
-                    Stock Quantity
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label
+                      htmlFor="stockQty"
+                      className="block text-sm font-medium text-secondary"
+                    >
+                      Stock Quantity
+                    </label>
+                    {isUrdu && <span className="text-xs text-secondary font-urdu">موجودہ تعداد</span>}
+                  </div>
                   <input
                     type="number"
                     id="stockQty"
@@ -246,19 +280,22 @@ const AddItem = () => {
                     value={stockQty}
                     onChange={onChange}
                     min="0"
-                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
                     placeholder="0"
                   />
                 </div>
 
                 {/* Low Stock Limit */}
                 <div>
-                  <label
-                    htmlFor="lowStockLimit"
-                    className="block text-sm font-medium text-secondary mb-2"
-                  >
-                    Low Stock Alert
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label
+                      htmlFor="lowStockLimit"
+                      className="block text-sm font-medium text-secondary"
+                    >
+                      Low Stock Alert
+                    </label>
+                    {isUrdu && <span className="text-xs text-secondary font-urdu">کم اسٹاک الرٹ</span>}
+                  </div>
                   <input
                     type="number"
                     id="lowStockLimit"
@@ -266,53 +303,58 @@ const AddItem = () => {
                     value={lowStockLimit}
                     onChange={onChange}
                     min="0"
-                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
                     placeholder="5"
                   />
-                  <p className="mt-1 text-sm text-muted">Alert when stock falls below this</p>
+                  <p className="mt-1 text-xs text-muted">
+                    {isUrdu ? 'Alert when stock falls below this / جب اسٹاک اس سے کم ہو تو خبردار کریں' : 'Alert when stock falls below this'}
+                  </p>
                 </div>
 
                 {/* Unit */}
                 <div>
-                  <label
-                    htmlFor="unit"
-                    className="block text-sm font-medium text-secondary mb-2"
-                  >
-                    Unit
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label
+                      htmlFor="unit"
+                      className="block text-sm font-medium text-secondary"
+                    >
+                      Unit
+                    </label>
+                    {isUrdu && <span className="text-xs text-secondary font-urdu">پیمائش کی اکائی</span>}
+                  </div>
                   <select
                     id="unit"
                     name="unit"
                     value={unit}
                     onChange={onChange}
-                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
                   >
-                    <option value="pcs">Pieces (pcs)</option>
-                    <option value="kg">Kilograms (kg)</option>
-                    <option value="g">Grams (g)</option>
-                    <option value="l">Liters (l)</option>
-                    <option value="ml">Milliliters (ml)</option>
-                    <option value="box">Box</option>
-                    <option value="pack">Pack</option>
-                    <option value="dozen">Dozen</option>
+                    <option value="pcs">{isUrdu ? 'Pieces (pcs) / عدد' : 'Pieces (pcs)'}</option>
+                    <option value="kg">{isUrdu ? 'Kilograms (kg) / کلوگرام' : 'Kilograms (kg)'}</option>
+                    <option value="g">{isUrdu ? 'Grams (g) / گرام' : 'Grams (g)'}</option>
+                    <option value="l">{isUrdu ? 'Liters (l) / لیٹر' : 'Liters (l)'}</option>
+                    <option value="ml">{isUrdu ? 'Milliliters (ml) / ملی لیٹر' : 'Milliliters (ml)'}</option>
+                    <option value="box">{isUrdu ? 'Box / ڈبہ' : 'Box'}</option>
+                    <option value="pack">{isUrdu ? 'Pack / پیکٹ' : 'Pack'}</option>
+                    <option value="dozen">{isUrdu ? 'Dozen / درجن' : 'Dozen'}</option>
                   </select>
                 </div>
               </div>
             </div>
 
             {/* Form Actions */}
-            <div className="flex space-x-4 pt-4 border-t">
+            <div className="flex space-x-4 pt-4 border-t border-default">
               <button
                 type="button"
                 onClick={() => navigate('/inventory')}
-                className="flex-1 px-6 py-3 border border-default text-secondary rounded-lg hover:bg-surface font-medium transition"
+                className="flex-1 px-6 py-3 border border-default text-secondary rounded-lg hover:bg-surface font-medium transition cursor-pointer"
               >
-                Cancel
+                {isUrdu ? 'Cancel / منسوخ کریں' : 'Cancel'}
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-6 py-3 bg-violet-600 text-white rounded-lg hover:bg-violet-700 font-semibold shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center">
@@ -335,10 +377,10 @@ const AddItem = () => {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       />
                     </svg>
-                    Adding Item...
+                    {isUrdu ? 'Adding Item... / شامل کیا جا رہا ہے...' : 'Adding Item...'}
                   </span>
                 ) : (
-                  'Add Item'
+                  isUrdu ? 'Add Item / آئٹم شامل کریں' : 'Add Item'
                 )}
               </button>
             </div>

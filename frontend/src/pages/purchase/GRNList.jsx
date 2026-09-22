@@ -5,6 +5,7 @@ import { getAllGRNs, finalizeGRN, setFilters, clearFilters, setPagination, reset
 import { toast } from "react-toastify";
 import { FiEye, FiCheck, FiPlus } from "react-icons/fi";
 import Layout from "../../components/Layout";
+import DualMonthRangePicker from "../../components/DualMonthRangePicker";
 
 const GRNList = () => {
     const dispatch = useDispatch();
@@ -154,25 +155,12 @@ const GRNList = () => {
                                 </select>
                             </div>
 
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 dark:text-[rgb(var(--color-text-secondary))] mb-1">Start Date</label>
-                                <input
-                                    type="date"
-                                    name="startDate"
-                                    value={filters.startDate}
-                                    onChange={handleFilterChange}
-                                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-md bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 dark:text-[rgb(var(--color-text-secondary))] mb-1">End Date</label>
-                                <input
-                                    type="date"
-                                    name="endDate"
-                                    value={filters.endDate}
-                                    onChange={handleFilterChange}
-                                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-md bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-medium text-gray-700 dark:text-[rgb(var(--color-text-secondary))] mb-1">Date Range</label>
+                                <DualMonthRangePicker
+                                    startDate={filters.startDate}
+                                    endDate={filters.endDate}
+                                    onChange={({ startDate, endDate }) => dispatch(setFilters({ startDate, endDate }))}
                                 />
                             </div>
                         </div>

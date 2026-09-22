@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useLanguage } from "../contexts/LanguageContext";
 import {
   getCustomerById,
   updateCustomer,
@@ -11,6 +12,7 @@ import Layout from "../components/Layout";
 import "react-toastify/dist/ReactToastify.css";
 
 const EditCustomer = () => {
+  const { isUrdu } = useLanguage();
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -94,12 +96,12 @@ const EditCustomer = () => {
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto">
+      <div dir="ltr" className="max-w-3xl mx-auto text-left">
         {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => navigate("/customers")}
-            className="flex items-center text-secondary hover:text-main mb-4"
+            className="flex items-center text-secondary hover:text-main mb-4 transition-colors"
           >
             <svg
               className="w-5 h-5 mr-2"
@@ -114,23 +116,30 @@ const EditCustomer = () => {
                 d="M15 19l-7-7 7-7"
               />
             </svg>
-            Back to Customers
+            {isUrdu ? "Back to Customers / گاہکوں کی فہرست" : "Back to Customers"}
           </button>
-          <h1 className="text-3xl font-bold text-main mb-2">Edit Customer</h1>
-          <p className="text-secondary">Update customer information</p>
+          <h1 className="text-3xl font-bold text-main mb-2">
+            {isUrdu ? "Edit Customer (گاہک کی معلومات تبدیل کریں)" : "Edit Customer"}
+          </h1>
+          <p className="text-secondary">
+            {isUrdu ? "Update customer profile (گاہک کا پروفائل اپ ڈیٹ کریں)" : "Update customer information"}
+          </p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-card rounded-xl shadow-sm p-8">
+        <div className="bg-card rounded-xl shadow-sm p-8 border border-default">
           <form onSubmit={onSubmit} className="space-y-6">
             {/* Name Input */}
             <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-secondary mb-2"
-              >
-                Customer Name <span className="text-red-500">*</span>
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-secondary"
+                >
+                  Customer Name <span className="text-red-500">*</span>
+                </label>
+                {isUrdu && <span className="text-xs text-secondary font-urdu">گاہک کا نام</span>}
+              </div>
               <input
                 type="text"
                 id="name"
@@ -138,19 +147,22 @@ const EditCustomer = () => {
                 value={name}
                 onChange={onChange}
                 required
-                className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="John Doe"
+                className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
+                placeholder={isUrdu ? "e.g. John Doe / نام درج کریں" : "John Doe"}
               />
             </div>
 
             {/* Phone Input */}
             <div>
-              <label
-                htmlFor="phone"
-                className="block text-sm font-medium text-secondary mb-2"
-              >
-                Phone Number <span className="text-red-500">*</span>
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-secondary"
+                >
+                  Phone Number <span className="text-red-500">*</span>
+                </label>
+                {isUrdu && <span className="text-xs text-secondary font-urdu">فون نمبر</span>}
+              </div>
               <input
                 type="tel"
                 id="phone"
@@ -164,23 +176,28 @@ const EditCustomer = () => {
                   if (duplicateField === 'phone') setDuplicateField(null);
                 }}
                 required
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${duplicateField === 'phone' ? 'border-red-500 border-2' : 'border-default'
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main ${duplicateField === 'phone' ? 'border-red-500 border-2' : 'border-default'
                   }`}
                 placeholder="0325-4567318"
               />
               {duplicateField === 'phone' && (
-                <p className="mt-1 text-sm text-red-600">This phone number already exists</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {isUrdu ? "This phone number already exists / یہ فون نمبر پہلے سے موجود ہے" : "This phone number already exists"}
+                </p>
               )}
             </div>
 
             {/* Email Input */}
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-secondary mb-2"
-              >
-                Email Address
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-secondary"
+                >
+                  Email Address
+                </label>
+                {isUrdu && <span className="text-xs text-secondary font-urdu">ای میل ایڈریس</span>}
+              </div>
               <input
                 type="email"
                 id="email"
@@ -190,47 +207,52 @@ const EditCustomer = () => {
                   onChange(e);
                   if (duplicateField === 'email') setDuplicateField(null);
                 }}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${duplicateField === 'email' ? 'border-red-500 border-2' : 'border-default'
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main ${duplicateField === 'email' ? 'border-red-500 border-2' : 'border-default'
                   }`}
                 placeholder="customer@example.com"
               />
               {duplicateField === 'email' && (
-                <p className="mt-1 text-sm text-red-600">This email already exists</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {isUrdu ? "This email already exists / یہ ای میل پہلے سے موجود ہے" : "This email already exists"}
+                </p>
               )}
             </div>
 
             {/* Address Input */}
             <div>
-              <label
-                htmlFor="address"
-                className="block text-sm font-medium text-secondary mb-2"
-              >
-                Address
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label
+                  htmlFor="address"
+                  className="block text-sm font-medium text-secondary"
+                >
+                  Address
+                </label>
+                {isUrdu && <span className="text-xs text-secondary font-urdu">پتہ</span>}
+              </div>
               <textarea
                 id="address"
                 name="address"
                 value={address}
                 onChange={onChange}
                 rows={3}
-                className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Street address, City, State, PIN"
+                className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
+                placeholder={isUrdu ? "Street address, City / گلی، پتہ، شہر" : "Street address, City, State, PIN"}
               />
             </div>
 
             {/* Form Actions */}
-            <div className="flex space-x-4 pt-4">
+            <div className="flex space-x-4 pt-4 border-t border-default">
               <button
                 type="button"
                 onClick={() => navigate("/customers")}
-                className="flex-1 px-6 py-3 border border-default text-secondary rounded-lg hover:bg-surface font-medium transition"
+                className="flex-1 px-6 py-3 border border-default text-secondary rounded-lg hover:bg-surface font-medium transition cursor-pointer"
               >
-                Cancel
+                {isUrdu ? "Cancel / منسوخ کریں" : "Cancel"}
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-6 py-3 bg-violet-600 text-white rounded-lg hover:bg-violet-700 font-semibold shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center">
@@ -253,10 +275,10 @@ const EditCustomer = () => {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       />
                     </svg>
-                    Updating Customer...
+                    {isUrdu ? "Updating Customer... / تبدیل کیا جا رہا ہے..." : "Updating Customer..."}
                   </span>
                 ) : (
-                  "Update Customer"
+                  isUrdu ? "Update Customer / تبدیلی محفوظ کریں" : "Update Customer"
                 )}
               </button>
             </div>

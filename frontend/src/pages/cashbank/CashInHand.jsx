@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../../contexts/LanguageContext';
 import Layout from '../../components/Layout';
 import PageHeader from '../../components/PageHeader';
 import FormInput from '../../components/FormInput';
 import StatsCard from '../../components/StatsCard';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
+import DualMonthRangePicker from '../../components/DualMonthRangePicker';
 import {
     getTransactions,
     getCashBankPosition,
@@ -19,6 +21,7 @@ import { toast } from 'react-toastify';
 
 const CashInHand = () => {
     const { t } = useTranslation(['cashbank', 'common']);
+    const { isUrdu } = useLanguage();
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -79,30 +82,31 @@ const CashInHand = () => {
         }
     };
 
+    const safeAccounts = Array.isArray(accounts) ? accounts : [];
+
     const filteredTransactions = (transactions || [])
         .filter(t => {
+            if (!t) return false;
             const matchesType = filterType === 'all' || t.type === filterType;
-            const txnDate = t.date.split('T')[0];
+            const txnDate = t.date ? String(t.date).split('T')[0] : '';
             const matchesDate = (!dateRange.from || txnDate >= dateRange.from) && (!dateRange.to || txnDate <= dateRange.to);
             return matchesType && matchesDate;
         });
-    // Backend already sorts by date DESC, createdAt DESC - no need to re-sort here
-
 
     const columns = [
         {
             key: 'date',
-            label: t('cashbank:executionDate', 'Date'),
-            render: (val) => new Date(val).toLocaleDateString()
+            label: isUrdu ? 'Date (تاریخ)' : 'Date',
+            render: (val) => val ? new Date(val).toLocaleDateString() : '-'
         },
-        { key: 'description', label: t('cashbank:narrative', 'Description') },
+        { key: 'description', label: isUrdu ? 'Description (تفصیل)' : 'Description' },
         {
             key: 'category',
-            label: t('cashbank:sourceDestination', 'Source/Destination'),
+            label: isUrdu ? 'Source / Destination (ذریعہ / منزل)' : 'Source/Destination',
             render: (_, row) => {
                 const other = row.type === 'in' ? row.fromAccount : row.toAccount;
                 // Check if it's a bank account ID
-                const bank = accounts.find(a => a._id === other);
+                const bank = safeAccounts.find(a => a._id === other);
                 return bank ? (
                     <span className="flex items-center text-indigo-600 font-medium">
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,26 +119,26 @@ const CashInHand = () => {
                 );
             }
         },
-        { key: 'reference', label: t('cashbank:reference', 'Reference'), render: (val) => <span className="text-gray-500">{val || '-'}</span> },
+        { key: 'reference', label: isUrdu ? 'Reference (حوالہ)' : 'Reference', render: (val) => <span className="text-gray-500 font-mono">{val || '-'}</span> },
         {
             key: 'type',
-            label: t('cashbank:flow', 'Flow'),
+            label: isUrdu ? 'Flow (نوعیت)' : 'Flow',
             render: (val, row) => {
                 const isDirectIn = val === 'in';
                 const isTransferIn = val === 'transfer' && row.toAccount === 'cash';
 
-                if (isDirectIn || isTransferIn) return <span className="text-green-600 font-bold">{t('cashbank:btnCashIn', 'Cash In')}</span>;
-                return <span className="text-red-600 font-bold">{t('cashbank:btnCashOut', 'Cash Out')}</span>;
+                if (isDirectIn || isTransferIn) return <span className="text-emerald-600 font-bold">{isUrdu ? 'Cash In (جمع)' : 'Cash In'}</span>;
+                return <span className="text-rose-600 font-bold">{isUrdu ? 'Cash Out (اخراج)' : 'Cash Out'}</span>;
             }
         },
         {
             key: 'amount',
-            label: t('cashbank:amountLabel', 'Amount'),
+            label: isUrdu ? 'Amount (رقم)' : 'Amount',
             render: (val, row) => {
                 const isIn = row.type === 'in' || (row.type === 'transfer' && row.toAccount === 'cash');
                 return (
-                    <span className={`font-bold ${isIn ? 'text-green-600' : 'text-red-600'}`}>
-                        {isIn ? '+' : '-'}Rs. {val.toLocaleString()}
+                    <span className={`font-bold font-mono ${isIn ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {isIn ? '+' : '-'}Rs. {(val || 0).toLocaleString()}
                     </span>
                 );
             }
@@ -145,11 +149,11 @@ const CashInHand = () => {
     const categories = formData.type === 'in'
         ? [
             { group: 'Income Sources', items: ['Sales', 'Customer Payment', 'Service Fee', 'Loan Received', 'Investment', 'Other Income'] },
-            { group: 'Bank Accounts', items: accounts.map(a => ({ value: a._id, label: `Bank: ${a.bankName}` })) }
+            { group: 'Bank Accounts', items: safeAccounts.map(a => ({ value: a._id, label: `Bank: ${a.bankName}` })) }
         ]
         : [
-            { group: 'Expenses', items: ['Office Rent', 'Electricity', 'Water Bill', 'Internet', 'Stationery', 'Tea/Snacks', 'Salaries', 'Transportation', 'Maintenance', 'Other Expense'] },
-            { group: 'Bank Accounts', items: accounts.map(a => ({ value: a._id, label: `Bank: ${a.bankName}` })) }
+            { group: 'Expenses', items: ['Tea/Refreshments (چائے)', 'Electricity/Fuel (بجلی بل/فیول)', 'Shop Rent (دکان کرایہ)', 'Staff Salaries/Mazdoori (تنخواہ/دیہاڑی)', 'Freight/Delivery (کرایہ باربرداری)', 'Packaging/Stationery (شاپر لفافے)', 'Shop Maintenance (مرمت)', 'Internet/Phone (انٹرنیٹ/بل)', 'Cleaning/Committee (صفائی/کمیٹی)', 'Sadqah/Charity (صدقہ/خیرات)', 'Other Expense (متفرق خرچہ)'] },
+            { group: 'Bank Accounts', items: safeAccounts.map(a => ({ value: a._id, label: `Bank: ${a.bankName}` })) }
         ];
 
 
@@ -263,21 +267,12 @@ const CashInHand = () => {
                         ))}
                     </div>
                     <div className="flex items-center space-x-3">
-                        <div className="flex items-center bg-surface border border-default rounded-lg px-2">
-                            <input
-                                type="date"
-                                value={dateRange.from}
-                                onChange={(e) => setDateRange({ ...dateRange, from: e.target.value })}
-                                className="bg-transparent px-2 py-2 text-sm focus:outline-none"
-                            />
-                            <span className="text-muted">→</span>
-                            <input
-                                type="date"
-                                value={dateRange.to}
-                                onChange={(e) => setDateRange({ ...dateRange, to: e.target.value })}
-                                className="bg-transparent px-2 py-2 text-sm focus:outline-none"
-                            />
-                        </div>
+                        <DualMonthRangePicker
+                            startDate={dateRange.from}
+                            endDate={dateRange.to}
+                            onChange={({ startDate, endDate }) => setDateRange({ from: startDate, to: endDate })}
+                            align="right"
+                        />
                     </div>
                 </div>
             </div>
@@ -286,13 +281,18 @@ const CashInHand = () => {
             <Modal
                 isOpen={showAddTransaction}
                 onClose={() => setShowAddTransaction(false)}
-                title={formData.type === 'in' ? t('cashbank:addCashIn', '+ Cash In (Deposit)') : t('cashbank:addCashOut', '- Cash Out (Withdrawal)')}
+                title={
+                    isUrdu
+                        ? (formData.type === 'in' ? '+ Cash In / Deposit (نقد رقم جمع کریں)' : '- Cash Out / Withdrawal (نقد رقم نکالیں)')
+                        : (formData.type === 'in' ? '+ Cash In (Deposit)' : '- Cash Out (Withdrawal)')
+                }
                 size="lg"
             >
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormInput
-                            label={t('cashbank:executionDate', 'Execution Date')}
+                            label="Execution Date"
+                            labelUr="تاریخ"
                             type="date"
                             dir="ltr"
                             value={formData.date}
@@ -300,7 +300,8 @@ const CashInHand = () => {
                             required
                         />
                         <FormInput
-                            label={t('cashbank:amountLabel', 'Amount (Rs.)')}
+                            label="Amount (Rs.)"
+                            labelUr="رقم (روپے)"
                             type="number"
                             dir="ltr"
                             value={formData.amount}
@@ -310,16 +311,33 @@ const CashInHand = () => {
                             required
                         />
                         <div className="md:col-span-2">
-                            <label className="block text-sm font-semibold text-secondary mb-2">
-                                {formData.type === 'in' ? t('cashbank:sourceLabel', 'Source (Where is cash coming from?)') : t('cashbank:destinationLabel', 'Destination (Where is cash going?)')} *
-                            </label>
+                            {isUrdu ? (
+                                <label className="flex items-center justify-between text-xs sm:text-sm font-semibold text-secondary mb-1.5">
+                                    <span>
+                                        {formData.type === 'in' ? 'Source (Where is cash coming from?)' : 'Destination (Where is cash going?)'} <span className="text-red-500">*</span>
+                                    </span>
+                                    <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 font-urdu">
+                                        {formData.type === 'in' ? 'رقم کا ذریعہ' : 'رقم کہاں جائے گی'}
+                                    </span>
+                                </label>
+                            ) : (
+                                <label className="block text-xs sm:text-sm font-semibold text-secondary mb-1.5">
+                                    {formData.type === 'in' ? 'Source (Where is cash coming from?)' : 'Destination (Where is cash going?)'} <span className="text-red-500">*</span>
+                                </label>
+                            )}
                             <select
                                 value={formData.otherAccount}
+                                dir="ltr"
                                 onChange={(e) => setFormData({ ...formData, otherAccount: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-default rounded-lg focus:ring-2 focus:ring-primary bg-card text-main transition-all shadow-sm"
+                                className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-zinc-800 rounded-lg focus:ring-2 focus:ring-violet-500 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 transition-all shadow-xs"
                                 required
                             >
-                                <option value="">{formData.type === 'in' ? t('cashbank:selectSource', 'Select source of cash') : t('cashbank:selectDestination', 'Select where cash is going')}</option>
+                                <option value="">
+                                    {isUrdu
+                                        ? (formData.type === 'in' ? 'Select source / رقم کا ذریعہ منتخب کریں' : 'Select destination / رقم کی منزل منتخب کریں')
+                                        : (formData.type === 'in' ? 'Select source of cash' : 'Select where cash is going')
+                                    }
+                                </option>
                                 {categories.map(group => (
                                     <optgroup key={group.group} label={group.group.toUpperCase()}>
                                         {group.items.map(item => (
@@ -333,20 +351,22 @@ const CashInHand = () => {
                         </div>
                         <div className="md:col-span-2">
                             <FormInput
-                                label={t('cashbank:narrative', 'Narrative / Description')}
+                                label="Description / Narrative"
+                                labelUr="تفصیل / وجہ"
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                placeholder={t('cashbank:narrativePlaceholder', 'Enter detailed purpose of transaction')}
+                                placeholder={isUrdu ? 'e.g. Daily cash sales, Cash deposit / لین دین کی تفصیل یا وجہ' : 'Enter detailed purpose of transaction'}
                                 required
                             />
                         </div>
                         <div className="md:col-span-2">
                             <FormInput
-                                label={t('cashbank:reference', 'Reference #')}
+                                label="Reference #"
+                                labelUr="حوالہ نمبر"
                                 dir="ltr"
                                 value={formData.reference}
                                 onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
-                                placeholder={t('cashbank:referencePlaceholder', 'Voucher / Bill / ID')}
+                                placeholder={isUrdu ? 'Voucher / Bill / ID / رسید یا بل نمبر' : 'Voucher / Bill / ID'}
                                 className="font-mono text-left"
                             />
                         </div>
@@ -354,48 +374,57 @@ const CashInHand = () => {
 
                     {/* Balance Preview Insight */}
                     {formData.otherAccount && parseFloat(formData.amount) > 0 && (
-                        <div className="bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-800 rounded-xl p-4 flex items-center justify-between">
+                        <div className="bg-violet-50/80 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800/60 rounded-xl p-4 flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                                <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-xs font-bold text-xs text-indigo-700 dark:text-indigo-300">
-                                    {t('cashbank:livePreview', 'Live Preview')}
+                                <div className="p-2 bg-white dark:bg-zinc-800 rounded-lg shadow-xs font-bold text-xs text-violet-700 dark:text-violet-300">
+                                    Preview
                                 </div>
-                                <div className="text-sm text-indigo-900 dark:text-indigo-200">
+                                <div className="text-sm text-zinc-900 dark:text-zinc-200">
                                     {formData.type === 'in' ? (
                                         <>
-                                            {t('cashbank:depositing', 'Depositing')} <strong>Rs. {parseFloat(formData.amount).toLocaleString()}</strong> {t('cashbank:into', 'into')} <strong>{t('cashbank:cashInHand', 'Cash')}</strong>
-                                            {accounts.find(a => a._id === formData.otherAccount) && ` ${t('cashbank:from', 'from')} ${accounts.find(a => a._id === formData.otherAccount).bankName}`}
+                                            Depositing <strong>Rs. {parseFloat(formData.amount).toLocaleString()}</strong> into <strong>Cash in Hand</strong>
+                                            {safeAccounts.find(a => a._id === formData.otherAccount) && ` from ${safeAccounts.find(a => a._id === formData.otherAccount).bankName}`}
                                         </>
                                     ) : (
                                         <>
-                                            {t('cashbank:withdrawing', 'Withdrawing')} <strong>Rs. {parseFloat(formData.amount).toLocaleString()}</strong> {t('cashbank:from', 'from')} <strong>{t('cashbank:cashInHand', 'Cash')}</strong>
-                                            {accounts.find(a => a._id === formData.otherAccount) && ` ${t('cashbank:to', 'to')} ${accounts.find(a => a._id === formData.otherAccount).bankName}`}
+                                            Withdrawing <strong>Rs. {parseFloat(formData.amount).toLocaleString()}</strong> from <strong>Cash in Hand</strong>
+                                            {safeAccounts.find(a => a._id === formData.otherAccount) && ` to ${safeAccounts.find(a => a._id === formData.otherAccount).bankName}`}
                                         </>
                                     )}
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="text-[11px] text-indigo-500 dark:text-indigo-400 uppercase font-bold">{t('cashbank:newCashBalance', 'New Cash Balance')}</p>
-                                <p className="text-base font-black text-indigo-700 dark:text-indigo-300">
+                                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 uppercase font-bold">New Balance</p>
+                                <p className="text-base font-black text-violet-700 dark:text-violet-300 font-mono">
                                     Rs. {(formData.type === 'in' ? (position?.cashInHand || 0) + (parseFloat(formData.amount) || 0) : (position?.cashInHand || 0) - (parseFloat(formData.amount) || 0)).toLocaleString()}
                                 </p>
                             </div>
                         </div>
                     )}
 
-                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800">
                         <button
                             type="button"
                             onClick={() => setShowAddTransaction(false)}
-                            className="px-5 py-2.5 border border-default text-secondary rounded-lg font-medium hover:bg-surface transition cursor-pointer"
+                            className="px-5 py-2.5 border border-slate-300 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded-xl font-semibold hover:bg-slate-100 dark:hover:bg-zinc-800 transition cursor-pointer"
                         >
-                            {t('cashbank:discard', 'Discard')}
+                            {isUrdu ? 'Cancel / منسوخ کریں' : 'Cancel'}
                         </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className={`px-6 py-2.5 text-white rounded-lg font-semibold shadow-xs transition cursor-pointer ${formData.type === 'in' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`px-6 py-2.5 text-white rounded-xl font-bold shadow-md transition cursor-pointer ${
+                                formData.type === 'in'
+                                    ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/20'
+                                    : 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/20'
+                            } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                            {isLoading ? t('cashbank:processing', 'Processing...') : formData.type === 'in' ? t('cashbank:confirmCashEntry', 'Confirm Cash Entry') : t('cashbank:confirmCashExit', 'Confirm Cash Exit')}
+                            {isLoading
+                                ? (isUrdu ? 'Processing... / پروسیسنگ' : 'Processing...')
+                                : formData.type === 'in'
+                                    ? (isUrdu ? 'Confirm Cash In / کیش جمع کریں' : 'Confirm Cash In')
+                                    : (isUrdu ? 'Confirm Cash Out / کیش نکالیں' : 'Confirm Cash Out')
+                            }
                         </button>
                     </div>
                 </form>

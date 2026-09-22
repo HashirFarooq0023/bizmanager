@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -460,7 +460,7 @@ const PurchaseOrderForm = () => {
                         {/* View All Purchase Orders Button */}
                         <button
                             onClick={() => navigate('/purchase-orders')}
-                            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-indigo-600 dark:bg-[rgb(var(--color-primary))] text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-[rgb(var(--color-primary-hover))] font-medium transition"
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition shadow-xs"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
@@ -676,7 +676,7 @@ const PurchaseOrderForm = () => {
                             <button
                                 type="button"
                                 onClick={addItem}
-                                className="bg-indigo-600 dark:bg-[rgb(var(--color-primary))] hover:bg-indigo-700 dark:hover:bg-[rgb(var(--color-primary-hover))] text-white px-4 py-1.5 text-sm rounded-lg flex items-center gap-2 font-medium"
+                                className="bg-violet-600 hover:bg-violet-700 text-white px-4 py-1.5 text-sm rounded-lg flex items-center gap-2 font-medium transition shadow-xs"
                             >
                                 <FiPlus /> Add Item
                             </button>
@@ -908,7 +908,7 @@ const PurchaseOrderForm = () => {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="px-6 py-2 text-sm bg-indigo-600 dark:bg-[rgb(var(--color-primary))] hover:bg-indigo-700 dark:hover:bg-[rgb(var(--color-primary-hover))] text-white rounded-lg flex items-center gap-2 disabled:opacity-50 font-medium"
+                                    className="px-6 py-2 text-sm bg-violet-600 hover:bg-violet-700 text-white rounded-lg flex items-center gap-2 disabled:opacity-50 font-semibold transition shadow-xs"
                                 >
                                     <FiSave /> {isLoading ? "Saving..." : isEditMode ? "Update PO" : "Create PO"}
                                 </button>

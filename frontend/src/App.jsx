@@ -20,6 +20,7 @@ import Terms from './pages/Terms';
 import NotFound from './pages/NotFound';
 import Impersonate from './pages/Impersonate';
 import ImpersonationBanner from './components/ImpersonationBanner';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Subscription Paywall Page
 const SubscriptionExpired = lazy(() => import('./pages/SubscriptionExpired'));
@@ -88,6 +89,18 @@ const GRNDetail = lazy(() => import('./pages/purchase/GRNDetail'));
 const ReportsDashboard = lazy(() => import('./pages/reports/ReportsDashboard'));
 const SalesReport = lazy(() => import('./pages/reports/SalesReport'));
 const PurchaseReturnAnalytics = lazy(() => import('./pages/reports/PurchaseReturnAnalytics'));
+const DayBookReport = lazy(() => import('./pages/reports/DayBookReport'));
+const ProfitLossReport = lazy(() => import('./pages/reports/ProfitLossReport'));
+const BillWiseProfitReport = lazy(() => import('./pages/reports/BillWiseProfitReport'));
+const PartyStatementReport = lazy(() => import('./pages/reports/PartyStatementReport'));
+const AllPartiesReport = lazy(() => import('./pages/reports/AllPartiesReport'));
+const SalesByPartyReport = lazy(() => import('./pages/reports/SalesByPartyReport'));
+const PurchaseReport = lazy(() => import('./pages/reports/PurchaseReport'));
+const TransactionsReport = lazy(() => import('./pages/reports/TransactionsReport'));
+const CashFlowReport = lazy(() => import('./pages/reports/CashFlowReport'));
+const FinancialStatementsReport = lazy(() => import('./pages/reports/FinancialStatementsReport'));
+const TaxReport = lazy(() => import('./pages/reports/TaxReport'));
+const PartyWisePLReport = lazy(() => import('./pages/reports/PartyWisePLReport'));
 
 // Approvals
 const MyApprovals = lazy(() => import('./pages/approvals/MyApprovals'));
@@ -174,9 +187,10 @@ function App() {
               <ImpersonationBanner />
               <MetaTracker />
               <CookieConsent />
-              <Suspense fallback={<PageLoader />}>
-                <Routes>
-                  {/* Public Landing Page */}
+              <ErrorBoundary>
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    {/* Public Landing Page */}
                   <Route path="/" element={<LandingPage />} />
 
                   {/* Public Legal & Info Pages */}
@@ -460,12 +474,16 @@ function App() {
 
                   {/* Cash & Bank Routes */}
                   <Route path="/cashbank">
+                    <Route index element={<ProtectedRoute><Navigate to="/cashbank/cash-in-hand" replace /></ProtectedRoute>} />
                     <Route path="bank-accounts" element={<ProtectedRoute><BankAccounts /></ProtectedRoute>} />
                     <Route path="cash-in-hand" element={<ProtectedRoute><CashInHand /></ProtectedRoute>} />
                     <Route path="cheques" element={<ProtectedRoute><Cheques /></ProtectedRoute>} />
                     <Route path="loan-accounts" element={<ProtectedRoute><LoanAccounts /></ProtectedRoute>} />
                     <Route path="position" element={<ProtectedRoute><CashBankPosition /></ProtectedRoute>} />
                     <Route path="summary" element={<ProtectedRoute><BankSummary /></ProtectedRoute>} />
+                    <Route path="ledger/:id" element={<ProtectedRoute><AccountLedger /></ProtectedRoute>} />
+                    <Route path="accounts/:id/ledger" element={<ProtectedRoute><AccountLedger /></ProtectedRoute>} />
+                    <Route path="ledger" element={<ProtectedRoute><AccountLedger /></ProtectedRoute>} />
                   </Route>
                   <Route path="/transfers" element={<ProtectedRoute><Transfers /></ProtectedRoute>} />
 
@@ -498,16 +516,37 @@ function App() {
                     <Route path="settings" element={<ProtectedRoute><ApprovalSettings /></ProtectedRoute>} />
                   </Route>
 
-                  {/* Reports Route */}
+                  {/* Reports Routes */}
                   <Route path="/reports" element={<ProtectedRoute><ReportsDashboard /></ProtectedRoute>} />
                   <Route path="/reports/sales" element={<ProtectedRoute><SalesReport /></ProtectedRoute>} />
                   <Route path="/reports/purchase-returns" element={<ProtectedRoute><PurchaseReturnAnalytics /></ProtectedRoute>} />
+                  <Route path="/reports/daybook" element={<ProtectedRoute><DayBookReport /></ProtectedRoute>} />
+                  <Route path="/reports/profit-loss" element={<ProtectedRoute><ProfitLossReport /></ProtectedRoute>} />
+                  <Route path="/reports/bill-profit" element={<ProtectedRoute><BillWiseProfitReport /></ProtectedRoute>} />
+                  <Route path="/reports/party-statement" element={<ProtectedRoute><PartyStatementReport /></ProtectedRoute>} />
+                  <Route path="/reports/all-parties" element={<ProtectedRoute><AllPartiesReport /></ProtectedRoute>} />
+                  <Route path="/reports/sales-party" element={<ProtectedRoute><SalesByPartyReport /></ProtectedRoute>} />
+                  <Route path="/reports/sales-party-group" element={<ProtectedRoute><SalesByPartyReport /></ProtectedRoute>} />
+                  <Route path="/reports/purchase" element={<ProtectedRoute><PurchaseReport /></ProtectedRoute>} />
+                  <Route path="/reports/purchase-party" element={<ProtectedRoute><PurchaseReport /></ProtectedRoute>} />
+                  <Route path="/reports/purchase-party-group" element={<ProtectedRoute><PurchaseReport /></ProtectedRoute>} />
+                  <Route path="/reports/transactions" element={<ProtectedRoute><TransactionsReport /></ProtectedRoute>} />
+                  <Route path="/reports/cashflow" element={<ProtectedRoute><CashFlowReport /></ProtectedRoute>} />
+                  <Route path="/reports/trial-balance" element={<ProtectedRoute><FinancialStatementsReport /></ProtectedRoute>} />
+                  <Route path="/reports/balance-sheet" element={<ProtectedRoute><FinancialStatementsReport /></ProtectedRoute>} />
+                  <Route path="/reports/gstr1" element={<ProtectedRoute><TaxReport /></ProtectedRoute>} />
+                  <Route path="/reports/gstr2" element={<ProtectedRoute><TaxReport /></ProtectedRoute>} />
+                  <Route path="/reports/gstr3b" element={<ProtectedRoute><TaxReport /></ProtectedRoute>} />
+                  <Route path="/reports/gstr9" element={<ProtectedRoute><TaxReport /></ProtectedRoute>} />
+                  <Route path="/reports/party-pl" element={<ProtectedRoute><PartyWisePLReport /></ProtectedRoute>} />
+                  <Route path="/reports/party-item" element={<ProtectedRoute><PartyWisePLReport /></ProtectedRoute>} />
 
                   {/* Custom 404 Route */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
-            </Router>
+            </ErrorBoundary>
+          </Router>
           </div>
         </ThemeProvider>
       </ModeProvider>

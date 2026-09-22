@@ -1,7 +1,8 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
+import DualMonthRangePicker from '../../components/DualMonthRangePicker';
 import api from '../../services/api';
 
 const PurchaseReturnList = () => {
@@ -167,7 +168,7 @@ const PurchaseReturnList = () => {
 
                 {/* Filters */}
                 <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-3 mb-4">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
                         <input
                             type="text"
                             placeholder="Search by return ID..."
@@ -188,18 +189,13 @@ const PurchaseReturnList = () => {
                             <option value="rejected">Rejected</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
-                        <input
-                            type="date"
-                            value={filters.startDate}
-                            onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
-                            className="px-3 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-md bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
-                        <input
-                            type="date"
-                            value={filters.endDate}
-                            onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
-                            className="px-3 py-2 text-sm border border-gray-300 dark:border-[rgb(var(--color-border))] rounded-md bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
+                        <div className="md:col-span-2">
+                            <DualMonthRangePicker
+                                startDate={filters.startDate}
+                                endDate={filters.endDate}
+                                onChange={({ startDate, endDate }) => setFilters(prev => ({ ...prev, startDate, endDate }))}
+                            />
+                        </div>
                     </div>
                 </div>
 

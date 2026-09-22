@@ -16,11 +16,17 @@ const CustomerSelectionModal = ({ isOpen, onClose, onSelect }) => {
         }
     }, [isOpen, dispatch]);
 
-    const filteredCustomers = customers.filter(customer =>
-        customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.phone.includes(searchTerm)
-    );
+    const customersList = Array.isArray(customers) ? customers : [];
+
+    const filteredCustomers = customersList.filter(customer => {
+        if (!customer) return false;
+        const query = (searchTerm || '').trim().toLowerCase();
+        if (!query) return true;
+        const name = String(customer.name || '').toLowerCase();
+        const email = String(customer.email || '').toLowerCase();
+        const phone = String(customer.phone || '');
+        return name.includes(query) || email.includes(query) || phone.includes(query);
+    });
 
     return (
         <Modal
@@ -31,14 +37,14 @@ const CustomerSelectionModal = ({ isOpen, onClose, onSelect }) => {
         >
             <div className="space-y-4">
                 {/* Header Actions */}
-                <div className="flex gap-4">
+                <div className="flex gap-3">
                     <div className="flex-1">
                         <input
                             type="text"
                             placeholder="Search by name, email, or phone..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-[rgb(var(--color-border))] bg-white dark:bg-[rgb(var(--color-input))] text-gray-900 dark:text-[rgb(var(--color-text))] placeholder:text-gray-400 dark:placeholder:text-[rgb(var(--color-placeholder))] rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[rgb(var(--color-primary))]"
+                            className="w-full px-3.5 py-2 border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent text-sm"
                         />
                     </div>
                     <button
@@ -46,9 +52,9 @@ const CustomerSelectionModal = ({ isOpen, onClose, onSelect }) => {
                             onClose();
                             navigate('/customers/add');
                         }}
-                        className="px-4 py-2 bg-indigo-600 dark:bg-[rgb(var(--color-primary))] text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-[rgb(var(--color-primary-hover))] whitespace-nowrap"
+                        className="px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold rounded-xl whitespace-nowrap shadow-xs cursor-pointer transition text-sm"
                     >
-                        + Add New Customer
+                        + Add Customer
                     </button>
                 </div>
 
@@ -56,8 +62,8 @@ const CustomerSelectionModal = ({ isOpen, onClose, onSelect }) => {
                 <div className="max-h-96 overflow-y-auto">
                     {isLoading ? (
                         <div className="text-center py-8">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 dark:border-[rgb(var(--color-primary))] mx-auto"></div>
-                            <p className="mt-2 text-gray-500 dark:text-[rgb(var(--color-text-secondary))]">Loading customers...</p>
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600 mx-auto"></div>
+                            <p className="mt-2 text-slate-500 dark:text-zinc-400 text-sm">Loading customers...</p>
                         </div>
                     ) : filteredCustomers.length > 0 ? (
                         <div className="grid grid-cols-1 gap-2">
@@ -68,23 +74,23 @@ const CustomerSelectionModal = ({ isOpen, onClose, onSelect }) => {
                                         onSelect(customer);
                                         onClose();
                                     }}
-                                    className="p-4 bg-gray-50 dark:bg-[rgb(var(--color-input))] border border-gray-200 dark:border-[rgb(var(--color-border))] rounded-lg hover:bg-indigo-50 dark:hover:bg-[rgb(var(--color-card))] hover:border-indigo-300 dark:hover:border-[rgb(var(--color-primary))] cursor-pointer transition flex justify-between items-center group shadow-sm"
+                                    className="p-3.5 bg-slate-50 dark:bg-zinc-850/70 border border-slate-200 dark:border-zinc-800 rounded-xl hover:bg-violet-50 dark:hover:bg-zinc-800 hover:border-violet-300 dark:hover:border-violet-600/50 cursor-pointer transition flex justify-between items-center group shadow-xs"
                                 >
                                     <div>
-                                        <p className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))] group-hover:text-indigo-700 dark:group-hover:text-[rgb(var(--color-primary))]">{customer.name}</p>
-                                        <div className="text-sm text-gray-500 dark:text-[rgb(var(--color-text-secondary))] space-x-4">
+                                        <p className="font-semibold text-slate-900 dark:text-zinc-100 group-hover:text-violet-600 dark:group-hover:text-violet-400">{customer.name}</p>
+                                        <div className="text-xs text-slate-500 dark:text-zinc-400 space-x-3 mt-0.5">
                                             <span>{customer.phone}</span>
-                                            <span>{customer.email}</span>
+                                            {customer.email && <span>{customer.email}</span>}
                                         </div>
                                     </div>
-                                    <div className="text-indigo-600 dark:text-[rgb(var(--color-primary))] opacity-0 group-hover:opacity-100 font-medium text-sm">
-                                        Select
+                                    <div className="text-violet-600 dark:text-violet-400 opacity-0 group-hover:opacity-100 font-bold text-xs">
+                                        Select →
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-8 text-gray-500 dark:text-[rgb(var(--color-text-secondary))]">
+                        <div className="text-center py-8 text-slate-500 dark:text-zinc-400 text-sm">
                             {searchTerm ? 'No customers found matching your search.' : 'No customers found.'}
                         </div>
                     )}

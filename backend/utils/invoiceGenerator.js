@@ -289,6 +289,14 @@ export const generateInvoicePDF = async (invoiceData) => {
   doc.text(paidMethodLabel, labelX, yPos);
   doc.text(`Rs. ${(invoiceData.paidAmount || 0).toFixed(2)}`, valueX, yPos, { align: "right" });
 
+  // Change Returned (if overpaid / change returned)
+  if ((invoiceData.changeReturned || 0) > 0 || (invoiceData.receivedAmount && invoiceData.receivedAmount > invoiceData.totalAmount)) {
+    const changeAmt = invoiceData.changeReturned || (invoiceData.receivedAmount - invoiceData.totalAmount);
+    yPos += 7;
+    doc.text("Change Returned:", labelX, yPos);
+    doc.text(`Rs. ${changeAmt.toFixed(2)}`, valueX, yPos, { align: "right" });
+  }
+
   // Payment Breakdown (only if credit was involved)
   const hasCreditPayment = (invoiceData.creditApplied || 0) > 0;
   if (hasCreditPayment) {

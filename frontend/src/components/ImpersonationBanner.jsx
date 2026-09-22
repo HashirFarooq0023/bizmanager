@@ -4,6 +4,7 @@ import { logout } from '../redux/slices/authSlice'; // Fallback to clearing stor
 
 const ImpersonationBanner = () => {
   const [isActive, setIsActive] = useState(false);
+  const [targetLabel, setTargetLabel] = useState('');
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -18,6 +19,21 @@ const ImpersonationBanner = () => {
         } else {
           setIsActive(true);
           document.documentElement.classList.add('has-impersonation');
+
+          const spoofName = sessionStorage.getItem('spoof_user_name');
+          const spoofShop = sessionStorage.getItem('spoof_shop_name');
+          if (spoofName) {
+            setTargetLabel(spoofShop ? `${spoofName} (${spoofShop})` : spoofName);
+          } else {
+            try {
+              const u = JSON.parse(localStorage.getItem('user'));
+              if (u?.name) {
+                setTargetLabel(u.shopName ? `${u.name} (${u.shopName})` : u.name);
+              }
+            } catch {
+              // fallback
+            }
+          }
         }
       } else {
         setIsActive(false);
@@ -37,6 +53,8 @@ const ImpersonationBanner = () => {
     localStorage.removeItem('user');
     sessionStorage.removeItem('impersonation_active');
     sessionStorage.removeItem('spoof_started_at');
+    sessionStorage.removeItem('spoof_user_name');
+    sessionStorage.removeItem('spoof_shop_name');
     document.documentElement.classList.remove('has-impersonation');
     
     if (typeof logout === 'function') {
@@ -61,7 +79,7 @@ const ImpersonationBanner = () => {
       <div className="flex items-center gap-2 truncate">
         <span className="w-2.5 h-2.5 rounded-full bg-white shrink-0 animate-pulse" />
         <span className="truncate">
-          <span className="font-black uppercase tracking-wider">Impersonation Active</span> — You are viewing this account as MegaTrix Admin. All actions are logged.
+          <span className="font-black uppercase tracking-wider">Impersonation Active</span> — Viewing <strong className="text-white underline underline-offset-2">{targetLabel || 'Target User'}</strong> as MegaTrix Admin.
         </span>
       </div>
       <button 

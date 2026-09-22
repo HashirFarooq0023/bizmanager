@@ -1,4 +1,4 @@
-﻿import mongoose from "mongoose";
+import mongoose from "mongoose";
 import Invoice from "../models/Invoice.js";
 import Item from "../models/Item.js";
 import Customer from "../models/Customer.js";
@@ -149,7 +149,9 @@ export const createInvoice = async (req, res) => {
     // Handle overpayment and change return
     const effectivePaidAmount = paidAmount + creditApplied; // Credit counts as payment
     const changeOwed = Math.max(0, effectivePaidAmount - totalAmount);
-    const changeReturned = parseFloat(req.body.changeReturned) || 0;
+    const changeReturned = (req.body.changeReturned !== undefined && req.body.changeReturned !== '' && req.body.changeReturned !== null)
+      ? parseFloat(req.body.changeReturned)
+      : changeOwed;
 
     // CRITICAL VALIDATION: Prevent Change Returned from exceeding Change Owed
     if (changeReturned > changeOwed) {
@@ -191,6 +193,8 @@ export const createInvoice = async (req, res) => {
       totalAmount,
       previousDueAmount,
       paidAmount: actualPaidAmount,
+      receivedAmount: paidAmount,
+      changeReturned,
       creditApplied,
       paymentMethodOriginal: paymentMethod,
       paymentMethodResolved: resolvedPaymentMethod,
@@ -209,6 +213,8 @@ export const createInvoice = async (req, res) => {
       totalAmount,
       previousDueAmount,
       paidAmount: actualPaidAmount,
+      receivedAmount: paidAmount,
+      changeReturned,
       creditApplied,
       paymentMethod: resolvedPaymentMethod,
       paidViaMethod,
@@ -294,38 +300,41 @@ export const createInvoice = async (req, res) => {
       });
     }
 
-    // Settle previous dues using any remaining payment after base total
-    if (customerId && previousDueAmount > 0) {
-      const baseTotal = subtotal - discount;
-      const payToBase = Math.min(effectivePaidAmount, baseTotal);
-      const remainingPay = Math.max(0, effectivePaidAmount - payToBase);
-      const payToPrevDue = Math.min(remainingPay, previousDueAmount);
+    // Calculate net sale amount (new debt without previous dues)
+    const netSaleAmount = Math.max(0, subtotal - discount);
 
-      if (payToPrevDue > 0) {
-        await Customer.findByIdAndUpdate(customerId, { $inc: { dues: -payToPrevDue } });
+    // How much of the NEW items was paid
+    const paidForNewSale = Math.min(effectivePaidAmount, netSaleAmount);
+    const unpaidNewSale = Math.max(0, netSaleAmount - paidForNewSale);
+
+    // 1. If part of the new sale is unpaid, add ONLY the unpaid new amount as customer due
+    if (customerId && unpaidNewSale > 0) {
+      await Customer.findByIdAndUpdate(customerId, { $inc: { dues: unpaidNewSale } });
+
+      await Transaction.create({
+        type: "due",
+        customer: customerId,
+        invoice: invoice._id,
+        amount: unpaidNewSale,
+        description: `Due added for invoice ${invoiceNo}`,
+      });
+    }
+
+    // 2. If payment exceeds the new sale and previous dues were rolled into the invoice, settle previous dues
+    if (customerId && previousDueAmount > 0 && effectivePaidAmount > netSaleAmount) {
+      const excessPayment = effectivePaidAmount - netSaleAmount;
+      const settledPrevDue = Math.min(excessPayment, previousDueAmount);
+
+      if (settledPrevDue > 0) {
+        await Customer.findByIdAndUpdate(customerId, { $inc: { dues: -settledPrevDue } });
+
         await Transaction.create({
           type: "payment",
           customer: customerId,
           invoice: invoice._id,
-          amount: payToPrevDue,
+          amount: settledPrevDue,
           paymentMethod,
           description: `Previous due settled via invoice ${invoiceNo}`,
-        });
-      }
-    }
-
-    // Handle customer dues if unpaid (after credit application)
-    if (customerId && effectivePaidAmount < totalAmount) {
-      const dueAmount = totalAmount - effectivePaidAmount;
-      if (dueAmount > 0) {
-        await Customer.findByIdAndUpdate(customerId, { $inc: { dues: dueAmount } });
-
-        await Transaction.create({
-          type: "due",
-          customer: customerId,
-          invoice: invoice._id,
-          amount: dueAmount,
-          description: `Due added for invoice ${invoiceNo}`,
         });
       }
     }

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
@@ -83,7 +83,7 @@ const BankSummary = () => {
                 />
                 <StatsCard
                     title="Total Balance"
-                    value={`Rs. ${summary?.totalBalance.toFixed(0) || 0}`}
+                    value={`Rs. ${(summary?.totalBalance || 0).toFixed(0)}`}
                     icon={
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -94,7 +94,7 @@ const BankSummary = () => {
                 />
                 <StatsCard
                     title="Average Balance"
-                    value={`Rs. ${summary?.accountCount > 0 ? (summary.totalBalance / summary.accountCount).toFixed(0) : 0}`}
+                    value={`Rs. ${(summary?.accountCount || 0) > 0 ? ((summary?.totalBalance || 0) / summary.accountCount).toFixed(0) : 0}`}
                     icon={
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -138,20 +138,20 @@ const BankSummary = () => {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {summary?.accounts.length === 0 ? (
+                            {(!summary?.accounts || summary.accounts.length === 0) ? (
                                 <tr>
                                     <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
                                         No bank accounts found. Create one to get started.
                                     </td>
                                 </tr>
                             ) : (
-                                summary?.accounts.map((account) => (
+                                (summary?.accounts || []).map((account) => (
                                     <tr key={account._id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-medium text-gray-900">{account.bankName}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-500">****{account.accountNumber.slice(-4)}</div>
+                                            <div className="text-sm text-gray-500">****{(account.accountNumber || '').slice(-4)}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getTypeColor(account.accountType)}`}>

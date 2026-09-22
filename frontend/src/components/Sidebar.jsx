@@ -24,7 +24,12 @@ import {
   FiZap,
   FiSmile,
   FiLogOut,
-  FiChevronDown
+  FiChevronDown,
+  FiChevronRight,
+  FiChevronLeft,
+  FiMoon,
+  FiSun,
+  FiRotateCcw
 } from 'react-icons/fi';
 
 const Sidebar = ({
@@ -89,39 +94,43 @@ const Sidebar = ({
     {
       name: t('nav:dashboard'),
       path: '/dashboard',
-      icon: <FiHome className="w-5 h-5 flex-shrink-0" />,
+      icon: <FiHome className="w-5 h-5 shrink-0 text-violet-600 dark:text-violet-400" />,
     },
     {
       name: t('nav:makeBill'),
       path: '/pos',
-      icon: <FiShoppingCart className="w-5 h-5 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />,
+      icon: <FiShoppingCart className="w-5 h-5 shrink-0 text-emerald-600 dark:text-emerald-400" />,
       highlight: true,
+    },
+    {
+      name: t('nav:salesReturns'),
+      path: '/sales/returned-items',
+      icon: <FiRotateCcw className="w-5 h-5 shrink-0 text-orange-600 dark:text-orange-400" />,
     },
     {
       name: t('nav:products'),
       path: '/inventory',
-      icon: <FiPackage className="w-5 h-5 flex-shrink-0" />,
+      icon: <FiPackage className="w-5 h-5 shrink-0 text-sky-600 dark:text-sky-400" />,
     },
     {
       name: t('nav:udhaarKhata'),
       path: '/udhaar',
-      icon: <FiBookOpen className="w-5 h-5 flex-shrink-0 text-rose-600 dark:text-rose-400" />,
-      badge: 'اہم',
+      icon: <FiBookOpen className="w-5 h-5 shrink-0 text-rose-600 dark:text-rose-400" />,
     },
     {
       name: t('nav:cashInHand'),
       path: '/cashbank/cash-in-hand',
-      icon: <FiDollarSign className="w-5 h-5 flex-shrink-0 text-amber-600 dark:text-amber-400" />,
+      icon: <FiDollarSign className="w-5 h-5 shrink-0 text-amber-600 dark:text-amber-400" />,
     },
     {
       name: t('nav:expenses'),
       path: '/purchase/expenses',
-      icon: <FiTrendingDown className="w-5 h-5 flex-shrink-0" />,
+      icon: <FiTrendingDown className="w-5 h-5 shrink-0 text-red-600 dark:text-red-400" />,
     },
     {
       name: t('nav:reports'),
       path: '/reports',
-      icon: <FiBarChart2 className="w-5 h-5 flex-shrink-0" />,
+      icon: <FiBarChart2 className="w-5 h-5 shrink-0 text-indigo-600 dark:text-indigo-400" />,
     },
   ];
 
@@ -130,22 +139,22 @@ const Sidebar = ({
     {
       name: t('nav:dashboard'),
       path: '/dashboard',
-      icon: <FiHome className="w-4 h-4 flex-shrink-0" />,
+      icon: <FiHome className="w-4 h-4 shrink-0 text-violet-600 dark:text-violet-400" />,
     },
     {
       name: t('nav:pos'),
       path: '/pos',
-      icon: <FiShoppingCart className="w-4 h-4 flex-shrink-0" />,
+      icon: <FiShoppingCart className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />,
+      highlight: true,
     },
     {
       name: t('nav:udhaarKhata'),
       path: '/udhaar',
-      icon: <FiBookOpen className="w-4 h-4 flex-shrink-0 text-rose-500" />,
-      badge: 'نیا',
+      icon: <FiBookOpen className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />,
     },
     {
       name: t('nav:sales'),
-      icon: <FiFileText className="w-4 h-4 flex-shrink-0" />,
+      icon: <FiFileText className="w-4 h-4 shrink-0 text-blue-600 dark:text-blue-400" />,
       submenu: [
         { name: t('nav:salesInvoices'), path: '/sales/invoices' },
         { name: t('nav:salesOrders'), path: '/sales/orders' },
@@ -156,7 +165,7 @@ const Sidebar = ({
     },
     {
       name: t('nav:purchases'),
-      icon: <FiShoppingBag className="w-4 h-4 flex-shrink-0" />,
+      icon: <FiShoppingBag className="w-4 h-4 shrink-0 text-orange-600 dark:text-orange-400" />,
       submenu: [
         { name: t('nav:purchaseBills'), path: '/purchase/bills' },
         { name: t('nav:purchaseOrders'), path: '/purchase-orders' },
@@ -167,11 +176,11 @@ const Sidebar = ({
     {
       name: t('nav:inventory'),
       path: '/inventory',
-      icon: <FiPackage className="w-4 h-4 flex-shrink-0" />,
+      icon: <FiPackage className="w-4 h-4 shrink-0 text-sky-600 dark:text-sky-400" />,
     },
     {
       name: t('nav:parties'),
-      icon: <FiUsers className="w-4 h-4 flex-shrink-0" />,
+      icon: <FiUsers className="w-4 h-4 shrink-0 text-cyan-600 dark:text-cyan-400" />,
       submenu: [
         { name: t('nav:customers'), path: '/customers' },
         { name: t('nav:suppliers'), path: '/suppliers' },
@@ -179,7 +188,7 @@ const Sidebar = ({
     },
     {
       name: t('nav:finance'),
-      icon: <FiCreditCard className="w-4 h-4 flex-shrink-0" />,
+      icon: <FiCreditCard className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />,
       submenu: [
         { name: t('nav:overview'), path: '/cashbank/position' },
         {
@@ -198,11 +207,11 @@ const Sidebar = ({
     {
       name: t('nav:reports'),
       path: '/reports',
-      icon: <FiBarChart2 className="w-4 h-4 flex-shrink-0" />,
+      icon: <FiBarChart2 className="w-4 h-4 shrink-0 text-indigo-600 dark:text-indigo-400" />,
     },
     {
       name: t('nav:more'),
-      icon: <FiMoreHorizontal className="w-4 h-4 flex-shrink-0" />,
+      icon: <FiMoreHorizontal className="w-4 h-4 shrink-0 text-zinc-500 dark:text-zinc-400" />,
       submenu: [
         {
           name: t('nav:marketing'),
@@ -342,12 +351,12 @@ const Sidebar = ({
       <aside
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className={`print:hidden fixed z-50 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col shadow-sm dark:shadow-lg transition-all duration-200 ease-in-out ${
+        className={`print:hidden fixed z-50 bg-white dark:bg-[#09090b] text-zinc-800 dark:text-zinc-100 flex flex-col shadow-sm dark:shadow-2xl transition-all duration-200 ease-in-out ${
           isImpersonated ? 'top-10 bottom-0' : 'inset-y-0'
         } ${
           isRtl
-            ? 'right-0 border-l border-slate-200/80 dark:border-slate-800'
-            : 'left-0 border-r border-slate-200/80 dark:border-slate-800'
+            ? 'right-0 border-l border-slate-200/80 dark:border-zinc-800/80'
+            : 'left-0 border-r border-slate-200/80 dark:border-zinc-800/80'
         } ${
           isOpen
             ? 'translate-x-0'
@@ -357,7 +366,7 @@ const Sidebar = ({
         } lg:translate-x-0 ${isEffectivelyExpanded ? 'w-60' : 'w-16'}`}
       >
         {/* Header Branding */}
-        <div className="p-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between min-h-[60px]">
+        <div className="p-3 border-b border-slate-200 dark:border-zinc-800/80 flex items-center justify-between min-h-[60px]">
           {isEffectivelyExpanded ? (
             <>
               <Link to="/dashboard" className="flex items-center">
@@ -366,7 +375,7 @@ const Sidebar = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-md p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 focus:outline-none lg:hidden"
+                className="rounded-md p-1.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800 focus:outline-none lg:hidden cursor-pointer"
                 aria-label="Close navigation menu"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -381,78 +390,86 @@ const Sidebar = ({
           )}
         </div>
 
-        {/* Language & Mode Control Bar */}
-        <div className="px-3 py-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/40 flex items-center justify-between gap-1 text-xs">
-          {isEffectivelyExpanded ? (
-            <>
-              {/* Language Switcher */}
-              <button
-                type="button"
-                onClick={() => changeLanguage(language === 'ur' ? 'en' : 'ur')}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 font-bold transition-all text-xs"
-                title="Switch Language / زبان تبدیل کریں"
-              >
-                <FiGlobe className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
-                <span>{language === 'ur' ? 'English' : 'اردو'}</span>
-              </button>
-
-              {/* Mode Switcher - Real-time instant toggle */}
-              <button
-                type="button"
-                onClick={toggleMode}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-bold text-xs transition-all border ${
-                  isAsan
-                    ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40'
-                    : 'border-violet-500 bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-900/40'
-                }`}
-                title="Switch Mode / موڈ تبدیل کریں"
-              >
-                {isAsan ? <FiSmile className="w-3.5 h-3.5 text-emerald-600" /> : <FiZap className="w-3.5 h-3.5 text-violet-600" />}
-                <span>{isAsan ? (language === 'ur' ? 'آسان موڈ' : 'Asan Mode') : (language === 'ur' ? 'پرو موڈ' : 'Pro Mode')}</span>
-              </button>
-            </>
-          ) : (
+        {/* Language & Mode Control Bar (ONLY rendered when expanded) */}
+        {isEffectivelyExpanded && (
+          <div className="px-3 py-2 border-b border-slate-200 dark:border-zinc-800/80 bg-slate-50/70 dark:bg-zinc-900/60 flex items-center justify-between gap-1 text-xs">
+            {/* Language Switcher Button */}
             <button
               type="button"
               onClick={() => changeLanguage(language === 'ur' ? 'en' : 'ur')}
-              className="w-full flex items-center justify-center p-1 rounded-md text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-800"
-              title="Toggle Language"
+              className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-700 font-bold transition-all text-xs cursor-pointer"
+              title="Switch Language / زبان تبدیل کریں"
             >
-              <FiGlobe className="w-4 h-4" />
+              <FiGlobe className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
+              <span>{language === 'ur' ? 'EN' : 'اردو'}</span>
             </button>
-          )}
 
-          {/* Theme & Collapse Controls (Desktop) */}
-          <div className="hidden lg:flex items-center gap-1">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="p-1 rounded-md text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 transition-colors"
-              title="Toggle theme"
-            >
-              {theme === 'light' ? '🌙' : '☀️'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1 rounded-md text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 transition-colors"
-              title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            >
-              <svg className={`w-3.5 h-3.5 ${isRtl ? 'scale-x-[-1]' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {isCollapsed ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            {/* Sleek Mode Toggle Switch */}
+            <div className="flex items-center p-0.5 bg-slate-200/80 dark:bg-zinc-800 rounded-lg border border-slate-300/60 dark:border-zinc-700/60 text-xs">
+              <button
+                type="button"
+                onClick={() => mode !== 'asan' && toggleMode()}
+                className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                  isAsan
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                }`}
+                title="Asan Mode / آسان موڈ"
+              >
+                <FiSmile className="w-3 h-3" />
+                <span>{language === 'ur' ? 'آسان' : 'Asan'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => mode !== 'pro' && toggleMode()}
+                className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                  isPro
+                    ? 'bg-violet-600 text-white shadow-xs'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                }`}
+                title="Pro Mode / پرو موڈ"
+              >
+                <FiZap className="w-3 h-3" />
+                <span>{language === 'ur' ? 'پرو' : 'Pro'}</span>
+              </button>
+            </div>
+
+            {/* Theme & Collapse Controls (Desktop) */}
+            <div className="hidden lg:flex items-center gap-1">
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                title={theme === 'light' ? 'Switch to Dark mode' : 'Switch to Light mode'}
+              >
+                {theme === 'light' ? (
+                  <FiMoon className="w-3.5 h-3.5" />
                 ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                  <FiSun className="w-3.5 h-3.5 text-amber-400" />
                 )}
-              </svg>
-            </button>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              >
+                <svg className={`w-3.5 h-3.5 ${isRtl ? 'scale-x-[-1]' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {isCollapsed ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                  )}
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Navigation List */}
         <nav
           ref={navRef}
-          className="flex-1 overflow-y-auto px-2 py-3 space-y-1 select-none scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700"
+          className="flex-1 overflow-y-auto px-2 py-3 space-y-1 select-none scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800"
         >
           {currentMenuItems.map((item) => {
             const hasSubmenu = Boolean(item.submenu && item.submenu.length > 0);
@@ -466,10 +483,10 @@ const Sidebar = ({
                     <button
                       type="button"
                       onClick={() => toggleSubmenu(item.name)}
-                      className={`w-full min-h-[44px] flex items-center justify-between px-3 py-2 text-sm font-semibold rounded-xl transition-colors ${
+                      className={`w-full min-h-[44px] flex items-center justify-between px-3 py-2 text-sm font-semibold rounded-xl transition-all border-s-2 cursor-pointer ${
                         isItemActive
-                          ? 'bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300 font-bold'
-                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                          ? 'border-violet-600 dark:border-violet-400 bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-200 font-bold shadow-xs'
+                          : 'border-transparent text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/80'
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
@@ -480,8 +497,8 @@ const Sidebar = ({
                       </div>
                       {isEffectivelyExpanded && (
                         <FiChevronDown
-                          className={`w-4 h-4 transition-transform duration-200 ${
-                            isExpanded ? 'rotate-180' : ''
+                          className={`w-4 h-4 text-zinc-400 dark:text-zinc-400 transition-transform duration-200 ${
+                            isExpanded ? 'rotate-180 text-violet-600 dark:text-violet-400' : ''
                           }`}
                         />
                       )}
@@ -500,10 +517,10 @@ const Sidebar = ({
                               <button
                                 type="button"
                                 onClick={() => toggleSubmenu(`${item.name}:${sub.name}`)}
-                                className={`w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-semibold rounded-lg ${
+                                className={`w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
                                   isSubActive
-                                    ? 'text-violet-700 dark:text-violet-300 font-bold'
-                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                                    ? 'text-violet-700 dark:text-violet-300 font-bold bg-violet-50/60 dark:bg-violet-950/40'
+                                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/60'
                                 }`}
                               >
                                 <span>{sub.name}</span>
@@ -524,10 +541,10 @@ const Sidebar = ({
                                         if (window.innerWidth < 1024) onClose();
                                       }}
                                       className={({ isActive }) =>
-                                        `block px-2 py-1 text-xs rounded-md ${
+                                        `block px-2 py-1 text-xs rounded-md border-s-2 transition-colors ${
                                           isActive
-                                            ? 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-200 font-bold'
-                                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                                            ? 'border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300 font-bold'
+                                            : 'border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/50'
                                         }`
                                       }
                                     >
@@ -545,10 +562,10 @@ const Sidebar = ({
                                 if (window.innerWidth < 1024) onClose();
                               }}
                               className={({ isActive }) =>
-                                `block px-2.5 py-1.5 text-xs rounded-lg transition-colors ${
+                                `block px-2.5 py-1.5 text-xs rounded-lg transition-colors border-s-2 ${
                                   isActive
-                                    ? 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-200 font-bold'
-                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                                    ? 'border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300 font-bold'
+                                    : 'border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
                                 }`
                               }
                             >
@@ -566,12 +583,12 @@ const Sidebar = ({
                       if (window.innerWidth < 1024) onClose();
                     }}
                     className={({ isActive }) =>
-                      `min-h-[46px] flex items-center justify-between px-3 py-2 rounded-xl transition-all font-semibold text-sm ${
+                      `min-h-[46px] flex items-center justify-between px-3 py-2 rounded-xl transition-all font-semibold text-sm border-s-2 ${
                         isActive
-                          ? 'bg-violet-700 text-white shadow-sm font-bold'
+                          ? 'border-violet-600 dark:border-violet-400 bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-200 font-bold shadow-xs'
                           : item.highlight
-                          ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 hover:bg-emerald-100'
-                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                          ? 'border-transparent bg-emerald-50/80 text-emerald-800 hover:bg-emerald-100/90 hover:text-emerald-950 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60 dark:hover:text-emerald-100'
+                          : 'border-transparent text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/80'
                       }`
                     }
                     title={item.name}
@@ -594,21 +611,21 @@ const Sidebar = ({
           })}
         </nav>
 
-        {/* Bottom Section: Profile & Logout */}
-        <div className="p-2.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/50">
+        {/* Bottom Section: Profile, Theme, Collapse & Logout */}
+        <div className="p-2.5 border-t border-slate-200 dark:border-zinc-800/80 bg-slate-50/80 dark:bg-zinc-900/60">
           {isEffectivelyExpanded ? (
             <>
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 bg-violet-600 dark:bg-violet-700 rounded-full flex items-center justify-center shadow-xs flex-shrink-0">
+                <div className="w-8 h-8 bg-violet-600 dark:bg-violet-700 rounded-full flex items-center justify-center shadow-xs shrink-0">
                   <span className="text-xs font-bold text-white">
                     {user?.name?.charAt(0).toUpperCase() || 'U'}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-xs text-slate-900 dark:text-slate-100 truncate leading-tight">
+                  <p className="font-semibold text-xs text-zinc-900 dark:text-zinc-100 truncate leading-tight">
                     {user?.name || 'User'}
                   </p>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">
                     {user?.shopName || user?.email || ''}
                   </p>
                 </div>
@@ -618,7 +635,7 @@ const Sidebar = ({
                 <button
                   type="button"
                   onClick={onLogout}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 rounded-xl transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold bg-rose-50 hover:bg-rose-100/90 dark:bg-rose-950/30 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 border border-rose-200/70 dark:border-rose-900/50 rounded-lg transition-colors cursor-pointer"
                 >
                   <FiLogOut className="w-3.5 h-3.5" />
                   <span>{t('nav:logout')}</span>
@@ -627,10 +644,31 @@ const Sidebar = ({
             </>
           ) : (
             <div className="flex flex-col items-center gap-2">
+              {/* Expand Sidebar Button */}
+              <button
+                type="button"
+                onClick={() => setIsCollapsed(false)}
+                className="p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
+                title="Expand sidebar"
+              >
+                {isRtl ? <FiChevronLeft className="w-4 h-4" /> : <FiChevronRight className="w-4 h-4" />}
+              </button>
+
+              {/* Theme Toggle Button */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
+                title={theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+              >
+                {theme === 'light' ? <FiMoon className="w-4 h-4" /> : <FiSun className="w-4 h-4 text-amber-400" />}
+              </button>
+
+              {/* Logout Button */}
               <button
                 type="button"
                 onClick={onLogout}
-                className="p-2 bg-slate-200 hover:bg-rose-100 text-slate-700 hover:text-rose-600 dark:bg-slate-800 dark:text-slate-300 rounded-lg"
+                className="p-2 text-rose-600 hover:bg-rose-100 dark:text-rose-400 dark:hover:bg-rose-950/50 rounded-lg transition-colors cursor-pointer"
                 title={t('nav:logout')}
               >
                 <FiLogOut className="w-4 h-4" />

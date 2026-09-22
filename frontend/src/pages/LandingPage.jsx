@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -52,7 +52,9 @@ const LandingPage = () => {
     try {
       const saved = localStorage.getItem('megatrix_bizmanager_pricing');
       if (saved) return JSON.parse(saved);
-    } catch (e) {}
+    } catch {
+      // Ignore parse error
+    }
     return [
       {
         id: 'starter',
@@ -110,7 +112,9 @@ const LandingPage = () => {
       try {
         const saved = localStorage.getItem('megatrix_bizmanager_pricing');
         if (saved) setSyncedPlans(JSON.parse(saved));
-      } catch (e) {}
+      } catch {
+        // Ignore parse error
+      }
     };
     window.addEventListener('storage', handleSync);
     window.addEventListener('megatrix_pricing_sync', handleSync);
@@ -145,6 +149,26 @@ const LandingPage = () => {
   });
   const [contactSubmitted, setContactSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Helper to localize plans dynamically
+  const getLocalizedPlan = (plan) => {
+    if (language === 'ur') {
+      const urPlan = t(`landing:pricing.plans.${plan.id}`, { returnObjects: true });
+      const hasUrObj = urPlan && typeof urPlan === 'object' && urPlan.name;
+      return {
+        ...plan,
+        name: plan.name_ur || (hasUrObj ? urPlan.name : plan.name),
+        tagline: plan.tagline_ur || (hasUrObj ? urPlan.tagline : plan.tagline),
+        price: plan.price_ur || (hasUrObj ? urPlan.price : (plan.price.includes('PKR') ? plan.price.replace('PKR', '').trim() + ' روپے' : plan.price)),
+        billingLabel: plan.billing === 'one-time' ? t('landing:pricing.oneTime') : t('landing:pricing.perMonth'),
+        features: plan.features_ur || (hasUrObj ? urPlan.features : plan.features),
+      };
+    }
+    return {
+      ...plan,
+      billingLabel: plan.billing === 'one-time' ? (t('landing:pricing.oneTime') || '/ one-time') : (t('landing:pricing.perMonth') || `/${plan.billing}`),
+    };
+  };
 
   const toggleFaq = (index) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -619,7 +643,7 @@ const LandingPage = () => {
 
                     <button
                       onClick={addDemoScanItem}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-violet-50 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800/60 hover:bg-violet-100 active:scale-95 transition cursor-pointer self-start sm:self-auto"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-violet-50 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800/60 hover:bg-violet-100 dark:hover:bg-violet-900/60 dark:hover:text-violet-100 dark:hover:border-violet-700 active:scale-95 transition cursor-pointer self-start sm:self-auto"
                     >
                       <FiPlus className="w-3.5 h-3.5" />
                       <span>{t('landing:demo.simulateScan')}</span>
@@ -1139,79 +1163,80 @@ const LandingPage = () => {
           <div className="text-center mb-12 sm:mb-16">
             <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold uppercase tracking-widest text-violet-600 dark:text-violet-400 mb-2">
               <FiTag className="w-4 h-4" />
-              <span>{language === 'ur' ? 'شفاف اور آسان پرائسنگ' : 'Transparent SaaS Pricing'}</span>
+              <span>{t('landing:pricing.badge')}</span>
             </div>
             <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
-              {language === 'ur' ? 'کاروبار کے لیے موزوں لائسنس منتخب کریں' : 'Simple, Predictable Retail Pricing'}
+              {t('landing:pricing.title')}
             </h2>
             <p className="text-xs sm:text-sm md:text-base text-slate-500 dark:text-zinc-400 mt-2 max-w-xl mx-auto leading-relaxed">
-              {language === 'ur'
-                ? 'کوئی پوشیدہ فیس نہیں، تمام اہم فیچرز اور خودکار بیک اپ شامل ہیں۔'
-                : 'Zero hidden charges. Complete barcode POS, customer khata, and multi-terminal sync included.'}
+              {t('landing:pricing.subtitle')}
             </p>
           </div>
 
           {/* Dynamic Plans Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto items-stretch">
-            {syncedPlans.map((plan) => (
-              <div
-                key={plan.id}
-                className={`p-6 sm:p-8 rounded-2xl sm:rounded-3xl flex flex-col justify-between transition-all duration-200 relative ${
-                  plan.popular
-                    ? 'bg-white dark:bg-zinc-900/90 border-2 border-violet-600 dark:border-violet-500 shadow-xl shadow-violet-600/10'
-                    : 'bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-white/[0.08] shadow-sm hover:border-violet-500/40'
-                }`}
-              >
-                {plan.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm">
-                    {language === 'ur' ? 'سب سے مقبول' : 'Most Popular'}
-                  </span>
-                )}
+            {syncedPlans.map((plan) => {
+              const localizedPlan = getLocalizedPlan(plan);
+              return (
+                <div
+                  key={plan.id}
+                  className={`p-6 sm:p-8 rounded-2xl sm:rounded-3xl flex flex-col justify-between transition-all duration-200 relative ${
+                    plan.popular
+                      ? 'bg-white dark:bg-zinc-900/90 border-2 border-violet-600 dark:border-violet-500 shadow-xl shadow-violet-600/10'
+                      : 'bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-white/[0.08] shadow-sm hover:border-violet-500/40'
+                  }`}
+                >
+                  {plan.popular && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm font-urdu">
+                      {t('landing:pricing.popular')}
+                    </span>
+                  )}
 
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">{plan.name}</h3>
-                    <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">{plan.tagline}</p>
-                  </div>
-
-                  {/* Price display */}
-                  <div className="py-4 border-y border-slate-100 dark:border-white/[0.06]">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl sm:text-4xl font-black font-mono text-slate-900 dark:text-white" dir="ltr">
-                        {plan.price}
-                      </span>
-                      <span className="text-xs text-slate-500 dark:text-zinc-400 font-mono">
-                        {plan.billing === 'one-time' ? (language === 'ur' ? '/ ایک بار' : '/ lifetime') : (language === 'ur' ? '/ ماہانہ' : `/${plan.billing}`)}
-                      </span>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900 dark:text-white font-urdu">{localizedPlan.name}</h3>
+                      <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-urdu leading-relaxed">{localizedPlan.tagline}</p>
                     </div>
+
+                    {/* Price display */}
+                    <div className="py-4 border-y border-slate-100 dark:border-white/[0.06]">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl sm:text-4xl font-black font-mono text-slate-900 dark:text-white" dir="ltr">
+                          {localizedPlan.price}
+                        </span>
+                        <span className="text-xs text-slate-500 dark:text-zinc-400 font-mono font-urdu">
+                          {localizedPlan.billingLabel}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Feature list */}
+                    <ul className="space-y-3 text-xs sm:text-sm text-slate-600 dark:text-zinc-300 font-urdu">
+                      {localizedPlan.features.map((feat, fIdx) => (
+                        <li key={fIdx} className="flex items-start gap-2.5">
+                          <FiCheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
 
-                  {/* Feature list */}
-                  <ul className="space-y-3 text-xs sm:text-sm text-slate-600 dark:text-zinc-300">
-                    {plan.features.map((feat, fIdx) => (
-                      <li key={fIdx} className="flex items-start gap-2.5">
-                        <FiCheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                        <span>{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="pt-6 mt-6 border-t border-slate-100 dark:border-white/[0.06]">
+                    <button
+                      onClick={() => navigate(user ? '/dashboard' : '/register')}
+                      className={`w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2 font-urdu ${
+                        plan.popular
+                          ? 'bg-violet-600 hover:bg-violet-500 text-white shadow-md shadow-violet-600/25'
+                          : 'bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-slate-800 dark:text-white'
+                      }`}
+                    >
+                      <span>{user ? t('landing:nav.dashboard') : t('landing:pricing.startTrial')}</span>
+                      <FiArrowRight className={`w-3.5 h-3.5 ${isRtl ? 'scale-x-[-1]' : ''}`} />
+                    </button>
+                  </div>
                 </div>
-
-                <div className="pt-6 mt-6 border-t border-slate-100 dark:border-white/[0.06]">
-                  <button
-                    onClick={() => navigate(user ? '/dashboard' : '/register')}
-                    className={`w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                      plan.popular
-                        ? 'bg-violet-600 hover:bg-violet-500 text-white shadow-md shadow-violet-600/25'
-                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-slate-800 dark:text-white'
-                    }`}
-                  >
-                    <span>{user ? t('landing:nav.dashboard') : (language === 'ur' ? '14 دن کا مفت ٹرائل شروع کریں' : 'Start 14-Day Free Trial')}</span>
-                    <FiArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -1224,15 +1249,13 @@ const LandingPage = () => {
               <div>
                 <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-violet-600 dark:text-violet-400 mb-1">
                   <FiTag className="w-3.5 h-3.5" />
-                  <span>{language === 'ur' ? 'لائیو پرائسنگ' : 'Live Platform Pricing'}</span>
+                  <span>{t('landing:pricing.modalBadge')}</span>
                 </div>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                  {language === 'ur' ? 'بز مینیجر ریٹیل سبسکرپشن پیکجز' : 'Biz Manager Retail POS Plans & Pricing'}
+                  {t('landing:pricing.modalTitle')}
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-                  {language === 'ur'
-                    ? 'خودکار طریقے سے میگاٹرکس ایڈمن کور کے ذریعے ہم آہنگ شدہ۔'
-                    : 'Synchronized live from MegaTrix Admin Core.'}
+                  {t('landing:pricing.modalSub')}
                 </p>
               </div>
               <button
@@ -1246,60 +1269,63 @@ const LandingPage = () => {
 
             {/* Modal Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {syncedPlans.map((plan) => (
-                <div
-                  key={plan.id}
-                  className={`p-5 rounded-2xl flex flex-col justify-between border ${
-                    plan.popular
-                      ? 'border-violet-500 bg-violet-500/5 dark:bg-violet-950/20'
-                      : 'border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.02]'
-                  }`}
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-base font-bold text-slate-900 dark:text-white">{plan.name}</h4>
-                      {plan.popular && (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-violet-600 text-white">
-                          Popular
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-2xl font-black font-mono text-slate-900 dark:text-white" dir="ltr">
-                      {plan.price}
-                    </div>
-                    <ul className="space-y-2 text-xs text-slate-600 dark:text-zinc-300">
-                      {plan.features.slice(0, 4).map((f, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <FiCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setPricingModalOpen(false);
-                      navigate(user ? '/dashboard' : '/register');
-                    }}
-                    className={`mt-5 w-full py-2.5 px-3 rounded-xl text-xs font-bold transition cursor-pointer ${
+              {syncedPlans.map((plan) => {
+                const localizedPlan = getLocalizedPlan(plan);
+                return (
+                  <div
+                    key={plan.id}
+                    className={`p-5 rounded-2xl flex flex-col justify-between border ${
                       plan.popular
-                        ? 'bg-violet-600 hover:bg-violet-500 text-white'
-                        : 'bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/15 text-slate-800 dark:text-white'
+                        ? 'border-violet-500 bg-violet-500/5 dark:bg-violet-950/20'
+                        : 'border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.02]'
                     }`}
                   >
-                    {user ? 'Open Dashboard' : 'Select Plan'}
-                  </button>
-                </div>
-              ))}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-base font-bold text-slate-900 dark:text-white font-urdu">{localizedPlan.name}</h4>
+                        {plan.popular && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-violet-600 text-white font-urdu">
+                            {t('landing:pricing.popular')}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-2xl font-black font-mono text-slate-900 dark:text-white" dir="ltr">
+                        {localizedPlan.price}
+                      </div>
+                      <ul className="space-y-2 text-xs text-slate-600 dark:text-zinc-300 font-urdu">
+                        {localizedPlan.features.slice(0, 4).map((f, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <FiCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                            <span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setPricingModalOpen(false);
+                        navigate(user ? '/dashboard' : '/register');
+                      }}
+                      className={`mt-5 w-full py-2.5 px-3 rounded-xl text-xs font-bold transition cursor-pointer font-urdu ${
+                        plan.popular
+                          ? 'bg-violet-600 hover:bg-violet-500 text-white'
+                          : 'bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/15 text-slate-800 dark:text-white'
+                      }`}
+                    >
+                      {user ? t('landing:pricing.dashboard') : t('landing:pricing.selectPlan')}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="flex items-center justify-end pt-3 border-t border-slate-100 dark:border-white/[0.08]">
               <button
                 onClick={() => setPricingModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white cursor-pointer font-urdu"
               >
-                {language === 'ur' ? 'بند کریں' : 'Close Window'}
+                {t('landing:pricing.close')}
               </button>
             </div>
           </div>

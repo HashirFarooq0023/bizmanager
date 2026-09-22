@@ -92,10 +92,6 @@ const itemSchema = new mongoose.Schema(
       },
     ],
     // Barcode/SKU fields for scanning
-    barcode: {
-      type: String,
-      sparse: true,
-    },
     supplierSKU: {
       type: String,
       sparse: true,

@@ -7,7 +7,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { createExpense, updateExpense, clearBudgetWarnings } from '../../redux/slices/expenseSlice';
 import { getAccounts } from '../../redux/slices/cashbankSlice';
 
-const ExpenseForm = ({ expense, categories, onClose }) => {
+const ExpenseForm = ({ expense, categories = [], onClose }) => {
     const { t } = useTranslation(['purchase', 'common']);
     const { isUrdu } = useLanguage();
     const dispatch = useDispatch();
@@ -47,12 +47,10 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
 
-        // Clear error for this field
         if (errors[name]) {
             setErrors({ ...errors, [name]: '' });
         }
 
-        // Clear bank account if payment method is cash
         if (name === 'paymentMethod' && value === 'cash') {
             setFormData({ ...formData, [name]: value, bankAccount: '', referenceNumber: '' });
         }
@@ -133,10 +131,10 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
 
     const paymentMethods = [
         { value: 'cash', labelEn: 'Cash', labelUr: 'نقد' },
-        { value: 'upi', labelEn: 'UPI / Digital', labelUr: 'ڈیجیٹل / یو پی آئی' },
-        { value: 'card', labelEn: 'Card', labelUr: 'کارڈ' },
-        { value: 'cheque', labelEn: 'Cheque', labelUr: 'چیک' },
-        { value: 'bank_transfer', labelEn: 'Bank Transfer', labelUr: 'بینک ٹرانسفر' },
+        { value: 'upi', labelEn: 'EasyPaisa / JazzCash / Digital', labelUr: 'ایزی پیسہ / جاز کیش / ڈیجیٹل' },
+        { value: 'card', labelEn: 'Card / POS', labelUr: 'کارڈ / پی او ایس' },
+        { value: 'cheque', labelEn: 'Cheque', labelUr: 'بینک چیک' },
+        { value: 'bank_transfer', labelEn: 'Online Bank Transfer (IBFT)', labelUr: 'آن لائن بینک ٹرانسفر' },
     ];
 
     const statuses = [
@@ -147,20 +145,30 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
 
     return (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-            <div className="bg-card rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-default">
+            <div dir="ltr" className="bg-card rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-default text-left">
                 {/* Header */}
                 <div className="sticky top-0 bg-card border-b border-default px-6 py-4 flex items-center justify-between z-10">
                     <div>
-                        <h2 className="text-xl font-bold text-main">
-                            {expense ? (isUrdu ? 'خرچہ تبدیل کریں (Edit Expense)' : 'Edit Expense') : (isUrdu ? 'نیا خرچہ درج کریں (Add New Expense)' : 'Add New Expense')}
+                        <h2 className="text-xl font-bold text-main flex items-center gap-2">
+                            <span>{expense ? 'Edit Expense' : 'Add New Expense'}</span>
+                            {isUrdu && (
+                                <span className="text-sm font-semibold text-violet-600 dark:text-violet-400 font-urdu">
+                                    ({expense ? 'خرچہ تبدیل کریں' : 'نیا خرچہ درج کریں'})
+                                </span>
+                            )}
                         </h2>
-                        <p className="text-xs text-muted mt-0.5">
-                            {isUrdu ? 'دکان کے اخراجات، کرایہ، بل وغیرہ کا اندراج کریں' : 'Record utility bills, shop rent, salaries, and operating expenses'}
+                        <p className="text-xs text-muted mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                            <span>Record shop rent, electricity bills, staff salaries, carriage & operating expenses</span>
+                            {isUrdu && (
+                                <span className="text-zinc-500 dark:text-zinc-400 font-urdu text-[11px]">
+                                    • دکان کے اخراجات، کرایہ، بل، ملازمین کی تنخواہ وغیرہ کا اندراج کریں
+                                </span>
+                            )}
                         </p>
                     </div>
                     <button
                         onClick={() => onClose(false)}
-                        className="text-muted hover:text-main transition-colors p-1.5 rounded-lg hover:bg-surface"
+                        className="text-muted hover:text-main transition-colors p-1.5 rounded-lg hover:bg-surface cursor-pointer"
                         aria-label="Close"
                     >
                         <FiX className="w-5 h-5" />
@@ -171,10 +179,10 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
                 {showBudgetWarning && budgetWarnings && budgetWarnings.length > 0 && (
                     <div className="mx-6 mt-4 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800/50 rounded-lg p-4">
                         <div className="flex items-start gap-3">
-                            <FiAlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                            <FiAlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5" />
                             <div className="flex-1">
                                 <h3 className="text-sm font-semibold text-yellow-800 dark:text-yellow-300 mb-1">
-                                    {isUrdu ? 'بجٹ انتباہ (Budget Warning)' : 'Budget Warning'}
+                                    {isUrdu ? 'Budget Warning (بجٹ انتباہ)' : 'Budget Warning'}
                                 </h3>
                                 <ul className="space-y-1">
                                     {budgetWarnings.map((warning, index) => (
@@ -186,7 +194,7 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
                             </div>
                             <button
                                 onClick={() => setShowBudgetWarning(false)}
-                                className="text-yellow-600 hover:text-yellow-800"
+                                className="text-yellow-600 hover:text-yellow-800 cursor-pointer"
                             >
                                 <FiX className="w-5 h-5" />
                             </button>
@@ -199,10 +207,16 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
                     {/* Row 1: Date, Category, Status */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
-                                <span>Date <span className="text-red-500">*</span></span>
-                                <span className="text-xs text-muted font-urdu">تاریخ</span>
-                            </label>
+                            {isUrdu ? (
+                                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
+                                    <span>Date <span className="text-red-500">*</span></span>
+                                    <span className="text-xs text-muted font-urdu">تاریخ</span>
+                                </label>
+                            ) : (
+                                <label className="block text-sm font-medium text-secondary mb-1.5">
+                                    Date <span className="text-red-500">*</span>
+                                </label>
+                            )}
                             <input
                                 type="date"
                                 dir="ltr"
@@ -216,17 +230,24 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
                         </div>
 
                         <div>
-                            <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
-                                <span>Category <span className="text-red-500">*</span></span>
-                                <span className="text-xs text-muted font-urdu">زمرہ</span>
-                            </label>
+                            {isUrdu ? (
+                                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
+                                    <span>Category <span className="text-red-500">*</span></span>
+                                    <span className="text-xs text-muted font-urdu">زمرہ</span>
+                                </label>
+                            ) : (
+                                <label className="block text-sm font-medium text-secondary mb-1.5">
+                                    Category <span className="text-red-500">*</span>
+                                </label>
+                            )}
                             <select
                                 name="category"
+                                dir="ltr"
                                 value={formData.category}
                                 onChange={handleChange}
                                 className={`w-full px-3 py-2 border rounded-lg bg-input text-main focus:ring-2 focus:ring-primary focus:border-transparent ${errors.category ? 'border-red-500' : 'border-default'}`}
                             >
-                                <option value="">{isUrdu ? 'زمرہ منتخب کریں / Select' : 'Select Category'}</option>
+                                <option value="">{isUrdu ? 'Select Category / زمرہ منتخب کریں' : 'Select Category'}</option>
                                 {categories.map((cat) => (
                                     <option key={cat._id} value={cat.name}>
                                         {cat.icon} {cat.name}
@@ -237,19 +258,26 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
                         </div>
 
                         <div>
-                            <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
-                                <span>Status <span className="text-red-500">*</span></span>
-                                <span className="text-xs text-muted font-urdu">حیثیت</span>
-                            </label>
+                            {isUrdu ? (
+                                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
+                                    <span>Status <span className="text-red-500">*</span></span>
+                                    <span className="text-xs text-muted font-urdu">حیثیت</span>
+                                </label>
+                            ) : (
+                                <label className="block text-sm font-medium text-secondary mb-1.5">
+                                    Status <span className="text-red-500">*</span>
+                                </label>
+                            )}
                             <select
                                 name="status"
+                                dir="ltr"
                                 value={formData.status}
                                 onChange={handleChange}
                                 className="w-full px-3 py-2 border border-default rounded-lg bg-input text-main focus:ring-2 focus:ring-primary focus:border-transparent"
                             >
                                 {statuses.map((status) => (
                                     <option key={status.value} value={status.value}>
-                                        {status.labelEn} / {status.labelUr}
+                                        {isUrdu ? `${status.labelEn} / ${status.labelUr}` : status.labelEn}
                                     </option>
                                 ))}
                             </select>
@@ -258,17 +286,24 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
 
                     {/* Row 2: Description */}
                     <div>
-                        <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
-                            <span>Description <span className="text-red-500">*</span></span>
-                            <span className="text-xs text-muted font-urdu">تفصیل</span>
-                        </label>
+                        {isUrdu ? (
+                            <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
+                                <span>Description <span className="text-red-500">*</span></span>
+                                <span className="text-xs text-muted font-urdu">تفصیل</span>
+                            </label>
+                        ) : (
+                            <label className="block text-sm font-medium text-secondary mb-1.5">
+                                Description <span className="text-red-500">*</span>
+                            </label>
+                        )}
                         <input
                             type="text"
+                            dir="ltr"
                             name="description"
                             value={formData.description}
                             onChange={handleChange}
-                            placeholder={isUrdu ? 'مثلاً: جنوری کا دکان کا کرایہ، بجلی کا بل...' : 'e.g., Office rent, Electricity bill, Tea expenses...'}
-                            className={`w-full px-3 py-2 border rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent ${errors.description ? 'border-red-500' : 'border-default'}`}
+                            placeholder={isUrdu ? 'e.g., Shop rent, Electricity bill, Tea, Staff salary / مثلاً: دکان کا کرایہ، بل، چائے، تنخواہ...' : 'e.g., Shop rent, Electricity bill, Tea & refreshments, Staff wages...'}
+                            className={`w-full px-3 py-2 border rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent text-left ${errors.description ? 'border-red-500' : 'border-default'}`}
                         />
                         {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description}</p>}
                     </div>
@@ -276,10 +311,16 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
                     {/* Row 3: Amount, Payment Method */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
-                                <span>Amount (Rs.) <span className="text-red-500">*</span></span>
-                                <span className="text-xs text-muted font-urdu">رقم (روپے)</span>
-                            </label>
+                            {isUrdu ? (
+                                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
+                                    <span>Amount (Rs.) <span className="text-red-500">*</span></span>
+                                    <span className="text-xs text-muted font-urdu">رقم (روپے)</span>
+                                </label>
+                            ) : (
+                                <label className="block text-sm font-medium text-secondary mb-1.5">
+                                    Amount (Rs.) <span className="text-red-500">*</span>
+                                </label>
+                            )}
                             <input
                                 type="number"
                                 dir="ltr"
@@ -295,19 +336,26 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
                         </div>
 
                         <div>
-                            <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
-                                <span>Payment Method <span className="text-red-500">*</span></span>
-                                <span className="text-xs text-muted font-urdu">ادائیگی کا طریقہ</span>
-                            </label>
+                            {isUrdu ? (
+                                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
+                                    <span>Payment Method <span className="text-red-500">*</span></span>
+                                    <span className="text-xs text-muted font-urdu">ادائیگی کا طریقہ</span>
+                                </label>
+                            ) : (
+                                <label className="block text-sm font-medium text-secondary mb-1.5">
+                                    Payment Method <span className="text-red-500">*</span>
+                                </label>
+                            )}
                             <select
                                 name="paymentMethod"
+                                dir="ltr"
                                 value={formData.paymentMethod}
                                 onChange={handleChange}
                                 className="w-full px-3 py-2 border border-default rounded-lg bg-input text-main focus:ring-2 focus:ring-primary focus:border-transparent"
                             >
                                 {paymentMethods.map((method) => (
                                     <option key={method.value} value={method.value}>
-                                        {method.labelEn} / {method.labelUr}
+                                        {isUrdu ? `${method.labelEn} / ${method.labelUr}` : method.labelEn}
                                     </option>
                                 ))}
                             </select>
@@ -318,20 +366,27 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
                     {formData.paymentMethod !== 'cash' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
-                                    <span>Bank Account <span className="text-red-500">*</span></span>
-                                    <span className="text-xs text-muted font-urdu">بینک کھاتہ</span>
-                                </label>
+                                {isUrdu ? (
+                                    <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
+                                        <span>Bank Account <span className="text-red-500">*</span></span>
+                                        <span className="text-xs text-muted font-urdu">بینک کھاتہ</span>
+                                    </label>
+                                ) : (
+                                    <label className="block text-sm font-medium text-secondary mb-1.5">
+                                        Bank Account <span className="text-red-500">*</span>
+                                    </label>
+                                )}
                                 <select
                                     name="bankAccount"
+                                    dir="ltr"
                                     value={formData.bankAccount}
                                     onChange={handleChange}
                                     className={`w-full px-3 py-2 border rounded-lg bg-input text-main focus:ring-2 focus:ring-primary focus:border-transparent ${errors.bankAccount ? 'border-red-500' : 'border-default'}`}
                                 >
-                                    <option value="">{isUrdu ? 'بینک کھاتہ منتخب کریں' : 'Select Bank Account'}</option>
+                                    <option value="">{isUrdu ? 'Select Bank Account / بینک کھاتہ منتخب کریں' : 'Select Bank Account'}</option>
                                     {accounts?.map((acc) => (
                                         <option key={acc._id} value={acc._id}>
-                                            {acc.bankName} - {acc.accountType} (Rs. {acc.currentBalance.toFixed(2)})
+                                            {acc.bankName} - {acc.accountType} (Rs. {(acc.currentBalance || 0).toFixed(2)})
                                         </option>
                                     ))}
                                 </select>
@@ -339,12 +394,18 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
                             </div>
 
                             <div>
-                                <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
-                                    <span>
+                                {isUrdu ? (
+                                    <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
+                                        <span>
+                                            Reference Number {formData.paymentMethod === 'cheque' && <span className="text-red-500">*</span>}
+                                        </span>
+                                        <span className="text-xs text-muted font-urdu">حوالہ / چیک نمبر</span>
+                                    </label>
+                                ) : (
+                                    <label className="block text-sm font-medium text-secondary mb-1.5">
                                         Reference Number {formData.paymentMethod === 'cheque' && <span className="text-red-500">*</span>}
-                                    </span>
-                                    <span className="text-xs text-muted font-urdu">حوالہ / چیک نمبر</span>
-                                </label>
+                                    </label>
+                                )}
                                 <input
                                     type="text"
                                     dir="ltr"
@@ -353,10 +414,10 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
                                     onChange={handleChange}
                                     placeholder={
                                         formData.paymentMethod === 'cheque'
-                                            ? 'Cheque # 123456'
+                                            ? (isUrdu ? 'Cheque # 123456 / چیک نمبر' : 'Cheque # 123456')
                                             : formData.paymentMethod === 'upi'
-                                                ? 'UPI / EasyPaisa / JazzCash ID'
-                                                : 'Transaction reference'
+                                                ? (isUrdu ? 'EasyPaisa / JazzCash TRX ID / ٹرانزیکشن آئی ڈی' : 'EasyPaisa / JazzCash / TRX ID')
+                                                : (isUrdu ? 'Transaction reference / ریفرنس نمبر' : 'Transaction reference')
                                     }
                                     className={`w-full px-3 py-2 border rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent font-mono text-left ${errors.referenceNumber ? 'border-red-500' : 'border-default'}`}
                                 />
@@ -367,31 +428,44 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
 
                     {/* Row 5: Notes */}
                     <div>
-                        <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
-                            <span>Notes</span>
-                            <span className="text-xs text-muted font-urdu">اضافی نوٹس</span>
-                        </label>
+                        {isUrdu ? (
+                            <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
+                                <span>Notes</span>
+                                <span className="text-xs text-muted font-urdu">اضافی نوٹس</span>
+                            </label>
+                        ) : (
+                            <label className="block text-sm font-medium text-secondary mb-1.5">
+                                Notes
+                            </label>
+                        )}
                         <textarea
                             name="notes"
+                            dir="ltr"
                             value={formData.notes}
                             onChange={handleChange}
                             rows="2"
-                            placeholder={isUrdu ? 'کوئی اضافی نوٹ یا تفصیل...' : 'Add any additional notes...'}
-                            className="w-full px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent"
+                            placeholder={isUrdu ? 'Add any additional notes... / کوئی اضافی نوٹ یا تفصیل' : 'Add any additional notes...'}
+                            className="w-full px-3 py-2 border border-default rounded-lg bg-input text-main placeholder-muted focus:ring-2 focus:ring-primary focus:border-transparent text-left"
                         />
                     </div>
 
                     {/* Row 6: Attachments */}
                     <div>
-                        <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
-                            <span>Attachments (Receipt / Bill image)</span>
-                            <span className="text-xs text-muted font-urdu">رسید یا بل کی تصویر</span>
-                        </label>
+                        {isUrdu ? (
+                            <label className="flex items-center justify-between text-sm font-medium text-secondary mb-1.5">
+                                <span>Attachments (Receipt / Bill Image)</span>
+                                <span className="text-xs text-muted font-urdu">رسید یا بل کی تصویر</span>
+                            </label>
+                        ) : (
+                            <label className="block text-sm font-medium text-secondary mb-1.5">
+                                Attachments (Receipt / Bill Image)
+                            </label>
+                        )}
                         <div className="space-y-2">
                             <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-default rounded-lg cursor-pointer hover:border-primary transition-colors bg-surface/50">
                                 <FiUpload className="w-5 h-5 text-muted mr-2" />
                                 <span className="text-sm text-secondary">
-                                    {isUrdu ? 'فائل یا رسید اپلوڈ کرنے کے لیے کلک کریں' : 'Click to upload receipt or bill'}
+                                    {isUrdu ? 'Click to upload receipt or bill / فائل یا رسید اپلوڈ کرنے کے لیے کلک کریں' : 'Click to upload receipt or bill'}
                                 </span>
                                 <input
                                     type="file"
@@ -413,7 +487,7 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
                                             <button
                                                 type="button"
                                                 onClick={() => removeAttachment(index)}
-                                                className="text-red-600 hover:text-red-800 ml-2"
+                                                className="text-red-600 hover:text-red-800 ml-2 cursor-pointer"
                                             >
                                                 <FiTrash2 className="w-4 h-4" />
                                             </button>
@@ -432,14 +506,19 @@ const ExpenseForm = ({ expense, categories, onClose }) => {
                             className="px-4 py-2.5 text-secondary bg-surface border border-default rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-medium cursor-pointer"
                             disabled={isLoading}
                         >
-                            {isUrdu ? 'منسوخ کریں (Cancel)' : 'Cancel'}
+                            {isUrdu ? 'Cancel / منسوخ کریں' : 'Cancel'}
                         </button>
                         <button
                             type="submit"
                             className="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-xs cursor-pointer"
                             disabled={isLoading}
                         >
-                            {isLoading ? (isUrdu ? 'محفوظ ہو رہا ہے...' : 'Saving...') : expense ? (isUrdu ? 'اپ ڈیٹ کریں / Update' : 'Update Expense') : (isUrdu ? 'خرچہ محفوظ کریں / Save' : 'Create Expense')}
+                            {isLoading
+                                ? (isUrdu ? 'Saving... / محفوظ ہو رہا ہے' : 'Saving...')
+                                : expense
+                                    ? (isUrdu ? 'Update Expense / اپ ڈیٹ کریں' : 'Update Expense')
+                                    : (isUrdu ? 'Save Expense / خرچہ محفوظ کریں' : 'Save Expense')
+                            }
                         </button>
                     </div>
                 </form>

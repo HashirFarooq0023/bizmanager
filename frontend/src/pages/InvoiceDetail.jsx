@@ -1,8 +1,9 @@
-﻿import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getInvoiceById, reset, clearInvoice } from '../redux/slices/posSlice';
 import Layout from '../components/Layout';
+import DenominationBreakdown from '../components/DenominationBreakdown';
 
 const InvoiceDetail = () => {
   const { id } = useParams();
@@ -143,10 +144,19 @@ const InvoiceDetail = () => {
               <h1 className="text-3xl font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-2">Invoice Details</h1>
               <p className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">View and print invoice</p>
             </div>
-            <div className="flex space-x-2">
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => navigate(`/sales/return?invoiceId=${invoice._id}`)}
+                className="flex items-center space-x-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition shadow-xs cursor-pointer"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                </svg>
+                <span>Return Items</span>
+              </button>
               <button
                 onClick={handlePrint}
-                className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 dark:bg-[rgb(var(--color-primary))] text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-[rgb(var(--color-primary-hover))]"
+                className="flex items-center space-x-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition shadow-xs cursor-pointer"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -159,7 +169,7 @@ const InvoiceDetail = () => {
                   dispatch(reset());
                   navigate('/pos');
                 }}
-                className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -305,6 +315,35 @@ const InvoiceDetail = () => {
                 </span>
                 <span className="font-medium text-green-600">Rs. {fmt(invoice.paidAmount)}</span>
               </div>
+              {(() => {
+                const changeReturned = invoice.changeReturned || (invoice.receivedAmount > invoice.totalAmount ? (invoice.receivedAmount - invoice.totalAmount) : 0);
+                const receivedAmount = invoice.receivedAmount || (changeReturned > 0 ? (invoice.paidAmount + changeReturned) : invoice.paidAmount);
+                return (
+                  <>
+                    {receivedAmount > invoice.paidAmount && (
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Amount Received:</span>
+                        <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">Rs. {fmt(receivedAmount)}</span>
+                      </div>
+                    )}
+                    {changeReturned > 0 && (
+                      <>
+                        <div className="flex justify-between py-2 border-b">
+                          <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Change Returned:</span>
+                          <span className="font-bold text-green-600">Rs. {fmt(changeReturned)}</span>
+                        </div>
+                        <div className="py-2">
+                          <DenominationBreakdown
+                            amount={changeReturned}
+                            label="Change Note Breakdown"
+                            urduLabel="بقایا واپسی کے نوٹوں کی تفصیل"
+                          />
+                        </div>
+                      </>
+                    )}
+                  </>
+                );
+              })()}
               {invoice.creditApplied > 0 && (
                 <div className="mt-2 pt-3 border-t border-gray-200 dark:border-[rgb(var(--color-border))] space-y-2">
                   <div className="text-sm font-semibold text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Payment Breakdown</div>

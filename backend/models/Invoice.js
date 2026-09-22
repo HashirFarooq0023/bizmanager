@@ -63,6 +63,14 @@ const invoiceSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    receivedAmount: {
+      type: Number,
+      default: 0,
+    },
+    changeReturned: {
+      type: Number,
+      default: 0,
+    },
     creditApplied: {
       type: Number,
       default: 0,

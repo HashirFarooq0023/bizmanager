@@ -24,6 +24,7 @@ const Inventory = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [stockFilter, setStockFilter] = useState('all'); // 'all' | 'low_stock' | 'out_of_stock' | 'in_stock'
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   useEffect(() => {
@@ -42,13 +43,35 @@ const Inventory = () => {
 
   const categories = ['all', ...new Set(Array.isArray(items) ? items.map((item) => item.category).filter(Boolean) : [])];
 
+  const outOfStockItems = Array.isArray(items) ? items.filter((item) => {
+    const available = (item.stockQty || 0) - (item.reservedStock || 0);
+    return available <= 0;
+  }) : [];
+
+  const lowStockItemsList = Array.isArray(items) ? items.filter((item) => {
+    const available = (item.stockQty || 0) - (item.reservedStock || 0);
+    const limit = item.lowStockLimit !== undefined ? item.lowStockLimit : 5;
+    return available > 0 && available <= limit;
+  }) : [];
+
   const filteredItems = Array.isArray(items) ? items.filter((item) => {
     const matchesSearch =
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (item.sku && item.sku.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (item.barcode && item.barcode.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
-    return matchesSearch && matchesCategory;
+
+    const available = (item.stockQty || 0) - (item.reservedStock || 0);
+    const limit = item.lowStockLimit !== undefined ? item.lowStockLimit : 5;
+    const isOutOfStock = available <= 0;
+    const isLowStock = available > 0 && available <= limit;
+
+    let matchesStock = true;
+    if (stockFilter === 'out_of_stock') matchesStock = isOutOfStock;
+    else if (stockFilter === 'low_stock') matchesStock = isLowStock;
+    else if (stockFilter === 'in_stock') matchesStock = !isOutOfStock && !isLowStock;
+
+    return matchesSearch && matchesCategory && matchesStock;
   }) : [];
 
   const inventoryValue = Array.isArray(items) ? items.reduce((sum, item) => sum + (item.costPrice || 0) * (item.stockQty || 0), 0) : 0;
@@ -107,12 +130,14 @@ const Inventory = () => {
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <StatsCard
             title={t('inventory:totalItems')}
             value={items.length}
             iconBgColor="bg-violet-50 dark:bg-violet-900/20"
             iconColor="text-violet-600 dark:text-violet-400"
+            onClick={() => setStockFilter('all')}
+            className={stockFilter === 'all' ? 'ring-2 ring-violet-500 dark:ring-violet-400' : ''}
             icon={
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -120,13 +145,28 @@ const Inventory = () => {
             }
           />
           <StatsCard
-            title={t('inventory:lowStockItems')}
-            value={lowStockItems.length}
+            title={t('inventory:lowStockItems', 'Low Stock')}
+            value={lowStockItemsList.length}
             iconBgColor="bg-amber-50 dark:bg-amber-900/20"
             iconColor="text-amber-600 dark:text-amber-400"
+            onClick={() => setStockFilter(stockFilter === 'low_stock' ? 'all' : 'low_stock')}
+            className={stockFilter === 'low_stock' ? 'ring-2 ring-amber-500 dark:ring-amber-400' : ''}
             icon={
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            }
+          />
+          <StatsCard
+            title={t('inventory:outOfStockItems', 'Out of Stock')}
+            value={outOfStockItems.length}
+            iconBgColor="bg-rose-50 dark:bg-rose-900/20"
+            iconColor="text-rose-600 dark:text-rose-400"
+            onClick={() => setStockFilter(stockFilter === 'out_of_stock' ? 'all' : 'out_of_stock')}
+            className={stockFilter === 'out_of_stock' ? 'ring-2 ring-rose-500 dark:ring-rose-400' : ''}
+            icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
               </svg>
             }
           />
@@ -170,11 +210,21 @@ const Inventory = () => {
                 }
               />
             </div>
-            <div className="flex items-center gap-3 w-full lg:w-auto">
+            <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+              <select
+                value={stockFilter}
+                onChange={(e) => setStockFilter(e.target.value)}
+                className="px-3.5 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-xl focus:ring-2 focus:ring-violet-500 focus:outline-hidden cursor-pointer"
+              >
+                <option value="all">{t('inventory:allStock', 'All Stock Levels')}</option>
+                <option value="in_stock">{t('inventory:inStock', 'In Stock')} ({items.length - lowStockItemsList.length - outOfStockItems.length})</option>
+                <option value="low_stock">{t('inventory:lowStock', 'Low Stock')} ({lowStockItemsList.length})</option>
+                <option value="out_of_stock">{t('inventory:outOfStock', 'Out of Stock')} ({outOfStockItems.length})</option>
+              </select>
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full lg:w-auto px-3.5 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-xl focus:ring-2 focus:ring-violet-500 focus:outline-hidden"
+                className="px-3.5 py-2 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-xl focus:ring-2 focus:ring-violet-500 focus:outline-hidden cursor-pointer"
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
@@ -192,53 +242,59 @@ const Inventory = () => {
           ) : filteredItems.length === 0 ? (
             <EmptyState
               title="No Inventory Items"
-              description={searchTerm ? "No products match your search term or category filter." : "Add products to start tracking inventory and stock levels."}
+              description={searchTerm || stockFilter !== 'all' || categoryFilter !== 'all' ? "No products match your search or filter criteria." : "Add products to start tracking inventory and stock levels."}
               actionLabel={t('inventory:addProduct')}
               onAction={() => navigate('/inventory/add')}
             />
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm border-collapse">
+              <table className="w-full text-start text-sm border-collapse">
                 <thead>
-                  <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    <th className="py-3.5 px-6">{t('inventory:product')}</th>
-                    <th className="py-3.5 px-6">{t('inventory:category')}</th>
-                    <th className="py-3.5 px-6">{t('inventory:totalStock')}</th>
-                    <th className="py-3.5 px-6">{t('inventory:available')}</th>
-                    <th className="py-3.5 px-6">{t('inventory:costPrice')}</th>
-                    <th className="py-3.5 px-6">{t('inventory:sellingPrice')}</th>
-                    <th className="py-3.5 px-6">{t('inventory:margin')}</th>
-                    <th className="py-3.5 px-6 text-right">{t('common:actions')}</th>
+                  <tr className="border-b border-slate-200 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-800/40 text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                    <th className="py-3.5 px-4 sm:px-6 text-start">{t('inventory:product')}</th>
+                    <th className="py-3.5 px-4 text-start">{t('inventory:category')}</th>
+                    <th className="py-3.5 px-4 text-start">{t('inventory:totalStock')}</th>
+                    <th className="py-3.5 px-4 text-start">{t('inventory:available')}</th>
+                    <th className="py-3.5 px-4 text-end">{t('inventory:costPrice')}</th>
+                    <th className="py-3.5 px-4 text-end">{t('inventory:sellingPrice')}</th>
+                    <th className="py-3.5 px-4 text-end">{t('inventory:margin')}</th>
+                    <th className="py-3.5 px-4 sm:px-6 text-end">{t('common:actions')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                <tbody className="divide-y divide-slate-100 dark:divide-zinc-800/60">
                   {filteredItems.map((item) => {
                     const cost = item.costPrice || 0;
                     const selling = item.sellingPrice || 0;
                     const profitMargin = cost > 0 ? (((selling - cost) / cost) * 100).toFixed(1) : "0.0";
                     const availableStock = (item.stockQty || 0) - (item.reservedStock || 0);
-                    const isLowStock = availableStock <= (item.lowStockLimit || 0);
+                    const limit = item.lowStockLimit !== undefined ? item.lowStockLimit : 5;
+                    const isOutOfStock = availableStock <= 0;
+                    const isLowStock = availableStock > 0 && availableStock <= limit;
 
                     return (
-                      <tr key={item._id} className="hover:bg-gray-50/60 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="py-4 px-6">
-                          <div className="font-semibold text-gray-900 dark:text-gray-100">{item.name}</div>
+                      <tr key={item._id} className="hover:bg-slate-50/60 dark:hover:bg-zinc-800/40 transition-colors">
+                        <td className="py-3.5 px-4 sm:px-6">
+                          <div className="font-semibold text-zinc-900 dark:text-zinc-100">{item.name}</div>
                           {(item.barcode || item.sku) && (
-                            <div className="text-xs text-gray-400">
+                            <div className="text-xs text-zinc-400">
                               SKU / Code: {item.barcode || item.sku}
                             </div>
                           )}
                         </td>
-                        <td className="py-4 px-6 text-gray-600 dark:text-gray-300">
+                        <td className="py-3.5 px-4 text-zinc-600 dark:text-zinc-300">
                           {item.category || 'Uncategorized'}
                         </td>
-                        <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">
+                        <td className="py-3.5 px-4 font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
                           {item.stockQty} {item.unit || ''}
                         </td>
-                        <td className="py-4 px-6 whitespace-nowrap">
-                          {isLowStock ? (
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          {isOutOfStock ? (
                             <StatusBadge status="danger">
-                              {availableStock} {item.unit || ''} ({t('common:lowStock')})
+                              0 {item.unit || ''} ({t('inventory:outOfStock', 'Out of Stock')})
+                            </StatusBadge>
+                          ) : isLowStock ? (
+                            <StatusBadge status="warning">
+                              {availableStock} {item.unit || ''} ({t('inventory:lowStock', 'Low Stock')})
                             </StatusBadge>
                           ) : (
                             <StatusBadge status="success">
@@ -246,32 +302,34 @@ const Inventory = () => {
                             </StatusBadge>
                           )}
                         </td>
-                        <td className="py-4 px-6 text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                        <td className="py-3.5 px-4 text-end tabular-nums text-zinc-700 dark:text-zinc-300 whitespace-nowrap font-mono text-xs sm:text-sm">
                           Rs. {cost.toFixed(2)}
                         </td>
-                        <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                        <td className="py-3.5 px-4 text-end tabular-nums font-medium text-zinc-900 dark:text-zinc-100 whitespace-nowrap font-mono text-xs sm:text-sm">
                           Rs. {selling.toFixed(2)}
                         </td>
-                        <td className="py-4 px-6 whitespace-nowrap">
+                        <td className="py-3.5 px-4 text-end tabular-nums whitespace-nowrap">
                           <span className={`font-semibold ${Number(profitMargin) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                             {profitMargin}%
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-right space-x-2">
-                          <Button
-                            size="xs"
-                            variant="secondary"
-                            onClick={() => navigate(`/inventory/edit/${item._id}`)}
-                          >
-                            {t('common:edit')}
-                          </Button>
-                          <Button
-                            size="xs"
-                            variant="danger"
-                            onClick={() => setDeleteConfirm(item._id)}
-                          >
-                            {t('common:delete')}
-                          </Button>
+                        <td className="py-3.5 px-4 sm:px-6 text-end whitespace-nowrap">
+                          <div className="inline-flex items-center gap-1.5 justify-end">
+                            <Button
+                              size="xs"
+                              variant="secondary"
+                              onClick={() => navigate(`/inventory/edit/${item._id}`)}
+                            >
+                              {t('common:edit')}
+                            </Button>
+                            <Button
+                              size="xs"
+                              variant="danger"
+                              onClick={() => setDeleteConfirm(item._id)}
+                            >
+                              {t('common:delete')}
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     );

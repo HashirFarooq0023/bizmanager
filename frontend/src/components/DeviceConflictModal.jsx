@@ -7,7 +7,7 @@ const DeviceConflictModal = ({ email, password, onClose }) => {
     const dispatch = useDispatch();
     const { isLoading, conflictProvider, pendingGoogleCredential } = useSelector((state) => state.auth);
     const [isProcessing, setIsProcessing] = useState(false);
-    const { language, isRtl } = useLanguage ? useLanguage() : { language: 'en', isRtl: false };
+    const { language, isRtl } = useLanguage();
 
     const handleForceLogout = async () => {
         if (isProcessing || isLoading) return; // Prevent multiple calls

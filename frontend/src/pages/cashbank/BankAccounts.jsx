@@ -5,9 +5,11 @@ import Layout from '../../components/Layout';
 import PageHeader from '../../components/PageHeader';
 import StatsCard from '../../components/StatsCard';
 import DataTable from '../../components/DataTable';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { getAccounts, createAccount, deleteAccount, reset } from '../../redux/slices/cashbankSlice';
 
 const BankAccounts = () => {
+    const { isUrdu } = useLanguage();
     const [showAddAccount, setShowAddAccount] = useState(false);
     const [revealedAccounts, setRevealedAccounts] = useState({});
     const [formData, setFormData] = useState({
@@ -145,101 +147,150 @@ const BankAccounts = () => {
         }
     ];
 
-    const totalBalance = accounts.reduce((sum, acc) => sum + acc.currentBalance, 0);
+    const safeAccounts = Array.isArray(accounts) ? accounts : [];
+    const totalBalance = safeAccounts.reduce((sum, acc) => sum + (acc.currentBalance || 0), 0);
 
     return (
         <Layout>
-            <PageHeader title="Bank Accounts" description="Manage your business bank accounts" actions={[
-                <button key="add" onClick={() => setShowAddAccount(true)} className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">+ Add Bank Account</button>
-            ]} />
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <StatsCard title="Total Balance" value={`Rs. ${totalBalance.toLocaleString()}`} icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} iconBgColor="bg-green-100" iconColor="text-green-600" />
-                <StatsCard title="Active Accounts" value={accounts.length} icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>} iconBgColor="bg-blue-100" iconColor="text-blue-600" />
-                <StatsCard title="This Month Transactions" value="156" icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>} iconBgColor="bg-purple-100" iconColor="text-purple-600" />
-            </div>
-
-            {showAddAccount && (
-                <form onSubmit={handleSubmit} className="bg-card rounded-xl shadow-sm p-6 mb-6">
-                    <h2 className="text-lg font-bold text-main mb-4">Add New Bank Account</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-secondary mb-2">Bank Name</label>
-                            <input
-                                type="text"
-                                value={formData.bankName}
-                                onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                                placeholder="e.g., Meezan Bank, HBL, EasyPaisa, JazzCash"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-secondary mb-2">Account Number</label>
-                            <input
-                                type="text"
-                                value={formData.accountNumber}
-                                onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                                placeholder="Enter account number"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-secondary mb-2">Account Type</label>
-                            <select
-                                value={formData.accountType}
-                                onChange={(e) => setFormData({ ...formData, accountType: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                            >
-                                <option>Savings</option>
-                                <option>Current</option>
-                                <option>Overdraft / Running Finance</option>
-                                <option>Mobile Wallet (JazzCash/EasyPaisa)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-secondary mb-2">IBAN / Branch Code</label>
-                            <input
-                                type="text"
-                                value={formData.ifsc}
-                                onChange={(e) => setFormData({ ...formData, ifsc: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                                placeholder="e.g., PK36MEZN00012345678901 or 0123"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-secondary mb-2">Branch</label>
-                            <input
-                                type="text"
-                                value={formData.branch}
-                                onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                                placeholder="Branch name"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-secondary mb-2">Opening Balance</label>
-                            <input
-                                type="number"
-                                value={formData.openingBalance}
-                                onChange={(e) => setFormData({ ...formData, openingBalance: parseFloat(e.target.value) || 0 })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                                placeholder="0.00"
-                            />
-                        </div>
-                    </div>
-                    <div className="flex gap-3 mt-4">
-                        <button type="submit" disabled={isLoading} className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50">
-                            {isLoading ? 'Saving...' : 'Save Account'}
+            <div dir="ltr" className="text-left">
+                <PageHeader
+                    title={isUrdu ? "Bank Accounts / بینک کھاتے" : "Bank Accounts"}
+                    description={isUrdu ? "Manage your business bank accounts / کاروباری بینک اکاؤنٹس کا انتظام کریں" : "Manage your business bank accounts"}
+                    actions={[
+                        <button
+                            key="add"
+                            onClick={() => setShowAddAccount(true)}
+                            className="px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-semibold shadow-xs transition-colors cursor-pointer"
+                        >
+                            {isUrdu ? '+ Add Bank Account / نیا بینک کھاتہ' : '+ Add Bank Account'}
                         </button>
-                        <button type="button" onClick={() => setShowAddAccount(false)} className="px-6 py-2 border border-default text-secondary rounded-lg hover:bg-surface">Cancel</button>
-                    </div>
-                </form>
-            )}
+                    ]}
+                />
 
-            <DataTable columns={columns} data={accounts} emptyMessage="No bank accounts added" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <StatsCard title={isUrdu ? "Total Balance / کل بیلنس" : "Total Balance"} value={`Rs. ${totalBalance.toLocaleString()}`} icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} iconBgColor="bg-green-100 dark:bg-green-900/30" iconColor="text-green-600 dark:text-green-400" />
+                    <StatsCard title={isUrdu ? "Active Accounts / فعال کھاتے" : "Active Accounts"} value={safeAccounts.length} icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>} iconBgColor="bg-blue-100 dark:bg-blue-900/30" iconColor="text-blue-600 dark:text-blue-400" />
+                    <StatsCard title={isUrdu ? "Transactions / ٹرانزیکشنز" : "This Month Transactions"} value="156" icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>} iconBgColor="bg-purple-100 dark:bg-purple-900/30" iconColor="text-purple-600 dark:text-purple-400" />
+                </div>
+
+                {showAddAccount && (
+                    <form onSubmit={handleSubmit} className="bg-card rounded-xl shadow-sm p-6 mb-6 border border-default">
+                        <h2 className="text-lg font-bold text-main mb-4">
+                            {isUrdu ? 'Add New Bank Account (نیا بینک کھاتہ شامل کریں)' : 'Add New Bank Account'}
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-sm font-medium text-secondary">
+                                        Bank Name <span className="text-red-500">*</span>
+                                    </label>
+                                    {isUrdu && <span className="text-xs text-secondary font-urdu">بینک کا نام</span>}
+                                </div>
+                                <input
+                                    type="text"
+                                    value={formData.bankName}
+                                    onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
+                                    className="w-full px-4 py-2 border border-default rounded-lg bg-background text-main focus:ring-2 focus:ring-primary"
+                                    placeholder={isUrdu ? "e.g., Meezan Bank, HBL, EasyPaisa, JazzCash / بینک کا نام" : "e.g., Meezan Bank, HBL, EasyPaisa, JazzCash"}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-sm font-medium text-secondary">
+                                        Account Number <span className="text-red-500">*</span>
+                                    </label>
+                                    {isUrdu && <span className="text-xs text-secondary font-urdu">اکاؤنٹ نمبر</span>}
+                                </div>
+                                <input
+                                    type="text"
+                                    value={formData.accountNumber}
+                                    onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
+                                    className="w-full px-4 py-2 border border-default rounded-lg bg-background text-main focus:ring-2 focus:ring-primary"
+                                    placeholder={isUrdu ? "Enter account number / اکاؤنٹ نمبر درج کریں" : "Enter account number"}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-sm font-medium text-secondary">Account Type</label>
+                                    {isUrdu && <span className="text-xs text-secondary font-urdu">کھاتے کی قسم</span>}
+                                </div>
+                                <select
+                                    value={formData.accountType}
+                                    onChange={(e) => setFormData({ ...formData, accountType: e.target.value })}
+                                    className="w-full px-4 py-2 border border-default rounded-lg bg-background text-main focus:ring-2 focus:ring-primary"
+                                >
+                                    <option value="Savings">{isUrdu ? 'Savings / بچت کھاتہ' : 'Savings'}</option>
+                                    <option value="Current">{isUrdu ? 'Current / کرنٹ کھاتہ' : 'Current'}</option>
+                                    <option value="Overdraft / Running Finance">{isUrdu ? 'Running Finance / رننگ فنانس' : 'Overdraft / Running Finance'}</option>
+                                    <option value="Mobile Wallet (JazzCash/EasyPaisa)">{isUrdu ? 'Mobile Wallet (JazzCash/EasyPaisa) / موبائل والیٹ' : 'Mobile Wallet (JazzCash/EasyPaisa)'}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-sm font-medium text-secondary">
+                                        IBAN / Branch Code <span className="text-red-500">*</span>
+                                    </label>
+                                    {isUrdu && <span className="text-xs text-secondary font-urdu">آئی بین / برانچ کوڈ</span>}
+                                </div>
+                                <input
+                                    type="text"
+                                    value={formData.ifsc}
+                                    onChange={(e) => setFormData({ ...formData, ifsc: e.target.value })}
+                                    className="w-full px-4 py-2 border border-default rounded-lg bg-background text-main focus:ring-2 focus:ring-primary"
+                                    placeholder={isUrdu ? "e.g., PK36MEZN00012345678901 or 0123" : "e.g., PK36MEZN00012345678901 or 0123"}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-sm font-medium text-secondary">Branch</label>
+                                    {isUrdu && <span className="text-xs text-secondary font-urdu">برانچ</span>}
+                                </div>
+                                <input
+                                    type="text"
+                                    value={formData.branch}
+                                    onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
+                                    className="w-full px-4 py-2 border border-default rounded-lg bg-background text-main focus:ring-2 focus:ring-primary"
+                                    placeholder={isUrdu ? "Branch name / برانچ کا نام" : "Branch name"}
+                                />
+                            </div>
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-sm font-medium text-secondary">Opening Balance</label>
+                                    {isUrdu && <span className="text-xs text-secondary font-urdu">ابتدائی رقم</span>}
+                                </div>
+                                <input
+                                    type="number"
+                                    value={formData.openingBalance}
+                                    onChange={(e) => setFormData({ ...formData, openingBalance: parseFloat(e.target.value) || 0 })}
+                                    className="w-full px-4 py-2 border border-default rounded-lg bg-background text-main focus:ring-2 focus:ring-primary"
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex gap-3 mt-6 border-t border-default pt-4">
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-semibold shadow-xs disabled:opacity-50 cursor-pointer transition-colors"
+                            >
+                                {isLoading ? (isUrdu ? 'Saving... / محفوظ ہو رہا ہے...' : 'Saving...') : (isUrdu ? 'Save Account / کھاتہ محفوظ کریں' : 'Save Account')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setShowAddAccount(false)}
+                                className="px-6 py-2.5 border border-default text-secondary rounded-lg hover:bg-surface font-medium cursor-pointer transition-colors"
+                            >
+                                {isUrdu ? 'Cancel / منسوخ کریں' : 'Cancel'}
+                            </button>
+                        </div>
+                    </form>
+                )}
+
+                <DataTable columns={columns} data={accounts} emptyMessage={isUrdu ? "No bank accounts added / کوئی بینک کھاتہ شامل نہیں کیا گیا" : "No bank accounts added"} />
+            </div>
         </Layout>
     );
 };

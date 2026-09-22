@@ -63,7 +63,7 @@ const Layout = ({ children }) => {
   const isImpersonated = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('impersonation_active') === 'true';
 
   return (
-    <div className="min-h-screen bg-[#F7F7FA] dark:bg-[#0B0F14]">
+    <div className="min-h-screen bg-[#F7F7FA] dark:bg-[#09090B] text-zinc-900 dark:text-zinc-100">
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -86,11 +86,11 @@ const Layout = ({ children }) => {
         }`}
       >
         <SubscriptionBanner />
-        <header className={`flex items-center justify-between border-b border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 shadow-xs lg:hidden print:hidden sticky ${isImpersonated ? 'top-10' : 'top-0'} z-30`}>
+        <header className={`flex items-center justify-between border-b border-gray-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-950 px-4 py-3 shadow-xs lg:hidden print:hidden sticky ${isImpersonated ? 'top-10' : 'top-0'} z-30`}>
           <button
             type="button"
             onClick={() => setIsSidebarOpen(true)}
-            className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-50 focus:outline-none"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800 focus:outline-none"
             aria-label="Open navigation menu"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,7 +105,7 @@ const Layout = ({ children }) => {
             <button
               type="button"
               onClick={() => changeLanguage(language === 'ur' ? 'en' : 'ur')}
-              className="px-2 py-1 rounded-md text-xs font-bold border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+              className="px-2 py-1 rounded-md text-xs font-bold border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900 text-gray-700 dark:text-zinc-200 hover:bg-gray-100 dark:hover:bg-zinc-800"
               title="Switch Language"
             >
               {language === 'ur' ? 'English' : 'اردو'}
@@ -130,7 +130,7 @@ const Layout = ({ children }) => {
             <button
               type="button"
               onClick={toggleTheme}
-              className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-50 focus:outline-none"
+              className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800 focus:outline-none"
               aria-label="Toggle theme"
             >
               {theme === 'light' ? (

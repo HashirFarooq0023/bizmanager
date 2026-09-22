@@ -5,7 +5,15 @@ import { FiShield, FiX, FiCheck } from 'react-icons/fi';
 
 const COOKIE_STORAGE_KEY = 'bizmanager_cookie_consent';
 
-const CookieConsent = ({ initialDelay = (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test' ? 0 : 1200) } = {}) => {
+const isTestEnvironment = () => {
+  try {
+    return import.meta.env?.MODE === 'test';
+  } catch {
+    return false;
+  }
+};
+
+const CookieConsent = ({ initialDelay = (isTestEnvironment() ? 0 : 1200) } = {}) => {
   const [isVisible, setIsVisible] = useState(initialDelay === 0);
   const { language } = useLanguage();
 

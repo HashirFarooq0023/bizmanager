@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../../components/Layout";
 import api from '../../services/api';
@@ -97,7 +97,7 @@ const EstimateDetail = () => {
             <div className="flex space-x-1 md:space-x-2">
               <button
                 onClick={handlePrint}
-                className="flex items-center justify-center space-x-1 md:space-x-2 px-2 py-0.5 md:px-4 md:py-2 text-xs md:text-sm bg-indigo-600 dark:bg-[rgb(var(--color-primary))] text-white rounded md:rounded-lg hover:bg-indigo-700 dark:hover:bg-[rgb(var(--color-primary-hover))]"
+                className="flex items-center justify-center space-x-1 md:space-x-2 px-2 py-0.5 md:px-4 md:py-2 text-xs md:text-sm bg-violet-600 hover:bg-violet-700 text-white font-medium rounded md:rounded-lg transition shadow-xs"
               >
                 <svg
                   className="w-3 h-3 md:w-4 md:h-4"

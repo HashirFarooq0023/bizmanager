@@ -236,7 +236,7 @@ const Estimate = () => {
             </div>
             <button
               onClick={() => navigate('/sales/estimates')}
-              className="px-2 py-1 md:px-4 md:py-2 text-[10px] md:text-sm bg-indigo-600 dark:bg-[rgb(var(--color-primary))] text-white rounded md:rounded-lg hover:bg-indigo-700 dark:hover:bg-[rgb(var(--color-primary-hover))] font-medium transition-colors flex items-center gap-1 md:gap-2"
+              className="px-2 py-1 md:px-4 md:py-2 text-[10px] md:text-sm bg-violet-600 hover:bg-violet-700 text-white rounded md:rounded-lg font-medium transition flex items-center gap-1 md:gap-2 shadow-xs"
             >
               <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -563,7 +563,7 @@ const Estimate = () => {
                   <button
                     onClick={handleSaveEstimate}
                     disabled={isLoading || cart.length === 0 || !customer}
-                    className="w-full py-1 md:py-2 text-[10px] md:text-sm bg-indigo-600 dark:bg-[rgb(var(--color-primary))] text-white rounded md:rounded-lg hover:bg-indigo-700 dark:hover:bg-[rgb(var(--color-primary-hover))] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-1 md:py-2 text-[10px] md:text-sm bg-violet-600 hover:bg-violet-700 text-white rounded md:rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
                   >
                     {isLoading ? "Saving..." : "Save Estimate"}
                   </button>

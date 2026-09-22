@@ -78,45 +78,55 @@ const GoogleAuthButton = ({ mode = 'signin' }) => {
     initGis();
   }, [theme, language, mode]);
 
+  const handleCustomClick = () => {
+    if (window.google?.accounts?.id) {
+      try {
+        window.google.accounts.id.prompt();
+      } catch (err) {
+        console.warn('GIS prompt warning:', err);
+      }
+    }
+  };
+
   return (
-    <div className="w-full flex flex-col items-center justify-center my-1 relative">
+    <div className="w-full relative my-1 group">
+      {/* Full-width styled button matching theme */}
+      <button
+        type="button"
+        onClick={handleCustomClick}
+        className="w-full h-11 px-4 rounded-xl border border-slate-200/90 dark:border-white/[0.1] bg-white dark:bg-[#141724] hover:bg-slate-50 dark:hover:bg-[#1b2030] text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-semibold flex items-center justify-center gap-3 shadow-xs transition duration-150 active:scale-[0.99] cursor-pointer"
+      >
+        <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
+          <path
+            fill="#4285F4"
+            d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
+          />
+          <path
+            fill="#34A853"
+            d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.26 21.36 7.33 24 12 24z"
+          />
+          <path
+            fill="#FBBC05"
+            d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"
+          />
+          <path
+            fill="#EA4335"
+            d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+          />
+        </svg>
+        <span className="font-urdu font-medium">
+          {mode === 'signup'
+            ? (t('auth:register.googleSignUp') || 'Sign up with Google')
+            : (t('auth:login.googleSignIn') || 'Sign in with Google')}
+        </span>
+      </button>
+
+      {/* Transparent GIS Overlay to safely capture clicks for Google Identity API */}
       <div
         ref={buttonRef}
-        className="w-full flex items-center justify-center min-h-[44px] transition-all overflow-hidden rounded-xl"
+        className="absolute inset-0 w-full h-full opacity-0 overflow-hidden cursor-pointer flex items-center justify-center [&>div]:!w-full [&>div]:!h-full [&_iframe]:!w-full [&_iframe]:!h-full [&_iframe]:!scale-150 cursor-pointer"
+        title={mode === 'signup' ? 'Sign up with Google' : 'Sign in with Google'}
       />
-
-      {/* Fallback branded button if Google Identity script is still initializing or blocked */}
-      {!gisLoaded && (
-        <button
-          type="button"
-          disabled={true}
-          className="w-full max-w-[400px] h-[44px] px-4 rounded-xl border border-slate-300 dark:border-white/[0.12] bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-200 text-xs sm:text-sm font-semibold flex items-center justify-center gap-3 shadow-xs opacity-75 cursor-wait"
-        >
-          <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
-            <path
-              fill="#4285F4"
-              d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
-            />
-            <path
-              fill="#34A853"
-              d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.26 21.36 7.33 24 12 24z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"
-            />
-            <path
-              fill="#EA4335"
-              d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-            />
-          </svg>
-          <span className="font-urdu">
-            {mode === 'signup'
-              ? (t('auth:register.googleSignUp') || 'Sign up with Google')
-              : (t('auth:login.googleSignIn') || 'Sign in with Google')}
-          </span>
-        </button>
-      )}
 
       {/* Loading Overlay */}
       {isLoading && (

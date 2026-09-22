@@ -1,12 +1,15 @@
-﻿import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from '../../services/api';
 import { toast } from "react-toastify";
 import Layout from "../../components/Layout";
 import FormInput from "../../components/FormInput";
+import DenominationBreakdown from "../../components/DenominationBreakdown";
 
 const Return = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialInvoiceId = searchParams.get("invoiceId");
   const [loading, setLoading] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [invoices, setInvoices] = useState([]);
@@ -55,6 +58,13 @@ const Return = () => {
       fetchInvoices();
     }
   }, [showInvoiceModal]);
+
+  // Auto-select invoice if passed via URL parameter
+  useEffect(() => {
+    if (initialInvoiceId && token) {
+      handleInvoiceSelect({ _id: initialInvoiceId });
+    }
+  }, [initialInvoiceId, token]);
 
   const fetchInvoices = async () => {
     if (!token) {
@@ -205,6 +215,16 @@ const Return = () => {
   const calculateTotal = () => {
     return calculateSubtotal() + calculateTax();
   };
+
+  // Financial breakdown for partial payments & past dues
+  const totalReturnVal = calculateTotal();
+  const selectedInv = formData.selectedInvoice;
+  const itemsNetTotal = selectedInv ? Math.max(0, (selectedInv.subtotal || 0) - (selectedInv.discount || 0)) : 0;
+  const effectivePaid = selectedInv ? (Number(selectedInv.paidAmount || 0) + Number(selectedInv.creditApplied || 0)) : 0;
+  const paidTowardItems = Math.min(effectivePaid, itemsNetTotal);
+  const unpaidDueForItems = Math.max(0, itemsNetTotal - paidTowardItems);
+  const unpaidToCancel = formData.customer ? Math.min(totalReturnVal, unpaidDueForItems) : 0;
+  const actualRefundAmount = Math.max(0, totalReturnVal - unpaidToCancel);
 
   const validateForm = () => {
     if (!formData.selectedInvoice) {
@@ -709,7 +729,7 @@ const Return = () => {
         {/* Summary Sidebar */}
         <div className="lg:col-span-1">
           <div className="bg-white dark:bg-[rgb(var(--color-card))] rounded-lg shadow-sm dark:shadow-lg border dark:border-[rgb(var(--color-border))] p-3 sticky top-4">
-            <h2 className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-3">Return Summary</h2>
+            <h2 className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))] mb-3">Return Summary / خلاصہ واپسی</h2>
             <div className="space-y-2 mb-3">
               <div className="flex justify-between text-xs">
                 <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Subtotal:</span>
@@ -723,30 +743,77 @@ const Return = () => {
                   Rs. {calculateTax().toFixed(2)}
                 </span>
               </div>
-            </div>
-            <div className="border-t border-gray-200 dark:border-[rgb(var(--color-border))] pt-3 mb-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">Refund Amount:</span>
-                <span className="text-xl font-bold text-red-600 dark:text-red-400">
-                  Rs. {calculateTotal().toFixed(2)}
+              <div className="flex justify-between text-xs border-t border-dashed border-gray-200 dark:border-[rgb(var(--color-border))] pt-2">
+                <span className="text-gray-700 dark:text-[rgb(var(--color-text))] font-semibold">Total Item Return Value:</span>
+                <span className="font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">
+                  Rs. {totalReturnVal.toFixed(2)}
                 </span>
               </div>
             </div>
-            <div className="p-2 bg-amber-100/50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-lg mb-4">
-              <p className="text-xs text-gray-900 dark:text-[rgb(var(--color-text))]">
-                <strong className="text-indigo-600 dark:text-indigo-400 font-bold">Note:</strong>
-                <span className="ml-1">
-                  This amount will be credited to the customer's account or refunded via the selected method.
+
+            {/* Smart Settlement Breakdown */}
+            {selectedInv && totalReturnVal > 0 && (
+              <div className="mb-4 p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-[rgb(var(--color-border))] space-y-2 text-xs">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                  Financial Settlement Breakdown
+                </div>
+
+                {/* Udhaar Settlement */}
+                {unpaidToCancel > 0 && (
+                  <div className="flex justify-between items-center text-emerald-700 dark:text-emerald-400 bg-emerald-50/70 dark:bg-emerald-950/30 px-2 py-1.5 rounded">
+                    <div>
+                      <span className="font-semibold block">Udhaar Auto-Settled:</span>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-500">Unpaid debt cancelled from ledger</span>
+                    </div>
+                    <span className="font-bold text-sm">- Rs. {unpaidToCancel.toFixed(2)}</span>
+                  </div>
+                )}
+
+                {/* Actual Refund */}
+                <div className="flex justify-between items-center text-blue-700 dark:text-blue-400 bg-blue-50/70 dark:bg-blue-950/30 px-2 py-1.5 rounded">
+                  <div>
+                    <span className="font-semibold block">Net Cash/Credit Refund:</span>
+                    <span className="text-[10px] text-blue-600 dark:text-blue-500">Actual amount paid by customer</span>
+                  </div>
+                  <span className="font-bold text-sm">Rs. {actualRefundAmount.toFixed(2)}</span>
+                </div>
+
+                {/* Past Dues Notice */}
+                {selectedInv.previousDueAmount > 0 && (
+                  <div className="p-1.5 rounded bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 text-[11px]">
+                    ⚠️ <strong>Past Dues (Rs. {Number(selectedInv.previousDueAmount).toFixed(2)}):</strong> Protected & untouched in customer ledger.
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="border-t border-gray-200 dark:border-[rgb(var(--color-border))] pt-3 mb-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-bold text-gray-900 dark:text-[rgb(var(--color-text))]">Net Payable Refund:</span>
+                <span className="text-xl font-bold text-red-600 dark:text-red-400 font-mono">
+                  Rs. {actualRefundAmount.toFixed(2)}
                 </span>
-              </p>
+              </div>
             </div>
+
+            {/* Pakistani Currency Note Breakdown for Cash Refund */}
+            {actualRefundAmount > 0 && (formData.refundMethod === 'cash' || formData.refundMethod === 'original_payment') && (
+              <div className="mb-4">
+                <DenominationBreakdown
+                  amount={actualRefundAmount}
+                  label="Cash Refund Notes to Give"
+                  urduLabel="واپسی نقد نوٹوں کی تفصیل (گاہک کو ادا کریں)"
+                />
+              </div>
+            )}
+
             <div className="space-y-2">
               <button
                 onClick={handleSubmit}
-                disabled={loading}
+                disabled={loading || totalReturnVal <= 0}
                 className="w-full px-3 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium disabled:opacity-50"
               >
-                {loading ? "Processing..." : "Save Return"}
+                {loading ? "Processing..." : "Complete Return / واپسی درج کریں"}
               </button>
             </div>
           </div>

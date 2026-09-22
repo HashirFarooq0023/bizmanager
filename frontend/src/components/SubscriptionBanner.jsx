@@ -31,16 +31,16 @@ const SubscriptionBanner = () => {
 
   if (isExpired) {
     return (
-      <div className="bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 text-white px-4 py-2.5 shadow-md flex items-center justify-between text-xs sm:text-sm font-medium print:hidden">
+      <div className="bg-rose-900/90 text-rose-100 border-b border-rose-800/80 px-4 py-2.5 flex items-center justify-between text-xs sm:text-sm font-medium print:hidden">
         <div className="flex items-center gap-2 max-w-2xl">
-          <FiAlertTriangle className="w-4 h-4 flex-shrink-0 animate-bounce" />
+          <FiAlertTriangle className="w-4 h-4 text-rose-300 shrink-0" />
           <span>
-            <strong>Subscription Expired:</strong> Your BizManager license has expired. Transactions and ERP features are currently locked.
+            <strong className="text-white">Subscription Expired:</strong> Your BizManager license has expired. Transactions and ERP features are currently locked.
           </span>
         </div>
         <Link
           to="/subscription-expired"
-          className="inline-flex items-center gap-1.5 bg-white text-rose-700 font-bold px-3 py-1.5 rounded-lg shadow-sm hover:bg-rose-50 transition-all text-xs"
+          className="inline-flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white font-semibold px-3 py-1.5 rounded-lg shadow-xs transition-all text-xs"
         >
           <span>Renew License</span>
           <FiArrowRight className="w-3.5 h-3.5" />
@@ -51,20 +51,21 @@ const SubscriptionBanner = () => {
 
   if (isTrial) {
     return (
-      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white px-4 py-2 shadow-xs flex items-center justify-between text-xs font-medium print:hidden">
-        <div className="flex items-center gap-2">
-          <div className="p-1 bg-white/20 rounded-md">
-            <FiClock className="w-3.5 h-3.5" />
-          </div>
-          <span>
-            <strong>Free Trial Active:</strong> You have <strong>{daysRemaining} {daysRemaining === 1 ? 'day' : 'days'}</strong> remaining on your MegaTrix trial.
+      <div className="bg-zinc-900 dark:bg-zinc-950 text-zinc-300 border-b border-zinc-800 px-4 py-2 flex items-center justify-between text-xs font-medium print:hidden">
+        <div className="flex items-center gap-2.5">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-semibold border border-emerald-500/30 text-[11px]">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Trial Active
+          </span>
+          <span className="text-zinc-300">
+            You have <strong className="text-white">{daysRemaining} {daysRemaining === 1 ? 'day' : 'days'}</strong> remaining on your BizManager trial.
           </span>
         </div>
         <Link
           to="/subscription-expired"
-          className="inline-flex items-center gap-1 bg-white/15 hover:bg-white text-white hover:text-emerald-800 font-bold px-3 py-1 rounded-md transition-all text-xs border border-white/20"
+          className="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-3 py-1 rounded-md transition-all text-xs shadow-xs"
         >
-          <FiZap className="w-3 h-3 text-amber-300 group-hover:text-amber-500" />
+          <FiZap className="w-3 h-3 text-amber-300" />
           <span>Upgrade to Pro</span>
         </Link>
       </div>
@@ -73,16 +74,16 @@ const SubscriptionBanner = () => {
 
   // Paid plan expiring soon
   return (
-    <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white px-4 py-2 shadow-xs flex items-center justify-between text-xs font-medium print:hidden">
+    <div className="bg-amber-950/80 text-amber-100 border-b border-amber-800/80 px-4 py-2 flex items-center justify-between text-xs font-medium print:hidden">
       <div className="flex items-center gap-2">
-        <FiAlertTriangle className="w-3.5 h-3.5" />
+        <FiAlertTriangle className="w-4 h-4 text-amber-300" />
         <span>
-          <strong>Plan Expiring Soon:</strong> Your {sub.plan.toUpperCase()} plan expires in <strong>{daysRemaining} {daysRemaining === 1 ? 'day' : 'days'}</strong>.
+          <strong className="text-white">Plan Expiring Soon:</strong> Your {sub.plan.toUpperCase()} plan expires in <strong>{daysRemaining} {daysRemaining === 1 ? 'day' : 'days'}</strong>.
         </span>
       </div>
       <Link
         to="/subscription-expired"
-        className="inline-flex items-center gap-1 bg-white text-orange-700 font-bold px-3 py-1 rounded-md shadow-xs hover:bg-orange-50 transition-all text-xs"
+        className="inline-flex items-center gap-1 bg-amber-600 hover:bg-amber-500 text-white font-semibold px-3 py-1 rounded-md shadow-xs transition-all text-xs"
       >
         <span>Renew Now</span>
         <FiArrowRight className="w-3 h-3" />

@@ -1,10 +1,11 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
 import PageHeader from '../../components/PageHeader';
 import DataTable from '../../components/DataTable';
+import DualMonthRangePicker from '../../components/DualMonthRangePicker';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
@@ -225,23 +226,12 @@ const PaymentOutList = () => {
                         </select>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                        <input
-                            type="date"
-                            value={filters.startDate}
-                            onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
-                            className="w-full px-3 py-2 border rounded-lg"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                        <input
-                            type="date"
-                            value={filters.endDate}
-                            onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-                            className="w-full px-3 py-2 border rounded-lg"
+                    <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-main mb-1">Date Range</label>
+                        <DualMonthRangePicker
+                            startDate={filters.startDate}
+                            endDate={filters.endDate}
+                            onChange={({ startDate, endDate }) => setFilters(prev => ({ ...prev, startDate, endDate }))}
                         />
                     </div>
 

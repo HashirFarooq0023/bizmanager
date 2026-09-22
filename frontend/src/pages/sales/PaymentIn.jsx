@@ -49,11 +49,11 @@ const PaymentIn = () => {
   const [creditApplied, setCreditApplied] = useState(0);
 
   const paymentMethodOptions = [
-    { value: "cash", label: "Cash", icon: "💵" },
-    { value: "upi", label: "UPI", icon: "📱" },
-    { value: "card", label: "Card", icon: "💳" },
-    { value: "cheque", label: "Cheque", icon: "🏦" },
-    { value: "bank_transfer", label: "Bank Transfer", icon: "🏧" },
+    { value: "cash", label: "Cash" },
+    { value: "upi", label: "UPI" },
+    { value: "card", label: "Card" },
+    { value: "cheque", label: "Cheque" },
+    { value: "bank_transfer", label: "Bank Transfer" },
   ];
 
   // Fetch bank accounts on mount
@@ -414,7 +414,7 @@ const PaymentIn = () => {
             </h1>
             <button
               onClick={() => navigate('/sales/payment-in-list')}
-              className="px-2 py-1 md:px-4 md:py-2 text-[10px] md:text-sm bg-indigo-600 dark:bg-[rgb(var(--color-primary))] text-white rounded md:rounded-lg hover:bg-indigo-700 dark:hover:bg-[rgb(var(--color-primary-hover))] font-medium transition-colors flex items-center gap-1 md:gap-2"
+              className="px-2 py-1 md:px-4 md:py-2 text-[10px] md:text-sm bg-violet-600 hover:bg-violet-700 text-white rounded md:rounded-lg font-medium transition flex items-center gap-1 md:gap-2 shadow-xs"
             >
               <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -530,7 +530,7 @@ const PaymentIn = () => {
                         >
                           {paymentMethodOptions.map((opt) => (
                             <option key={opt.value} value={opt.value}>
-                              {opt.icon} {opt.label}
+                              {opt.label}
                             </option>
                           ))}
                         </select>
@@ -703,7 +703,7 @@ const PaymentIn = () => {
                       <option value="">Select Bank Account</option>
                       {bankAccounts.map((acc) => (
                         <option key={acc._id} value={acc._id}>
-                          🏦 {acc.bankName} - {acc.accountNumber.slice(-4)}
+                          {acc.bankName} - {acc.accountNumber.slice(-4)}
                         </option>
                       ))}
                     </select>
@@ -720,10 +720,10 @@ const PaymentIn = () => {
                     className="w-full px-4 py-2 border border-default rounded-lg"
                     required
                   >
-                    <option value="cash">💵 Cash in Hand</option>
+                    <option value="cash">Cash in Hand</option>
                     {bankAccounts.map((acc) => (
                       <option key={acc._id} value={acc._id}>
-                        🏦 {acc.bankName} - {acc.accountNumber.slice(-4)}
+                        {acc.bankName} - {acc.accountNumber.slice(-4)}
                       </option>
                     ))}
                   </select>
@@ -903,7 +903,7 @@ const PaymentIn = () => {
                 <button
                   onClick={handleSave}
                   disabled={loading}
-                  className="col-span-2 py-1 md:py-2 text-[9px] md:text-sm bg-indigo-600 text-white rounded md:rounded-lg hover:bg-indigo-700 font-medium disabled:opacity-50"
+                  className="col-span-2 py-1 md:py-2 text-[9px] md:text-sm bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded md:rounded-lg disabled:opacity-50 transition shadow-xs"
                 >
                   {loading ? "Saving..." : "Save Payment"}
                 </button>

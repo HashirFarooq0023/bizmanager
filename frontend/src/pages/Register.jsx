@@ -10,7 +10,7 @@ import DeviceConflictModal from '../components/DeviceConflictModal';
 import Logo from '../components/Logo';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { FiGlobe, FiInfo } from "react-icons/fi";
+import { FiGlobe, FiZap, FiCreditCard, FiShield } from "react-icons/fi";
 
 // Frontend password strength check mirrors backend
 const isStrongPassword = (password) => {
@@ -221,28 +221,34 @@ const Register = () => {
             </p>
 
             {/* Feature Highlights */}
-            <div className="space-y-3.5 pt-2">
-              <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/70 dark:bg-[#0A0C13]/80 border border-slate-200/80 dark:border-zinc-800/60 backdrop-blur-md shadow-sm dark:shadow-none hover:border-violet-500/30 dark:hover:border-violet-500/40 dark:hover:bg-[#111420] transition-all group">
-                <div className="w-10 h-10 rounded-xl bg-violet-600/15 dark:bg-violet-600/25 text-violet-600 dark:text-violet-400 flex items-center justify-center font-bold text-lg flex-shrink-0 group-hover:scale-110 transition-transform">⚡</div>
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/70 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-white/[0.08] backdrop-blur-md shadow-xs hover:border-violet-500/30 dark:hover:border-violet-500/40 transition duration-150 group">
+                <div className="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center font-bold text-base flex-shrink-0 group-hover:scale-105 transition-transform">
+                  <FiZap className="w-5 h-5" />
+                </div>
                 <div>
                   <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white font-urdu">{t('auth:register.benefit1Title')}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-urdu">{t('auth:register.benefit1Desc')}</p>
+                  <p className="text-xs text-slate-500 dark:text-zinc-400 font-urdu">{t('auth:register.benefit1Desc')}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/70 dark:bg-[#0A0C13]/80 border border-slate-200/80 dark:border-zinc-800/60 backdrop-blur-md shadow-sm dark:shadow-none hover:border-indigo-500/30 dark:hover:border-indigo-500/40 dark:hover:bg-[#111420] transition-all group">
-                <div className="w-10 h-10 rounded-xl bg-indigo-600/15 dark:bg-indigo-600/25 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-lg flex-shrink-0 group-hover:scale-110 transition-transform">💳</div>
+              <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/70 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-white/[0.08] backdrop-blur-md shadow-xs hover:border-indigo-500/30 dark:hover:border-indigo-500/40 transition duration-150 group">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-base flex-shrink-0 group-hover:scale-105 transition-transform">
+                  <FiCreditCard className="w-5 h-5" />
+                </div>
                 <div>
                   <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white font-urdu">{t('auth:register.benefit2Title')}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-urdu">{t('auth:register.benefit2Desc')}</p>
+                  <p className="text-xs text-slate-500 dark:text-zinc-400 font-urdu">{t('auth:register.benefit2Desc')}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/70 dark:bg-[#0A0C13]/80 border border-slate-200/80 dark:border-zinc-800/60 backdrop-blur-md shadow-sm dark:shadow-none hover:border-emerald-500/30 dark:hover:border-emerald-500/40 dark:hover:bg-[#111420] transition-all group">
-                <div className="w-10 h-10 rounded-xl bg-emerald-600/15 dark:bg-emerald-600/25 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg flex-shrink-0 group-hover:scale-110 transition-transform">🔒</div>
+              <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/70 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-white/[0.08] backdrop-blur-md shadow-xs hover:border-emerald-500/30 dark:hover:border-emerald-500/40 transition duration-150 group">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-base flex-shrink-0 group-hover:scale-105 transition-transform">
+                  <FiShield className="w-5 h-5" />
+                </div>
                 <div>
                   <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white font-urdu">{t('auth:register.benefit3Title')}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-urdu">{t('auth:register.benefit3Desc')}</p>
+                  <p className="text-xs text-slate-500 dark:text-zinc-400 font-urdu">{t('auth:register.benefit3Desc')}</p>
                 </div>
               </div>
             </div>
@@ -263,12 +269,6 @@ const Register = () => {
 
               {/* Form Card */}
               <div className="bg-white/85 dark:bg-[#0C0F17]/95 rounded-2xl sm:rounded-3xl shadow-xl dark:shadow-2xl dark:shadow-black/90 border border-slate-200/80 dark:border-zinc-800/80 p-5 sm:p-8 backdrop-blur-xl transition-colors duration-200">
-                
-                {/* Portal Disclaimer Notice Banner */}
-                <div className="mb-5 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl flex items-center gap-2.5 text-amber-800 dark:text-amber-300 text-xs font-semibold font-urdu">
-                  <FiInfo className="w-4 h-4 flex-shrink-0 text-amber-600 dark:text-amber-400" />
-                  <span>{t('auth:register.portalNotice')}</span>
-                </div>
 
                 {(isError || validationError) && (
                   <div className="mb-6 p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl flex items-center gap-2.5">

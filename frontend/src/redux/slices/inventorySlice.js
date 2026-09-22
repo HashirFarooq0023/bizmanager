@@ -233,7 +233,7 @@ export const inventorySlice = createSlice({
       .addCase(getLowStockItems.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.lowStockItems = action.payload;
+        state.lowStockItems = action.payload?.items || (Array.isArray(action.payload) ? action.payload : []);
       })
       .addCase(getLowStockItems.rejected, (state, action) => {
         state.isLoading = false;

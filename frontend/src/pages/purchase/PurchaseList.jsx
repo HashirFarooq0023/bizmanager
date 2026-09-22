@@ -10,6 +10,7 @@ import StatusBadge from '../../components/StatusBadge';
 import FormInput from '../../components/FormInput';
 import EmptyState from '../../components/EmptyState';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import DualMonthRangePicker from '../../components/DualMonthRangePicker';
 import { getAllPurchases, reset } from '../../redux/slices/purchaseSlice';
 import { getAllSuppliers } from '../../redux/slices/supplierSlice';
 
@@ -187,17 +188,17 @@ const PurchaseList = () => {
                                 ))}
                             </select>
 
-                            <FormInput
-                                type="date"
-                                value={filters.startDate}
-                                onChange={(e) => handleFilterChange('startDate', e.target.value)}
-                            />
-
-                            <FormInput
-                                type="date"
-                                value={filters.endDate}
-                                onChange={(e) => handleFilterChange('endDate', e.target.value)}
-                            />
+                            <div className="sm:col-span-2">
+                                <DualMonthRangePicker
+                                    startDate={filters.startDate}
+                                    endDate={filters.endDate}
+                                    onChange={({ startDate, endDate }) => {
+                                        const newFilters = { ...filters, startDate, endDate };
+                                        setFilters(newFilters);
+                                        dispatch(getAllPurchases(newFilters));
+                                    }}
+                                />
+                            </div>
                         </div>
                     </div>
 

@@ -1,4 +1,4 @@
-﻿import mongoose from "mongoose";
+import mongoose from "mongoose";
 import Return from "../models/Return.js";
 import Invoice from "../models/Invoice.js";
 import Item from "../models/Item.js";
@@ -225,6 +225,22 @@ export const createReturn = async (req, res) => {
 
         const returnId = `RET-${String(returnNumber).padStart(5, "0")}`;
 
+        // Calculate net items total and amount paid specifically toward items (excluding past dues)
+        const itemsNetTotal = Math.max(0, (invoice.subtotal || 0) - (invoice.discount || 0));
+        const effectivePaid = (invoice.paidAmount || 0) + (invoice.creditApplied || 0);
+
+        // Amount paid toward new goods on this invoice
+        const paidTowardItems = Math.min(effectivePaid, itemsNetTotal);
+
+        // Unpaid due that was added to customer ledger for these items
+        const unpaidDueForItems = Math.max(0, itemsNetTotal - paidTowardItems);
+
+        // 1. Portion of return that auto-settles unpaid customer due on this invoice
+        const unpaidToCancel = invoice.customer ? Math.min(totalReturnAmount, unpaidDueForItems) : 0;
+
+        // 2. Portion of return that represents money actually paid by the customer to be refunded
+        const actualRefundAmount = Math.max(0, totalReturnAmount - unpaidToCancel);
+
         // Create return record
         const returnRecord = await Return.create({
             returnId,
@@ -242,6 +258,8 @@ export const createReturn = async (req, res) => {
             taxAmount,
             discountAmount,
             totalReturnAmount,
+            unpaidSettledAmount: unpaidToCancel,
+            actualRefundAmount: actualRefundAmount,
             status: "processed",
             notes,
             createdBy: req.user._id,
@@ -268,106 +286,100 @@ export const createReturn = async (req, res) => {
             $set: { hasReturns: true },
         });
 
-        // Update customer ledger (reduce dues or create credit)
-        // Use actualRefundMethod to determine if we should adjust customer dues
-        if (invoice.customer && actualRefundMethod === 'credit') {
+        // 1. AUTO-SETTLE UDHAAR: Cancel the unpaid due for the returned items
+        if (invoice.customer && unpaidToCancel > 0) {
             await Customer.findByIdAndUpdate(invoice.customer._id, {
-                $inc: { dues: -totalReturnAmount },
+                $inc: { dues: -unpaidToCancel },
             });
-        }
 
-        // Create transaction record (non-critical). Failures here should not block the return.
-        if (invoice.customer) {
             try {
                 await Transaction.create({
-                    type: "return",
+                    type: "due",
                     customer: invoice.customer._id,
                     invoice: invoiceId,
                     return: returnRecord._id,
-                    amount: totalReturnAmount,
-                    paymentMethod: actualRefundMethod, // Use actual method for transaction record
-                    description: `Return processed for invoice ${invoice.invoiceNo} - Return ID: ${returnId}`,
+                    amount: -unpaidToCancel,
+                    description: `Udhaar auto-settled for returned items on invoice ${invoice.invoiceNo} - Return ID: ${returnId}`,
                 });
             } catch (txnErr) {
-                error(`Return transaction creation failed (non-blocking): ${txnErr.message}`);
+                error(`Return udhaar settlement transaction failed (non-blocking): ${txnErr.message}`);
             }
         }
 
-        // Handle Bank Refund (Money OUT)
-        info('=== BANK REFUND CHECK ===');
-        info('actualRefundMethod:', { actualRefundMethod });
-        info('refundBankAccount:', { refundBankAccount });
-        info('Condition met?', { conditionMet: actualRefundMethod === 'bank_transfer' && refundBankAccount });
-
-        if (actualRefundMethod === 'bank_transfer' && refundBankAccount) {
-            info('Processing bank refund...');
-            try {
-                const BankAccount = (await import("../models/BankAccount.js")).default;
-                const CashbankTransactionDyn = (await import("../models/CashbankTransaction.js")).default;
-
-                const bankAcc = await BankAccount.findOne({
-                    _id: refundBankAccount,
-                    userId: req.user._id
+        // 2. REFUND OF ACTUALLY PAID AMOUNT (Money back to customer or store credit)
+        if (actualRefundAmount > 0) {
+            if (invoice.customer && actualRefundMethod === 'credit') {
+                // Customer wants store credit / further reduction in dues
+                await Customer.findByIdAndUpdate(invoice.customer._id, {
+                    $inc: { dues: -actualRefundAmount },
                 });
 
-                info('Bank account found:', { bankName: bankAcc ? bankAcc.bankName : 'NOT FOUND' });
+                try {
+                    await Transaction.create({
+                        type: "return",
+                        customer: invoice.customer._id,
+                        invoice: invoiceId,
+                        return: returnRecord._id,
+                        amount: actualRefundAmount,
+                        paymentMethod: "credit",
+                        description: `Store credit added for returned items on invoice ${invoice.invoiceNo} - Return ID: ${returnId}`,
+                    });
+                } catch (txnErr) {
+                    error(`Return credit transaction failed (non-blocking): ${txnErr.message}`);
+                }
+            } else if (actualRefundMethod === 'bank_transfer' && refundBankAccount) {
+                // Bank refund of actual paid amount
+                try {
+                    const BankAccount = (await import("../models/BankAccount.js")).default;
+                    const CashbankTransactionDyn = (await import("../models/CashbankTransaction.js")).default;
 
-                if (bankAcc) {
-                    // Create cashbank transaction (money OUT - refund to customer)
-                    const cashbankTxn = await CashbankTransactionDyn.create({
-                        type: 'out',
-                        amount: totalReturnAmount,
-                        fromAccount: refundBankAccount,
-                        toAccount: 'sale_return',
-                        description: `Refund for sales return ${returnId}`,
-                        date: new Date(),
-                        userId: req.user._id,
+                    const bankAcc = await BankAccount.findOne({
+                        _id: refundBankAccount,
+                        userId: req.user._id
                     });
 
-                    info('Cashbank transaction created:', { transactionId: cashbankTxn._id });
+                    if (bankAcc) {
+                        const cashbankTxn = await CashbankTransactionDyn.create({
+                            type: 'out',
+                            amount: actualRefundAmount,
+                            fromAccount: refundBankAccount,
+                            toAccount: 'sale_return',
+                            description: `Bank refund for sales return ${returnId}`,
+                            date: new Date(),
+                            userId: req.user._id,
+                        });
 
-                    // Update bank balance (deduct)
-                    const updateResult = await BankAccount.updateOne(
-                        { _id: refundBankAccount, userId: req.user._id },
-                        {
-                            $inc: { currentBalance: -totalReturnAmount },
-                            $push: { transactions: cashbankTxn._id }
-                        }
-                    );
+                        await BankAccount.updateOne(
+                            { _id: refundBankAccount, userId: req.user._id },
+                            {
+                                $inc: { currentBalance: -actualRefundAmount },
+                                $push: { transactions: cashbankTxn._id }
+                            }
+                        );
 
-                    info('Bank balance update result:', { updateResult });
-
-                    returnRecord.refundProcessed = true;
-                    await returnRecord.save();
-
-                    info(`Bank refund for return ${returnId}: -Rs. ${totalReturnAmount} from ${bankAcc.bankName}`);
+                        returnRecord.refundProcessed = true;
+                        await returnRecord.save();
+                    }
+                } catch (bankErr) {
+                    error(`Bank refund processing failed (non-blocking): ${bankErr.message}`);
                 }
-            } catch (bankErr) {
-                error(`Bank refund processing failed (non-blocking): ${bankErr.message}`);
-            }
-        } else if (actualRefundMethod === 'cash') {
-            info('Processing cash refund...');
-            try {
-                // Record cash refund transaction
-                const cashTxn = await CashbankTransaction.create({
-                    type: 'out',
-                    amount: totalReturnAmount,
-                    fromAccount: 'cash',
-                    toAccount: 'sale_return',
-                    description: `Cash refund for sales return ${returnId}`,
-                    userId: req.user._id,
-                    date: new Date(),
-                });
-
-                info('Cash transaction created:', { transactionId: cashTxn._id });
-                info('Amount:', { amount: totalReturnAmount });
-
-                info(`Cash refund for return ${returnId}: -Rs. ${totalReturnAmount}`);
-            } catch (cashErr) {
-                error(`Cash refund processing failed (non-blocking): ${cashErr.message}`);
+            } else if (actualRefundMethod === 'cash') {
+                // Cash refund of actual paid amount
+                try {
+                    await CashbankTransaction.create({
+                        type: 'out',
+                        amount: actualRefundAmount,
+                        fromAccount: 'cash',
+                        toAccount: 'sale_return',
+                        description: `Cash refund for sales return ${returnId}`,
+                        userId: req.user._id,
+                        date: new Date(),
+                    });
+                } catch (cashErr) {
+                    error(`Cash refund processing failed (non-blocking): ${cashErr.message}`);
+                }
             }
         }
-
 
         info(
             `Return created by ${req.user.name}: ${returnId} for invoice ${invoice.invoiceNo}`
@@ -499,9 +511,15 @@ export const deleteReturn = async (req, res) => {
 
         // Reverse customer ledger
         if (returnRecord.customer) {
-            await Customer.findByIdAndUpdate(returnRecord.customer, {
-                $inc: { dues: returnRecord.totalReturnAmount },
-            });
+            const duesReversal = (returnRecord.unpaidSettledAmount !== undefined)
+                ? ((returnRecord.unpaidSettledAmount || 0) + (returnRecord.actualRefundMethod === 'credit' ? (returnRecord.actualRefundAmount || 0) : 0))
+                : (returnRecord.actualRefundMethod === 'credit' ? returnRecord.totalReturnAmount : 0);
+
+            if (duesReversal > 0) {
+                await Customer.findByIdAndUpdate(returnRecord.customer, {
+                    $inc: { dues: duesReversal },
+                });
+            }
         }
 
         // Handle Bank Refund Reversal

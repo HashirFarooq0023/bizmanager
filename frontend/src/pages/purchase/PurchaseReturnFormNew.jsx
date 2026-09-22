@@ -689,7 +689,7 @@ const PurchaseReturnFormNew = () => {
                     <button
                         type="button"
                         onClick={handleSubmitForApproval}
-                        className="px-4 py-1.5 text-xs bg-indigo-600 dark:bg-[rgb(var(--color-primary))] text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-[rgb(var(--color-primary-hover))] disabled:opacity-50 font-medium"
+                        className="px-4 py-1.5 text-xs bg-violet-600 hover:bg-violet-700 text-white rounded-lg disabled:opacity-50 font-semibold transition shadow-xs"
                         disabled={loading}
                     >
                         {loading ? 'Submitting...' : 'Submit for Approval'}

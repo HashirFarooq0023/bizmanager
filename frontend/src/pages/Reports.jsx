@@ -20,6 +20,7 @@ import {
   LineChart,
   Line,
 } from 'recharts';
+import { FiBarChart2, FiDollarSign, FiPackage, FiCreditCard, FiUsers } from 'react-icons/fi';
 
 const Reports = () => {
   const dispatch = useDispatch();
@@ -113,22 +114,22 @@ const Reports = () => {
         <div className="mb-6 border-b border-default">
           <nav className="flex space-x-8 rtl:space-x-reverse overflow-x-auto">
             {[
-              { id: 'overview', label: t('reports:overview'), icon: '📊' },
-              { id: 'sales', label: t('reports:sales'), icon: '💰' },
-              { id: 'inventory', label: t('reports:inventory'), icon: '📦' },
-              { id: 'bank', label: t('reports:bankAndCash'), icon: '🏦' },
-              { id: 'customers', label: t('reports:customers'), icon: '👥' },
+              { id: 'overview', label: t('reports:overview'), icon: <FiBarChart2 className="w-4 h-4" /> },
+              { id: 'sales', label: t('reports:sales'), icon: <FiDollarSign className="w-4 h-4" /> },
+              { id: 'inventory', label: t('reports:inventory'), icon: <FiPackage className="w-4 h-4" /> },
+              { id: 'bank', label: t('reports:bankAndCash'), icon: <FiCreditCard className="w-4 h-4" /> },
+              { id: 'customers', label: t('reports:customers'), icon: <FiUsers className="w-4 h-4" /> },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition flex items-center whitespace-nowrap ${activeTab === tab.id
-                  ? 'border-indigo-500 text-indigo-600'
-                  : 'border-transparent text-muted hover:text-secondary hover:border-gray-300'
+                className={`py-3.5 px-3 border-b-2 font-medium text-xs sm:text-sm transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${activeTab === tab.id
+                  ? 'border-violet-600 text-violet-700 dark:text-violet-400 font-semibold'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700'
                   }`}
               >
-                <span className="mr-2 rtl:ml-2 rtl:mr-0">{tab.icon}</span>
-                {tab.label}
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
               </button>
             ))}
           </nav>

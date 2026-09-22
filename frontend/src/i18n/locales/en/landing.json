@@ -149,6 +149,67 @@
     "submitBtn": "Submit Inquiry",
     "sending": "Sending Message..."
   },
+  "pricing": {
+    "badge": "Transparent SaaS Pricing",
+    "title": "Simple, Predictable Retail Pricing",
+    "subtitle": "Zero hidden charges. Complete barcode POS, customer khata, and multi-terminal sync included.",
+    "popular": "Most Popular",
+    "perMonth": "/ month",
+    "lifetime": "/ lifetime",
+    "oneTime": "/ one-time",
+    "startTrial": "Start 14-Day Free Trial",
+    "dashboard": "Open Dashboard",
+    "selectPlan": "Select Plan",
+    "modalBadge": "Live Platform Pricing",
+    "modalTitle": "Biz Manager Retail POS Plans & Pricing",
+    "modalSub": "Synchronized live from MegaTrix Admin Core.",
+    "close": "Close Window",
+    "plans": {
+      "starter": {
+        "name": "Starter POS",
+        "tagline": "Ideal for neighborhood retail shops & single registers",
+        "price": "PKR 2,500",
+        "billing": "monthly",
+        "features": [
+          "Single POS terminal registration",
+          "Barcode scanning & label printing",
+          "Basic customer udhaar khata",
+          "Thermal receipt printing (58mm/80mm)",
+          "Daily profit & sales reconciliation",
+          "Offline-first POS cache"
+        ]
+      },
+      "pro": {
+        "name": "Pro Enterprise",
+        "tagline": "Built for high-volume grocery marts & multi-counters",
+        "price": "PKR 6,500",
+        "billing": "monthly",
+        "features": [
+          "Unlimited POS terminals & cashier logins",
+          "Live wholesale credit khata ledgers",
+          "Multi-currency & bank transfer support",
+          "Automatic stock low alerts & reorders",
+          "Direct WhatsApp invoice dispatch",
+          "Manager override & audit security",
+          "Dedicated MegaTrix Cloud sync"
+        ]
+      },
+      "lifetime": {
+        "name": "Lifetime License",
+        "tagline": "Permanent institutional ownership with zero recurring dues",
+        "price": "PKR 45,000",
+        "billing": "one-time",
+        "features": [
+          "Lifetime permanent software access",
+          "Zero monthly or annual subscriptions",
+          "All present & upcoming POS features",
+          "Unlimited inventory SKU catalog",
+          "Priority 24/7 dedicated support desk",
+          "Custom invoice header branding"
+        ]
+      }
+    }
+  },
   "footer": {
     "tagline": "Empowering retail stores and merchants across Pakistan with modern, simple business software.",
     "rights": "BizManager — A Product of MegaTrix Technologies. © 2026 MegaTrix Technologies.",

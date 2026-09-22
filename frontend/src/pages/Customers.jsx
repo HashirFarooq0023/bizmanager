@@ -161,37 +161,37 @@ const Customers = () => {
             />
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm border-collapse">
+              <table className="w-full text-start text-sm border-collapse">
                 <thead>
-                  <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    <th className="py-3.5 px-6">{t('tableCustomer', 'Customer')}</th>
-                    <th className="py-3.5 px-6">{t('tableContact', 'Contact Info')}</th>
-                    <th className="py-3.5 px-6">{t('tableAddress', 'Address')}</th>
-                    <th className="py-3.5 px-6">{t('tableBalanceStatus', 'Balance / Status')}</th>
-                    <th className="py-3.5 px-6 text-right">{t('common:actions', 'Actions')}</th>
+                  <tr className="border-b border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/70 dark:bg-zinc-800/40 text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                    <th className="py-3.5 px-6 text-start">{t('tableCustomer', 'Customer')}</th>
+                    <th className="py-3.5 px-6 text-start">{t('tableContact', 'Contact Info')}</th>
+                    <th className="py-3.5 px-6 text-start">{t('tableAddress', 'Address')}</th>
+                    <th className="py-3.5 px-6 text-start">{t('tableBalanceStatus', 'Balance / Status')}</th>
+                    <th className="py-3.5 px-6 text-end">{t('common:actions', 'Actions')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                <tbody className="divide-y divide-slate-100 dark:divide-zinc-800/60">
                   {filteredCustomers.map((customer) => (
-                    <tr key={customer._id} className="hover:bg-gray-50/60 dark:hover:bg-gray-800/50 transition-colors">
+                    <tr key={customer._id} className="hover:bg-slate-50/60 dark:hover:bg-zinc-800/40 transition-colors">
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 font-semibold flex items-center justify-center text-sm">
                             {customer.name?.charAt(0).toUpperCase() || 'C'}
                           </div>
                           <div>
-                            <div className="font-semibold text-gray-900 dark:text-gray-100">{customer.name}</div>
+                            <div className="font-semibold text-zinc-900 dark:text-zinc-100">{customer.name}</div>
                             {customer.referredBy && (
-                              <div className="text-xs text-gray-400">{t('referredBy', 'Referred by existing customer')}</div>
+                              <div className="text-xs text-zinc-400">{t('referredBy', 'Referred by existing customer')}</div>
                             )}
                           </div>
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <div className="font-medium text-gray-900 dark:text-gray-100">{customer.phone}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{customer.email || t('noEmail', 'No email')}</div>
+                        <div className="font-medium text-zinc-900 dark:text-zinc-100">{customer.phone}</div>
+                        <div className="text-xs text-zinc-500 dark:text-zinc-400">{customer.email || t('noEmail', 'No email')}</div>
                       </td>
-                      <td className="py-4 px-6 text-gray-600 dark:text-gray-300">
+                      <td className="py-4 px-6 text-zinc-600 dark:text-zinc-300">
                         {customer.address || "—"}
                       </td>
                       <td className="py-4 px-6 whitespace-nowrap">
@@ -209,21 +209,23 @@ const Customers = () => {
                           </StatusBadge>
                         )}
                       </td>
-                      <td className="py-4 px-6 text-right space-x-2">
-                        <Button
-                          size="xs"
-                          variant="secondary"
-                          onClick={() => navigate(`/customers/${customer._id}`)}
-                        >
-                          {t('common:view', 'View')}
-                        </Button>
-                        <Button
-                          size="xs"
-                          variant="danger"
-                          onClick={() => setDeleteConfirm(customer._id)}
-                        >
-                          {t('common:delete', 'Delete')}
-                        </Button>
+                      <td className="py-4 px-6 text-end whitespace-nowrap">
+                        <div className="inline-flex items-center gap-2 justify-end">
+                          <Button
+                            size="xs"
+                            variant="secondary"
+                            onClick={() => navigate(`/customers/${customer._id}`)}
+                          >
+                            {t('common:view', 'View')}
+                          </Button>
+                          <Button
+                            size="xs"
+                            variant="danger"
+                            onClick={() => setDeleteConfirm(customer._id)}
+                          >
+                            {t('common:delete', 'Delete')}
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}

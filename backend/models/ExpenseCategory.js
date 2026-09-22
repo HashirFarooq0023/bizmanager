@@ -71,16 +71,18 @@ expenseCategorySchema.virtual('budgetUtilization').get(function () {
 // Static method to get default categories
 expenseCategorySchema.statics.getDefaultCategories = function () {
     return [
-        { name: 'Rent', icon: '🏠', color: '#ef4444', description: 'Office or shop rent expenses' },
-        { name: 'Utilities', icon: '⚡', color: '#f59e0b', description: 'Electricity, water, internet bills' },
-        { name: 'Salaries', icon: '💼', color: '#10b981', description: 'Employee salaries and wages' },
-        { name: 'Transportation', icon: '🚗', color: '#3b82f6', description: 'Vehicle fuel, maintenance, travel' },
-        { name: 'Marketing', icon: '📢', color: '#8b5cf6', description: 'Advertising and promotion costs' },
-        { name: 'Office Supplies', icon: '📎', color: '#ec4899', description: 'Stationery and office materials' },
-        { name: 'Maintenance', icon: '🔧', color: '#14b8a6', description: 'Repairs and maintenance' },
-        { name: 'Insurance', icon: '🛡️', color: '#f97316', description: 'Insurance premiums' },
-        { name: 'Professional Fees', icon: '⚖️', color: '#6366f1', description: 'Legal, accounting, consulting fees' },
-        { name: 'Miscellaneous', icon: '📦', color: '#64748b', description: 'Other expenses' },
+        { name: 'Tea & Refreshments (چائے و ریفریشمنٹ)', icon: '☕', color: '#b45309', description: 'Daily tea, biscuits, water, refreshments for customers & staff' },
+        { name: 'Electricity & Generator Fuel (بجلی بل و فیول)', icon: '⚡', color: '#eab308', description: 'WAPDA/K-Electric bill, generator petrol/diesel, UPS batteries, solar' },
+        { name: 'Shop & Godown Rent (دکان و گودام کرایہ)', icon: '🏬', color: '#ef4444', description: 'Monthly shop rent, godown/warehouse rent' },
+        { name: 'Staff Salaries & Mazdoori (ملازمین کی تنخواہ و دیہاڑی)', icon: '👥', color: '#10b981', description: 'Monthly salaries, daily labor (mazdoori), salesman commission' },
+        { name: 'Freight & Delivery / Carriage (کرایہ باربرداری و ڈلیوری)', icon: '🚚', color: '#3b82f6', description: 'Goods transport, Rickshaw/Suzuki fare, delivery riders, carriage in/out' },
+        { name: 'Packaging Bags & Stationery (شاپر لفافے و اسٹیشنری)', icon: '🛍️', color: '#ec4899', description: 'Polythene bags (lifafey), packing tape, boxes, bill books, register' },
+        { name: 'Shop Repair & Maintenance (دکان و مرمت)', icon: '🔧', color: '#14b8a6', description: 'Electrician, shutter repair, AC/fan service, display racks, fixture repairs' },
+        { name: 'Internet & Mobile Bills (انٹرنیٹ و موبائل بل)', icon: '📱', color: '#8b5cf6', description: 'Shop WiFi, mobile balance, telephone packages' },
+        { name: 'Cleaning, Committee & Security (صفائی، سیکیورٹی و کمیٹی)', icon: '🧹', color: '#f97316', description: 'Market sweeper (safai), market union/anjuman subscription, security guard' },
+        { name: 'Charity & Sadqah (صدقہ، خیرات و چندہ)', icon: '🤲', color: '#059669', description: 'Daily morning sadqah, mosque chanda, charity' },
+        { name: 'Taxes, Challan & Govt Fees (ٹیکس، چالان و سرکاری فیس)', icon: '📋', color: '#6366f1', description: 'FBR/PRA tax, municipal/board fees, sign board tax, trade license, challans' },
+        { name: 'Miscellaneous Expenses (متفرق اخراجات)', icon: '📦', color: '#64748b', description: 'Other daily miscellaneous petty cash and operational expenses' },
     ];
 };
 

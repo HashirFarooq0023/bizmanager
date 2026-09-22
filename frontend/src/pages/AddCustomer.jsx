@@ -3,11 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useDraftSave from "../hooks/useDraftSave";
+import { useLanguage } from "../contexts/LanguageContext";
 import { addCustomer, reset, getAllCustomers } from "../redux/slices/customerSlice";
 import Layout from "../components/Layout";
 import "react-toastify/dist/ReactToastify.css";
 
 const AddCustomer = () => {
+  const { isUrdu } = useLanguage();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const dropdownRef = useRef(null);
@@ -106,12 +108,12 @@ const AddCustomer = () => {
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto">
+      <div dir="ltr" className="max-w-3xl mx-auto text-left">
         {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => navigate("/customers")}
-            className="flex items-center text-secondary hover:text-main mb-4"
+            className="flex items-center text-secondary hover:text-main mb-4 transition-colors"
           >
             <svg
               className="w-5 h-5 mr-2"
@@ -126,25 +128,30 @@ const AddCustomer = () => {
                 d="M15 19l-7-7 7-7"
               />
             </svg>
-            Back to Customers
+            {isUrdu ? "Back to Customers / گاہکوں کی فہرست" : "Back to Customers"}
           </button>
           <h1 className="text-3xl font-bold text-main mb-2">
-            Add New Customer
+            {isUrdu ? "Add New Customer (نیا گاہک شامل کریں)" : "Add New Customer"}
           </h1>
-          <p className="text-secondary">Create a new customer profile</p>
+          <p className="text-secondary">
+            {isUrdu ? "Create a new customer profile (گاہک کا نیا پروفائل بنائیں)" : "Create a new customer profile"}
+          </p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-card rounded-xl shadow-sm p-8">
+        <div className="bg-card rounded-xl shadow-sm p-8 border border-default">
           <form onSubmit={onSubmit} className="space-y-6">
             {/* Name Input */}
             <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Customer Name <span className="text-red-500">*</span>
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-secondary"
+                >
+                  Customer Name <span className="text-red-500">*</span>
+                </label>
+                {isUrdu && <span className="text-xs text-secondary font-urdu">گاہک کا نام</span>}
+              </div>
               <input
                 type="text"
                 id="name"
@@ -152,19 +159,22 @@ const AddCustomer = () => {
                 value={name}
                 onChange={onChange}
                 required
-                className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="John Doe"
+                className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
+                placeholder={isUrdu ? "e.g. John Doe / نام درج کریں" : "John Doe"}
               />
             </div>
 
             {/* Phone Input */}
             <div>
-              <label
-                htmlFor="phone"
-                className="block text-sm font-medium text-secondary mb-2"
-              >
-                Phone Number <span className="text-red-500">*</span>
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-secondary"
+                >
+                  Phone Number <span className="text-red-500">*</span>
+                </label>
+                {isUrdu && <span className="text-xs text-secondary font-urdu">فون نمبر</span>}
+              </div>
               <input
                 type="tel"
                 id="phone"
@@ -178,23 +188,28 @@ const AddCustomer = () => {
                   if (duplicateField === 'phone') setDuplicateField(null);
                 }}
                 required
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${duplicateField === 'phone' ? 'border-red-500 border-2' : 'border-default'
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main ${duplicateField === 'phone' ? 'border-red-500 border-2' : 'border-default'
                   }`}
                 placeholder="0325-4567318"
               />
               {duplicateField === 'phone' && (
-                <p className="mt-1 text-sm text-red-600">This phone number already exists</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {isUrdu ? "This phone number already exists / یہ فون نمبر پہلے سے موجود ہے" : "This phone number already exists"}
+                </p>
               )}
             </div>
 
             {/* Email Input */}
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-secondary mb-2"
-              >
-                Email Address
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-secondary"
+                >
+                  Email Address
+                </label>
+                {isUrdu && <span className="text-xs text-secondary font-urdu">ای میل ایڈریس</span>}
+              </div>
               <input
                 type="email"
                 id="email"
@@ -204,42 +219,50 @@ const AddCustomer = () => {
                   onChange(e);
                   if (duplicateField === 'email') setDuplicateField(null);
                 }}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${duplicateField === 'email' ? 'border-red-500 border-2' : 'border-default'
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main ${duplicateField === 'email' ? 'border-red-500 border-2' : 'border-default'
                   }`}
                 placeholder="customer@example.com"
               />
               {duplicateField === 'email' && (
-                <p className="mt-1 text-sm text-red-600">This email already exists</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {isUrdu ? "This email already exists / یہ ای میل پہلے سے موجود ہے" : "This email already exists"}
+                </p>
               )}
             </div>
 
             {/* Address Input */}
             <div>
-              <label
-                htmlFor="address"
-                className="block text-sm font-medium text-secondary mb-2"
-              >
-                Address
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label
+                  htmlFor="address"
+                  className="block text-sm font-medium text-secondary"
+                >
+                  Address
+                </label>
+                {isUrdu && <span className="text-xs text-secondary font-urdu">پتہ</span>}
+              </div>
               <textarea
                 id="address"
                 name="address"
                 value={address}
                 onChange={onChange}
                 rows={3}
-                className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Street address, City, State, PIN"
+                className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
+                placeholder={isUrdu ? "Street address, City / گلی، پتہ، شہر" : "Street address, City, State, PIN"}
               />
             </div>
 
             {/* Referred By - Searchable Dropdown */}
             <div ref={dropdownRef} className="relative">
-              <label
-                htmlFor="referredBy"
-                className="block text-sm font-medium text-secondary mb-2"
-              >
-                Referred By <span className="text-gray-400 text-xs">(Optional)</span>
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label
+                  htmlFor="referredBy"
+                  className="block text-sm font-medium text-secondary"
+                >
+                  Referred By <span className="text-muted text-xs">({isUrdu ? "Optional / اختیاری" : "Optional"})</span>
+                </label>
+                {isUrdu && <span className="text-xs text-secondary font-urdu">حوالہ</span>}
+              </div>
 
               {selectedReferrer ? (
                 <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
@@ -269,8 +292,8 @@ const AddCustomer = () => {
                         setShowReferralDropdown(true);
                       }}
                       onFocus={() => setShowReferralDropdown(true)}
-                      className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                      placeholder="Search by customer name or phone..."
+                      className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
+                      placeholder={isUrdu ? "Search by customer name or phone... / نام یا فون سے تلاش کریں" : "Search by customer name or phone..."}
                     />
                     <svg
                       className="absolute right-3 top-3.5 w-5 h-5 text-gray-400"
@@ -283,14 +306,14 @@ const AddCustomer = () => {
                   </div>
 
                   {showReferralDropdown && referralSearch.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white dark:bg-[rgb(var(--color-card))] border border-default dark:border-[rgb(var(--color-border))] rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <div className="absolute z-10 w-full mt-1 bg-card border border-default rounded-lg shadow-lg max-h-60 overflow-y-auto">
                       {filteredReferralCustomers.length > 0 ? (
                         filteredReferralCustomers.map((customer) => (
                           <button
                             key={customer._id}
                             type="button"
                             onClick={() => handleSelectReferrer(customer)}
-                            className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))] border-b border-default dark:border-[rgb(var(--color-border))] last:border-b-0 transition"
+                            className="w-full text-left px-4 py-3 hover:bg-surface border-b border-default last:border-b-0 transition-colors"
                           >
                             <div className="font-medium text-main">{customer.name}</div>
                             <div className="text-sm text-secondary">{customer.phone}</div>
@@ -298,7 +321,7 @@ const AddCustomer = () => {
                         ))
                       ) : (
                         <div className="px-4 py-3 text-secondary text-center">
-                          No customers found
+                          {isUrdu ? "No customers found / کوئی گاہک نہیں ملا" : "No customers found"}
                         </div>
                       )}
                     </div>
@@ -308,18 +331,18 @@ const AddCustomer = () => {
             </div>
 
             {/* Form Actions */}
-            <div className="flex space-x-4 pt-4">
+            <div className="flex space-x-4 pt-4 border-t border-default">
               <button
                 type="button"
                 onClick={() => navigate("/customers")}
-                className="flex-1 px-6 py-3 border border-default text-secondary rounded-lg hover:bg-gray-50 font-medium transition"
+                className="flex-1 px-6 py-3 border border-default text-secondary rounded-lg hover:bg-surface font-medium transition cursor-pointer"
               >
-                Cancel
+                {isUrdu ? "Cancel / منسوخ کریں" : "Cancel"}
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-6 py-3 bg-violet-600 text-white rounded-lg hover:bg-violet-700 font-semibold shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center">
@@ -342,10 +365,10 @@ const AddCustomer = () => {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       />
                     </svg>
-                    Adding Customer...
+                    {isUrdu ? "Adding Customer... / شامل کیا جا رہا ہے..." : "Adding Customer..."}
                   </span>
                 ) : (
-                  "Add Customer"
+                  isUrdu ? "Add Customer / گاہک شامل کریں" : "Add Customer"
                 )}
               </button>
             </div>

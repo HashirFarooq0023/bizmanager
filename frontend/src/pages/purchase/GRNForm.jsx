@@ -401,14 +401,14 @@ const GRNForm = () => {
                         <button
                             type="button"
                             onClick={() => navigate("/grns")}
-                            className="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md"
+                            className="px-6 py-2.5 bg-hover hover:bg-muted/10 border border-default text-main font-medium rounded-xl transition"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 disabled:opacity-50"
+                            className="px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl flex items-center gap-2 disabled:opacity-50 transition shadow-xs"
                         >
                             <FiSave /> {isLoading ? "Creating..." : "Create GRN"}
                         </button>

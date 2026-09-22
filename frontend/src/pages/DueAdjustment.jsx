@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -65,11 +65,12 @@ const DueAdjustment = () => {
             newErrors.adjustmentAmount = "Adjustment amount must be greater than zero";
         }
 
+        const customerDues = Number(customer?.dues || 0);
         if (
             customer &&
-            parseFloat(formData.adjustmentAmount) > parseFloat(customer.dues)
+            parseFloat(formData.adjustmentAmount) > customerDues
         ) {
-            newErrors.adjustmentAmount = `Adjustment amount cannot exceed outstanding due of Rs. ${customer.dues.toFixed(2)}`;
+            newErrors.adjustmentAmount = `Adjustment amount cannot exceed outstanding due of Rs. ${customerDues.toFixed(2)}`;
         }
 
         if (!formData.adjustmentMethod) {
@@ -188,7 +189,7 @@ const DueAdjustment = () => {
                                 Outstanding Due
                             </p>
                             <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                                Rs. {customer.dues.toFixed(2)}
+                                Rs. {Number(customer?.dues || 0).toFixed(2)}
                             </p>
                         </div>
                     </div>
@@ -217,7 +218,7 @@ const DueAdjustment = () => {
                                     onChange={handleChange}
                                     step="0.01"
                                     min="0"
-                                    max={customer.dues}
+                                    max={Number(customer?.dues || 0)}
                                     className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[rgb(var(--color-primary))] focus:border-transparent dark:bg-[rgb(var(--color-input))] dark:border-[rgb(var(--color-border))] dark:text-[rgb(var(--color-text))] ${errors.adjustmentAmount
                                             ? "border-red-500"
                                             : "border-gray-300"
@@ -231,7 +232,7 @@ const DueAdjustment = () => {
                                 </p>
                             )}
                             <p className="mt-1 text-xs text-gray-500 dark:text-[rgb(var(--color-text-secondary))]">
-                                Maximum: Rs. {customer.dues.toFixed(2)}
+                                Maximum: Rs. {Number(customer?.dues || 0).toFixed(2)}
                             </p>
                         </div>
 
@@ -287,14 +288,14 @@ const DueAdjustment = () => {
                             <button
                                 type="button"
                                 onClick={() => navigate(`/customers/${id}`)}
-                                className="flex-1 px-6 py-3 border border-gray-300 dark:border-[rgb(var(--color-border))] text-gray-700 dark:text-[rgb(var(--color-text))] rounded-lg hover:bg-gray-50 dark:hover:bg-[rgb(var(--color-input))] transition-colors"
+                                className="flex-1 px-6 py-3 border border-slate-300 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors font-semibold cursor-pointer"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={dueLoading || customer.dues <= 0}
-                                className="flex-1 px-6 py-3 bg-indigo-600 dark:bg-[rgb(var(--color-primary))] text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-[rgb(var(--color-primary-hover))] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                                className="flex-1 px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-bold shadow-md shadow-violet-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center cursor-pointer"
                             >
                                 {dueLoading ? (
                                     <>

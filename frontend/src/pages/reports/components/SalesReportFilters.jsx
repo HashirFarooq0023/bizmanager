@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import DualMonthRangePicker from '../../../components/DualMonthRangePicker';
 
 const SalesReportFilters = ({ filters, onFilterChange, onReset }) => {
     const { t } = useTranslation(['reports', 'common']);
@@ -90,27 +91,19 @@ const SalesReportFilters = ({ filters, onFilterChange, onReset }) => {
                 </div>
 
                 {localFilters.dateFilter === 'custom' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm text-secondary mb-1">{t('reports:startDate')}</label>
-                            <input
-                                type="date"
-                                dir="ltr"
-                                value={localFilters.customStartDate || ''}
-                                onChange={(e) => handleInputChange('customStartDate', e.target.value)}
-                                className="w-full px-4 py-2 bg-card border border-border rounded-lg text-main focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm text-secondary mb-1">{t('reports:endDate')}</label>
-                            <input
-                                type="date"
-                                dir="ltr"
-                                value={localFilters.customEndDate || ''}
-                                onChange={(e) => handleInputChange('customEndDate', e.target.value)}
-                                className="w-full px-4 py-2 bg-card border border-border rounded-lg text-main focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
-                            />
-                        </div>
+                    <div className="max-w-md">
+                        <label className="block text-sm text-secondary mb-1.5">{t('reports:dateRange') || 'Custom Date Range'}</label>
+                        <DualMonthRangePicker
+                            startDate={localFilters.customStartDate || ''}
+                            endDate={localFilters.customEndDate || ''}
+                            onChange={({ startDate, endDate }) => {
+                                setLocalFilters(prev => ({
+                                    ...prev,
+                                    customStartDate: startDate,
+                                    customEndDate: endDate,
+                                }));
+                            }}
+                        />
                     </div>
                 )}
             </div>

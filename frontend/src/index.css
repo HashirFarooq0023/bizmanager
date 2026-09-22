@@ -377,73 +377,63 @@
   /* Light Theme (Default) */
   :root {
     /* Backgrounds */
-    --color-bg: 247 247 250;
-    /* #F7F7FA light neutral */
-    --color-card: 255 255 255;
-    /* white */
-    --color-input: 255 255 255;
-    /* white */
-    --color-sidebar: 15 23 42;
-    /* dark slate / violet */
-    --color-table-row: 255 255 255;
-    /* white */
-    --color-table-header: 249 250 251;
-    /* gray-50 */
+    --color-bg: 247 247 250; /* #F7F7FA light neutral */
+    --color-card: 255 255 255; /* white */
+    --color-input: 255 255 255; /* white */
+    --color-sidebar: 255 255 255; /* white */
+    --color-table-row: 255 255 255; /* white */
+    --color-table-header: 248 249 250; /* zinc-50 */
 
     /* Text */
-    --color-text: 17 24 39;
-    /* gray-900 */
-    --color-text-secondary: 75 85 99;
-    /* gray-600 */
-    --color-text-muted: 156 163 175;
-    /* gray-400 */
-    --color-placeholder: 156 163 175;
-    /* gray-400 */
+    --color-text: 17 24 39; /* zinc-900 */
+    --color-text-secondary: 75 85 99; /* zinc-600 */
+    --color-text-muted: 156 163 175; /* zinc-400 */
+    --color-placeholder: 156 163 175; /* zinc-400 */
 
     /* Borders */
-    --color-border: 229 231 235;
-    /* gray-200 */
-    --color-border-light: 243 244 246;
-    /* gray-100 */
+    --color-border: 228 228 231; /* zinc-200 */
+    --color-border-light: 244 244 245; /* zinc-100 */
 
-    /* Refined Neutral Primary Accent */
-    --color-primary: 24 24 27;
-    /* zinc-900 #18181B */
-    --color-primary-hover: 39 39 42;
-    /* zinc-800 #27272A */
+    /* Primary Accent */
+    --color-primary: 109 40 217; /* violet-700 #6D28D9 */
+    --color-primary-hover: 91 33 182; /* violet-800 #5B21B6 */
+
+    /* Semantic Accents (Desaturated, Professional) */
+    --color-success: 16 185 129; /* emerald-500 */
+    --color-warning: 217 119 6; /* amber-600 */
+    --color-danger: 225 29 72; /* rose-600 */
+    --color-brand: 109 40 217; /* violet-700 */
   }
 
-  /* Dark Theme */
+  /* Dark Theme — OLED Zinc Depth */
   .dark {
     /* Backgrounds */
-    --color-bg: 9 9 11;
-    /* #09090B deep zinc depth */
-    --color-card: 24 24 27;
-    /* #18181B zinc-900 surface */
-    --color-input: 15 23 42;
-    /* #0F172A slate-900 */
-    --color-sidebar: 15 23 42;
-    /* #0F172A slate-900 */
-    --color-table-row: 24 24 27;
-    /* #18181B */
-    --color-table-header: 18 18 20;
-    /* #121214 */
+    --color-bg: 9 9 11; /* #09090B deep zinc */
+    --color-card: 24 24 27; /* #18181B zinc-900 surface */
+    --color-input: 24 24 27; /* #18181B zinc-900 */
+    --color-sidebar: 9 9 11; /* #09090B zinc-950 */
+    --color-table-row: 24 24 27; /* #18181B */
+    --color-table-header: 18 18 20; /* #121214 zinc-925 */
 
     /* Text */
-    --color-text: 244 244 245;
-    --color-text-secondary: 161 161 170;
-    --color-text-muted: 113 113 122;
-    --color-placeholder: 113 113 122;
+    --color-text: 244 244 245; /* zinc-100 */
+    --color-text-secondary: 161 161 170; /* zinc-400 */
+    --color-text-muted: 113 113 122; /* zinc-500 */
+    --color-placeholder: 113 113 122; /* zinc-500 */
 
     /* Borders */
-    --color-border: 39 39 42;
-    --color-border-light: 39 39 42;
+    --color-border: 39 39 42; /* zinc-800 */
+    --color-border-light: 39 39 42; /* zinc-800 */
 
     /* Primary Accent for Dark */
-    --color-primary: 244 244 245;
-    /* zinc-100 #F4F4F5 */
-    --color-primary-hover: 228 228 231;
-    /* zinc-200 #E4E4E7 */
+    --color-primary: 124 58 237; /* violet-600 #7C3AED */
+    --color-primary-hover: 139 92 246; /* violet-500 #8B5CF6 */
+
+    /* Semantic Accents for Dark */
+    --color-success: 52 211 153; /* emerald-400 */
+    --color-warning: 251 191 36; /* amber-400 */
+    --color-danger: 251 113 133; /* rose-400 */
+    --color-brand: 167 139 250; /* violet-400 */
   }
 
   html {
