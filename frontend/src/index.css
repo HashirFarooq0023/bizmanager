@@ -798,3 +798,34 @@ html.urdu-active .bizmanager-logo *,
 @media (min-width: 640px) {
   .bizmanager-logo.logo-size-3xl .logo-subtitle { font-size: 0.95rem !important; line-height: 1.1 !important; }
 }
+
+/* ==========================================================================
+   Clean Custom Sidebar Scrollbar
+   ========================================================================== */
+.sidebar-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(160, 160, 160, 0.25) transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(160, 160, 160, 0.25);
+  border-radius: 9999px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(160, 160, 160, 0.45);
+}
+
+.sidebar-scrollbar-collapsed {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.sidebar-scrollbar-collapsed::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}

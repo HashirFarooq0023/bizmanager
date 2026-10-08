@@ -22,36 +22,61 @@ const POS = () => {
   const { accounts = [] } = useSelector((state) => state.cashbank);
   const { invoice, isLoading, isSuccess, isError, message } = useSelector((state) => state.pos);
 
-  // Tab system state - Load from localStorage on mount
+  const defaultTab = {
+    id: 1,
+    name: 'Tab 1',
+    customer: null,
+    cart: [],
+    discount: 0,
+    paymentMethod: 'cash',
+    bankAccount: '',
+    paidAmount: '',
+    changeReturned: '',
+    applyCreditEnabled: false,
+    creditUsed: 0,
+    availableCredit: 0,
+    previousDueApplied: 0,
+    splitPaymentDetails: [],
+  };
+
+  // Tab system state - Load from localStorage on mount with safe schema fallback
   const [tabs, setTabs] = useState(() => {
-    const savedTabs = localStorage.getItem('posTabs');
-    return savedTabs ? JSON.parse(savedTabs) : [
-      {
-        id: 1,
-        name: 'Tab 1',
-        customer: null,
-        cart: [],
-        discount: 0,
-        paymentMethod: 'cash',
-        bankAccount: '',
-        paidAmount: '',
-        changeReturned: '',
-        applyCreditEnabled: false,
-        creditUsed: 0,
-        availableCredit: 0,
-        previousDueApplied: 0,
+    try {
+      const savedTabs = localStorage.getItem('posTabs');
+      if (savedTabs) {
+        const parsed = JSON.parse(savedTabs);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map(tab => ({
+            ...defaultTab,
+            ...tab,
+            cart: Array.isArray(tab?.cart) ? tab.cart : []
+          }));
+        }
       }
-    ];
+    } catch (e) {
+      console.error('Error reading posTabs from localStorage:', e);
+    }
+    return [defaultTab];
   });
+
   const [activeTabId, setActiveTabId] = useState(() => {
-    const savedActiveTab = localStorage.getItem('posActiveTab');
-    return savedActiveTab ? parseInt(savedActiveTab) : 1;
+    try {
+      const savedActiveTab = localStorage.getItem('posActiveTab');
+      if (savedActiveTab) {
+        const parsed = parseInt(savedActiveTab, 10);
+        if (!isNaN(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.error('Error reading posActiveTab from localStorage:', e);
+    }
+    return 1;
   });
 
   // Helper function to get the next available tab number (fills gaps)
   const getNextTabNumber = (currentTabs) => {
-    const usedNumbers = currentTabs.map(tab => {
-      const match = tab.name.match(/^Tab (\d+)$/);
+    const list = Array.isArray(currentTabs) ? currentTabs : [];
+    const usedNumbers = list.map(tab => {
+      const match = (tab?.name || '').match(/^Tab (\d+)$/);
       return match ? parseInt(match[1]) : 0;
     }).filter(n => n > 0);
 
@@ -70,19 +95,28 @@ const POS = () => {
   const [showCustomerSelect, setShowCustomerSelect] = useState(false);
   const [showHoldOrders, setShowHoldOrders] = useState(false);
   const [showSplitPayment, setShowSplitPayment] = useState(false);
+  const [showOverpaymentConfirm, setShowOverpaymentConfirm] = useState(false);
+  const [completedSale, setCompletedSale] = useState(null);
   const [draggedTabId, setDraggedTabId] = useState(null);
   const [splitPayments, setSplitPayments] = useState([
     { method: 'cash', amount: '' },
   ]);
   const [barcodeInput, setBarcodeInput] = useState('');
   const [showUnpaidConfirm, setShowUnpaidConfirm] = useState(false);
-  const [showOverpaymentConfirm, setShowOverpaymentConfirm] = useState(false);
   const [showReturnModal, setShowReturnModal] = useState(false);
 
   // Hold orders state - Load from localStorage
   const [holdOrders, setHoldOrders] = useState(() => {
-    const saved = localStorage.getItem('posHoldOrders');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('posHoldOrders');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.error('Error reading posHoldOrders from localStorage:', e);
+    }
+    return [];
   });
 
   // New customer form
@@ -108,23 +142,18 @@ const POS = () => {
 
   useEffect(() => {
     if (isSuccess && invoice) {
-      // Remove completed tab and navigate
-      const newTabs = tabs.filter(tab => tab.id !== activeTabId);
+      const invoiceId = invoice._id;
+
+      // Remove completed tab and reset tabs
+      const currentTabs = Array.isArray(tabs) ? tabs : [];
+      const newTabs = currentTabs.filter(tab => tab.id !== activeTabId);
 
       if (newTabs.length === 0) {
         // If no tabs left, create a fresh tab
         const freshTab = {
+          ...defaultTab,
           id: Date.now(),
           name: 'Tab 1',
-          customer: null,
-          cart: [],
-          discount: 0,
-          paymentMethod: 'cash',
-          bankAccount: '',
-          paidAmount: '',
-          changeReturned: '',
-          applyCreditEnabled: false,
-          previousDueApplied: 0,
         };
         setTabs([freshTab]);
         setActiveTabId(freshTab.id);
@@ -136,8 +165,8 @@ const POS = () => {
       // Refresh bank accounts to update balances
       dispatch(getAccounts());
 
-      // Navigate to invoice detail
-      navigate(`/pos/invoice/${invoice._id}`);
+      // Direct navigation to Invoice Detail page (Old after-sale structure)
+      navigate(`/pos/invoice/${invoiceId}`);
       dispatch(clearInvoice());
       dispatch(reset());
     }
@@ -145,16 +174,35 @@ const POS = () => {
 
   // Save tabs to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('posTabs', JSON.stringify(tabs));
-    localStorage.setItem('posActiveTab', activeTabId.toString());
+    try {
+      localStorage.setItem('posTabs', JSON.stringify(tabs));
+      localStorage.setItem('posActiveTab', (activeTabId || 1).toString());
+    } catch (e) {
+      console.error('Error saving posTabs to localStorage:', e);
+    }
   }, [tabs, activeTabId]);
 
   // Save hold orders to localStorage
   useEffect(() => {
-    localStorage.setItem('posHoldOrders', JSON.stringify(holdOrders));
+    try {
+      localStorage.setItem('posHoldOrders', JSON.stringify(holdOrders));
+    } catch (e) {
+      console.error('Error saving posHoldOrders to localStorage:', e);
+    }
   }, [holdOrders]);
 
-  const activeTab = tabs.find(tab => tab.id === activeTabId);
+  // Ensure activeTab is always non-null and valid
+  const activeTab = (Array.isArray(tabs) && tabs.find(tab => tab?.id === activeTabId)) || tabs?.[0] || defaultTab;
+
+  // Re-synchronize activeTabId if tabs array updates and current activeTabId is missing
+  useEffect(() => {
+    if (!Array.isArray(tabs) || tabs.length === 0) {
+      setTabs([defaultTab]);
+      setActiveTabId(1);
+    } else if (!tabs.some(tab => tab?.id === activeTabId)) {
+      setActiveTabId(tabs[0].id);
+    }
+  }, [tabs, activeTabId]);
 
   const filteredItems = Array.isArray(items) ? items.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -182,31 +230,25 @@ const POS = () => {
 
   // Tab management functions
   const addNewTab = () => {
-    const nextTabNum = getNextTabNumber(tabs);
+    const currentTabs = Array.isArray(tabs) ? tabs : [];
+    const nextTabNum = getNextTabNumber(currentTabs);
     const newTabId = Date.now(); // Use timestamp for unique ID
     const newTab = {
+      ...defaultTab,
       id: newTabId,
       name: `Tab ${nextTabNum}`,
-      customer: null,
-      cart: [],
-      discount: 0,
-      paymentMethod: 'cash',
-      paidAmount: '',
-      changeReturned: '',
-      applyCreditEnabled: false,
-      previousDueApplied: 0,
     };
-    setTabs([...tabs, newTab]);
+    setTabs([...currentTabs, newTab]);
     setActiveTabId(newTabId);
   };
 
   const closeTab = (tabId) => {
-    if (tabs.length === 1) return; // Don't close last tab
+    if (!Array.isArray(tabs) || tabs.length <= 1) return; // Don't close last tab
 
     const newTabs = tabs.filter(tab => tab.id !== tabId);
     setTabs(newTabs);
 
-    if (activeTabId === tabId) {
+    if (activeTabId === tabId && newTabs.length > 0) {
       setActiveTabId(newTabs[0].id);
     }
   };
@@ -221,12 +263,13 @@ const POS = () => {
     e.preventDefault();
     if (draggedTabId === null || draggedTabId === tabId) return;
 
-    const draggedIndex = tabs.findIndex(tab => tab.id === draggedTabId);
-    const targetIndex = tabs.findIndex(tab => tab.id === tabId);
+    const currentTabs = Array.isArray(tabs) ? tabs : [];
+    const draggedIndex = currentTabs.findIndex(tab => tab.id === draggedTabId);
+    const targetIndex = currentTabs.findIndex(tab => tab.id === tabId);
 
-    if (draggedIndex === targetIndex) return;
+    if (draggedIndex === -1 || targetIndex === -1 || draggedIndex === targetIndex) return;
 
-    const newTabs = [...tabs];
+    const newTabs = [...currentTabs];
     const [draggedTab] = newTabs.splice(draggedIndex, 1);
     newTabs.splice(targetIndex, 0, draggedTab);
     setTabs(newTabs);
@@ -237,25 +280,31 @@ const POS = () => {
   };
 
   const updateTabData = (updates) => {
-    setTabs(tabs.map(tab =>
-      tab.id === activeTabId ? { ...tab, ...updates } : tab
-    ));
+    setTabs(prevTabs => {
+      const currentTabs = Array.isArray(prevTabs) && prevTabs.length > 0 ? prevTabs : [defaultTab];
+      const targetId = activeTab?.id || activeTabId;
+      return currentTabs.map(tab =>
+        tab.id === targetId ? { ...tab, ...updates } : tab
+      );
+    });
   };
 
   // Cart management
   const addToCart = (item) => {
-    const existingItem = activeTab.cart.find((cartItem) => cartItem.item === item._id);
+    if (!item) return;
+    const currentCart = Array.isArray(activeTab?.cart) ? activeTab.cart : [];
+    const existingItem = currentCart.find((cartItem) => cartItem.item === item._id);
 
     if (existingItem) {
-      if (existingItem.quantity >= item.stockQty) {
-        toast.warning(`Only ${item.stockQty} units available in stock!`);
+      if (existingItem.quantity >= (item.stockQty || 0)) {
+        toast.warning(`Only ${item.stockQty || 0} units available in stock!`);
         return;
       }
 
       updateTabData({
-        cart: activeTab.cart.map((cartItem) =>
+        cart: currentCart.map((cartItem) =>
           cartItem.item === item._id
-            ? { ...cartItem, quantity: cartItem.quantity + 1, total: (cartItem.quantity + 1) * cartItem.price }
+            ? { ...cartItem, quantity: cartItem.quantity + 1, total: (cartItem.quantity + 1) * (Number(cartItem.price) || 0) }
             : cartItem
         )
       });
@@ -266,72 +315,77 @@ const POS = () => {
       }
 
       updateTabData({
-        cart: [...activeTab.cart, {
+        cart: [...currentCart, {
           item: item._id,
-          name: item.name,
+          name: item.name || 'Unnamed Product',
           quantity: 1,
-          price: item.sellingPrice,
-          total: item.sellingPrice,
-          availableStock: item.stockQty,
+          price: Number(item.sellingPrice) || 0,
+          total: Number(item.sellingPrice) || 0,
+          availableStock: item.stockQty || 0,
         }]
       });
     }
   };
 
   const updateQuantity = (itemId, newQuantity) => {
+    const currentCart = Array.isArray(activeTab?.cart) ? activeTab.cart : [];
     if (newQuantity <= 0) {
       removeFromCart(itemId);
       return;
     }
 
-    const cartItem = activeTab.cart.find((item) => item.item === itemId);
-    if (cartItem && newQuantity > cartItem.availableStock) {
+    const cartItem = currentCart.find((item) => item.item === itemId);
+    if (cartItem && newQuantity > (cartItem.availableStock || 0)) {
       alert(`Only ${cartItem.availableStock} units available!`);
       return;
     }
 
     updateTabData({
-      cart: activeTab.cart.map((cartItem) =>
+      cart: currentCart.map((cartItem) =>
         cartItem.item === itemId
-          ? { ...cartItem, quantity: newQuantity, total: newQuantity * cartItem.price }
+          ? { ...cartItem, quantity: newQuantity, total: newQuantity * (Number(cartItem.price) || 0) }
           : cartItem
       )
     });
   };
 
   const removeFromCart = (itemId) => {
+    const currentCart = Array.isArray(activeTab?.cart) ? activeTab.cart : [];
     updateTabData({
-      cart: activeTab.cart.filter((cartItem) => cartItem.item !== itemId)
+      cart: currentCart.filter((cartItem) => cartItem.item !== itemId)
     });
   };
 
   const calculateSubtotal = () => {
-    return activeTab.cart.reduce((sum, item) => sum + item.total, 0);
+    if (!activeTab || !Array.isArray(activeTab.cart)) return 0;
+    return activeTab.cart.reduce((sum, item) => sum + (Number(item?.total) || 0), 0);
   };
 
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
-    const afterDiscount = subtotal - activeTab.discount;
+    const discount = Number(activeTab?.discount) || 0;
+    const afterDiscount = Math.max(0, subtotal - discount);
 
     // Calculate credit to apply
     const availableCredit = getAvailableCredit();
-    const creditToApply = activeTab.applyCreditEnabled ? Math.min(availableCredit, afterDiscount) : 0;
+    const creditToApply = activeTab?.applyCreditEnabled ? Math.min(availableCredit, afterDiscount) : 0;
 
-    const prevDue = parseFloat(activeTab.previousDueApplied) || 0;
+    const prevDue = parseFloat(activeTab?.previousDueApplied) || 0;
 
-    return afterDiscount + prevDue - creditToApply;
+    return Math.max(0, afterDiscount + prevDue - creditToApply);
   };
 
   const getAvailableCredit = () => {
-    if (!activeTab.customer || !activeTab.customer.dues) return 0;
+    if (!activeTab?.customer || typeof activeTab.customer.dues !== 'number') return 0;
     // Credit is negative dues
     return Math.abs(Math.min(0, activeTab.customer.dues));
   };
 
   const getCreditApplied = () => {
-    if (!activeTab.applyCreditEnabled) return 0;
+    if (!activeTab?.applyCreditEnabled) return 0;
     const subtotal = calculateSubtotal();
-    const afterDiscount = subtotal - activeTab.discount;
+    const discount = Number(activeTab?.discount) || 0;
+    const afterDiscount = Math.max(0, subtotal - discount);
     const availableCredit = getAvailableCredit();
     return Math.min(availableCredit, afterDiscount);
   };
@@ -381,7 +435,8 @@ const POS = () => {
 
   // Hold Order Management
   const holdCurrentOrder = () => {
-    if (activeTab.cart.length === 0) {
+    const currentCart = Array.isArray(activeTab?.cart) ? activeTab.cart : [];
+    if (currentCart.length === 0) {
       toast.warning('Cart is empty!');
       return;
     }
@@ -390,7 +445,7 @@ const POS = () => {
       id: Date.now(),
       timestamp: new Date().toISOString(),
       ...activeTab,
-      customerName: activeTab.customer?.name || 'Walk-in',
+      customerName: activeTab?.customer?.name || 'Walk-in',
     };
 
     setHoldOrders([...holdOrders, holdOrder]);
@@ -411,31 +466,35 @@ const POS = () => {
   };
 
   const retrieveHoldOrder = (holdOrder) => {
+    if (!holdOrder) return;
     // Create new tab with hold order data - restore ALL properties
     const newTabId = Date.now(); // Use timestamp for unique ID
-    const nextTabNum = getNextTabNumber(tabs);
+    const currentTabs = Array.isArray(tabs) ? tabs : [];
+    const nextTabNum = getNextTabNumber(currentTabs);
 
     const newTab = {
+      ...defaultTab,
+      ...holdOrder,
       id: newTabId,
       name: `Tab ${nextTabNum}`,
-      customer: holdOrder.customer,
-      cart: holdOrder.cart || [],
-      discount: holdOrder.discount || 0,
+      customer: holdOrder.customer || null,
+      cart: Array.isArray(holdOrder.cart) ? holdOrder.cart : [],
+      discount: Number(holdOrder.discount) || 0,
       paymentMethod: holdOrder.paymentMethod || 'cash',
       bankAccount: holdOrder.bankAccount || '',
       paidAmount: holdOrder.paidAmount || '',
       changeReturned: holdOrder.changeReturned || '',
-      applyCreditEnabled: holdOrder.applyCreditEnabled || false,
-      creditUsed: holdOrder.creditUsed || 0,
-      availableCredit: holdOrder.availableCredit || 0,
-      previousDueApplied: holdOrder.previousDueApplied || 0,
+      applyCreditEnabled: Boolean(holdOrder.applyCreditEnabled),
+      creditUsed: Number(holdOrder.creditUsed) || 0,
+      availableCredit: Number(holdOrder.availableCredit) || 0,
+      previousDueApplied: Number(holdOrder.previousDueApplied) || 0,
     };
 
-    setTabs([...tabs, newTab]);
+    setTabs([...currentTabs, newTab]);
     setActiveTabId(newTabId);
 
     // Remove from hold orders
-    setHoldOrders(holdOrders.filter(order => order.id !== holdOrder.id));
+    setHoldOrders(prev => Array.isArray(prev) ? prev.filter(order => order.id !== holdOrder.id) : []);
     setShowHoldOrders(false);
 
     // Show success message to user
@@ -444,7 +503,7 @@ const POS = () => {
 
   const deleteHoldOrder = (orderId) => {
     if (confirm('Delete this parked order?')) {
-      setHoldOrders(holdOrders.filter(order => order.id !== orderId));
+      setHoldOrders(prev => Array.isArray(prev) ? prev.filter(order => order.id !== orderId) : []);
     }
   };
 
@@ -491,12 +550,14 @@ const POS = () => {
 
   // Print Receipt
   const printReceipt = () => {
-    if (activeTab.cart.length === 0) {
+    const cart = Array.isArray(activeTab?.cart) ? activeTab.cart : [];
+    if (cart.length === 0) {
       alert('Cart is empty!');
       return;
     }
 
     const printWindow = window.open('', '', 'width=300,height=600');
+    if (!printWindow) return;
     const receipt = `
       <!DOCTYPE html>
       <html>
@@ -518,13 +579,13 @@ const POS = () => {
         <p>${t('pos:customer')}: ${activeTab.customer?.name || t('pos:walkInCustomer')}</p>
         <div class="line"></div>
         <table>
-          ${activeTab.cart.map(item => `
+          ${cart.map(item => `
             <tr>
-              <td>${item.name}</td>
-              <td class="right">${item.quantity} x Rs. ${item.price}</td>
+              <td>${item.name || 'Item'}</td>
+              <td class="right">${item.quantity || 1} x Rs. ${(Number(item.price) || 0).toFixed(2)}</td>
             </tr>
             <tr>
-              <td colspan="2" class="right">Rs. ${item.total.toFixed(2)}</td>
+              <td colspan="2" class="right">Rs. ${(Number(item.total) || 0).toFixed(2)}</td>
             </tr>
           `).join('')}
         </table>
@@ -532,13 +593,13 @@ const POS = () => {
         <table>
           <tr>
             <td>${t('pos:subtotal')}</td>
-            <td class="right">Rs. ${subtotal.toFixed(2)}</td>
+            <td class="right">Rs. ${(Number(subtotal) || 0).toFixed(2)}</td>
           </tr>
           <tr>
             <td>${t('pos:discount')}</td>
-            <td class="right">-Rs. ${activeTab.discount.toFixed(2)}</td>
+            <td class="right">-Rs. ${(Number(activeTab.discount) || 0).toFixed(2)}</td>
           </tr>
-          ${activeTab.previousDueApplied > 0 ? `
+          ${(Number(activeTab.previousDueApplied) || 0) > 0 ? `
             <tr>
               <td>${t('pos:previousDueAdded')}</td>
               <td class="right">+Rs. ${(parseFloat(activeTab.previousDueApplied) || 0).toFixed(2)}</td>
@@ -546,12 +607,12 @@ const POS = () => {
           ` : ''}
           <tr class="bold">
             <td>${t('pos:total')}</td>
-            <td class="right">Rs. ${total.toFixed(2)}</td>
+            <td class="right">Rs. ${(Number(total) || 0).toFixed(2)}</td>
           </tr>
           ${getCreditApplied() > 0 ? `
             <tr>
               <td>${t('pos:creditApplied')}</td>
-              <td class="right">-Rs. ${getCreditApplied().toFixed(2)}</td>
+              <td class="right">-Rs. ${(Number(getCreditApplied()) || 0).toFixed(2)}</td>
             </tr>
           ` : ''}
           <tr>
@@ -561,7 +622,7 @@ const POS = () => {
           ${balance > 0 ? `
             <tr>
               <td>${t('pos:changeToReturn', 'Change to Return:')}</td>
-              <td class="right bold">Rs. ${balance.toFixed(2)}</td>
+              <td class="right bold">Rs. ${(Number(balance) || 0).toFixed(2)}</td>
             </tr>
           ` : `
             <tr>
@@ -580,9 +641,95 @@ const POS = () => {
     printWindow.print();
   };
 
+  // Direct Print Receipt from Sale Completion Modal
+  const printSaleReceipt = (saleInfo) => {
+    if (!saleInfo) return;
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error('Pop-up blocked! Please allow pop-ups to print receipts.');
+      return;
+    }
+
+    const receiptHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Receipt - ${saleInfo.invoiceNumber || 'Sale'}</title>
+        <style>
+          body { font-family: monospace; width: 280px; margin: 10px; font-size: 12px; }
+          h2 { text-align: center; margin: 8px 0 4px 0; font-size: 15px; }
+          .center { text-align: center; }
+          .line { border-top: 1px dashed #000; margin: 8px 0; }
+          table { width: 100%; border-collapse: collapse; }
+          .right { text-align: right; }
+          .bold { font-weight: bold; }
+          .item-row td { padding: 2px 0; }
+        </style>
+      </head>
+      <body>
+        <h2>SALES RECEIPT</h2>
+        <p class="center" style="margin: 2px 0; font-size: 11px;">Invoice #: <strong>${saleInfo.invoiceNumber || saleInfo.id}</strong></p>
+        <p class="center" style="margin: 2px 0; font-size: 10px;">Date: ${new Date(saleInfo.date || Date.now()).toLocaleString()}</p>
+        <p class="center" style="margin: 2px 0; font-size: 11px;">Customer: ${saleInfo.customerName || 'Walk-in Customer'}</p>
+        <div class="line"></div>
+        <table>
+          ${(saleInfo.items || []).map(item => `
+            <tr class="item-row">
+              <td>${item.name || item.item?.name || 'Item'}</td>
+              <td class="right">${item.quantity || 1} x Rs. ${(Number(item.price) || 0).toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="right" style="font-size: 11px; padding-bottom: 4px;">Rs. ${(Number(item.total) || ((item.quantity || 1) * (Number(item.price) || 0)) || 0).toFixed(2)}</td>
+            </tr>
+          `).join('')}
+        </table>
+        <div class="line"></div>
+        <table>
+          ${(Number(saleInfo.discount) || 0) > 0 ? `
+            <tr>
+              <td>Discount:</td>
+              <td class="right">-Rs. ${(Number(saleInfo.discount) || 0).toFixed(2)}</td>
+            </tr>
+          ` : ''}
+          ${(Number(saleInfo.previousDueApplied) || 0) > 0 ? `
+            <tr>
+              <td>Previous Due:</td>
+              <td class="right">+Rs. ${(Number(saleInfo.previousDueApplied) || 0).toFixed(2)}</td>
+            </tr>
+          ` : ''}
+          <tr class="bold">
+            <td style="font-size: 13px;">Total Bill:</td>
+            <td class="right" style="font-size: 13px;">Rs. ${(Number(saleInfo.totalAmount) || 0).toFixed(2)}</td>
+          </tr>
+          <tr>
+            <td>Amount Received:</td>
+            <td class="right">Rs. ${(Number(saleInfo.paidAmount) || 0).toFixed(2)}</td>
+          </tr>
+          ${(Number(saleInfo.changeReturned) || 0) > 0 ? `
+            <tr class="bold">
+              <td style="font-size: 13px;">Change Returned:</td>
+              <td class="right" style="font-size: 13px;">Rs. ${(Number(saleInfo.changeReturned) || 0).toFixed(2)}</td>
+            </tr>
+          ` : ''}
+        </table>
+        <div class="line"></div>
+        <p class="center" style="margin: 8px 0; font-size: 11px;">Thank you for your visit!</p>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(receiptHtml);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
+  };
+
   // Checkout
   const handleCheckout = () => {
-    if (activeTab.cart.length === 0) {
+    const cart = Array.isArray(activeTab?.cart) ? activeTab.cart : [];
+    if (cart.length === 0) {
       toast.warning(t('pos:cartEmptyWarning', 'Cart is empty! Please add items to proceed.'));
       return;
     }
@@ -644,7 +791,7 @@ const POS = () => {
 
     const invoiceData = {
       customerId: activeTab.customer?._id || null,
-      items: activeTab.cart.map(item => ({
+      items: (Array.isArray(activeTab.cart) ? activeTab.cart : []).map(item => ({
         item: item.item,
         name: item.name,
         quantity: item.quantity,
@@ -655,7 +802,7 @@ const POS = () => {
       paidAmount: paid,
       creditApplied,
       previousDueAmount: parseFloat(activeTab.previousDueApplied) || 0,
-      paymentMethod: activeTab.paymentMethod,
+      paymentMethod: activeTab.paymentMethod || 'cash',
       bankAccount: activeTab.paymentMethod === 'bank_transfer' ? activeTab.bankAccount : null,
       changeReturned,
       splitPaymentDetails: activeTab.splitPaymentDetails || [],
@@ -668,7 +815,7 @@ const POS = () => {
 
   const subtotal = calculateSubtotal();
   const total = calculateTotal();
-  const paid = parseFloat(activeTab.paidAmount) || 0;
+  const paid = parseFloat(activeTab?.paidAmount) || 0;
   const balance = paid - total;
 
   return (
@@ -748,13 +895,13 @@ const POS = () => {
                   className="flex items-center space-x-2"
                 >
                   <span>
-                    {tab.name.startsWith('Tab ') ? `Tab ${tab.name.replace('Tab ', '')}` : tab.name}
-                    {isUrdu && ` (ٹیب ${tab.name.replace('Tab ', '')})`}
+                    {(tab?.name || 'Tab').startsWith('Tab ') ? `Tab ${(tab?.name || '').replace('Tab ', '')}` : (tab?.name || 'Tab')}
+                    {isUrdu && ` (ٹیب ${(tab?.name || '').replace('Tab ', '')})`}
                   </span>
-                  {tab.cart.length > 0 && (
+                  {(tab?.cart || []).length > 0 && (
                     <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${activeTabId === tab.id ? 'bg-white/20 text-white' : 'bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300'
                       }`}>
-                      {tab.cart.length}
+                      {(tab?.cart || []).length}
                     </span>
                   )}
                 </button>
@@ -788,9 +935,9 @@ const POS = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           {/* Left Side - Products & Customer */}
-          <div className="lg:col-span-2 space-y-4 text-left">
+          <div className="lg:col-span-7 xl:col-span-8 space-y-4 text-left">
             {/* Customer Selection */}
             <div className="bg-card rounded-2xl border border-default shadow-sm p-4 sm:p-5 text-left">
               <div className="flex items-center justify-between mb-2.5">
@@ -806,7 +953,7 @@ const POS = () => {
                 </button>
               </div>
 
-              {activeTab.customer ? (
+              {activeTab?.customer ? (
                 <div>
                   <div className="flex items-center justify-between p-3.5 bg-hover border border-default rounded-xl">
                     <div className="flex-1">
@@ -818,7 +965,7 @@ const POS = () => {
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                           <span className="text-xs font-semibold text-emerald-600">
-                            {isUrdu ? `Available Credit / دستیاب کریڈٹ: Rs. ${getAvailableCredit().toFixed(2)}` : `Available Credit: Rs. ${getAvailableCredit().toFixed(2)}`}
+                            {isUrdu ? `Available Credit / دستیاب کریڈٹ: Rs. ${(Number(getAvailableCredit()) || 0).toFixed(2)}` : `Available Credit: Rs. ${(Number(getAvailableCredit()) || 0).toFixed(2)}`}
                           </span>
                         </div>
                       )}
@@ -845,7 +992,7 @@ const POS = () => {
               )}
 
               {/* Credit Balance Display */}
-              {activeTab.customer && activeTab.availableCredit > 0 && (
+              {activeTab?.customer && (Number(activeTab.availableCredit) || 0) > 0 && (
                 <div className="mt-3 p-3.5 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -857,13 +1004,13 @@ const POS = () => {
                         {isUrdu && <span className="text-xs font-urdu text-emerald-700 dark:text-emerald-400">(دستیاب کریڈٹ)</span>}
                       </div>
                     </div>
-                    <span className="text-base font-bold font-mono text-emerald-600 dark:text-emerald-400">Rs. {activeTab.availableCredit.toFixed(2)}</span>
+                    <span className="text-base font-bold font-mono text-emerald-600 dark:text-emerald-400">Rs. {(Number(activeTab.availableCredit) || 0).toFixed(2)}</span>
                   </div>
                 </div>
               )}
 
               {/* Pending Dues Display */}
-              {activeTab.customer && activeTab.customer.dues > 0 && (
+              {activeTab?.customer && (Number(activeTab.customer?.dues) || 0) > 0 && (
                 <div className="mt-3 p-3.5 bg-rose-500/10 rounded-xl border border-rose-500/20">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -875,7 +1022,7 @@ const POS = () => {
                         {isUrdu && <span className="text-xs font-urdu text-rose-700 dark:text-rose-400">(سابقہ بقایا ادھار)</span>}
                       </div>
                     </div>
-                    <span className="text-base font-bold font-mono text-rose-600 dark:text-rose-400">Rs. {activeTab.customer.dues.toFixed(2)}</span>
+                    <span className="text-base font-bold font-mono text-rose-600 dark:text-rose-400">Rs. {(Number(activeTab.customer.dues) || 0).toFixed(2)}</span>
                   </div>
                 </div>
               )}
@@ -962,44 +1109,32 @@ const POS = () => {
           </div>
 
           {/* Right Side - Cart & Checkout */}
-          <div className="lg:col-span-1" dir="ltr">
-            <div className="bg-card rounded-2xl border border-default shadow-sm p-5 sm:p-6 sticky top-4 text-left">
+          <div className="lg:col-span-5 xl:col-span-4" dir="ltr">
+            <div className="bg-card rounded-2xl border border-default shadow-sm p-4 sm:p-5 sticky top-4 text-left">
               <div className="flex items-center justify-between mb-4 border-b border-default pb-3">
                 <h2 className="text-lg font-bold text-main">Sale Bill / Invoice</h2>
                 {isUrdu && <span className="text-sm font-urdu text-secondary">خریداری کا بل</span>}
               </div>
 
               {/* Cart Items */}
-              <div className="space-y-2.5 mb-4 max-h-64 overflow-y-auto">
-                {activeTab.cart.length === 0 ? (
+              <div className="space-y-2.5 mb-4 max-h-72 overflow-y-auto overflow-x-hidden pr-0.5">
+                {(activeTab?.cart || []).length === 0 ? (
                   <div className="text-secondary text-center py-8">
                     <p className="font-medium text-sm">Cart is currently empty</p>
                     {isUrdu && <p className="text-xs font-urdu text-muted mt-1">(بل ابھی خالی ہے)</p>}
                   </div>
                 ) : (
-                  activeTab.cart.map((item) => (
-                    <div key={item.item} className="flex items-center justify-between p-3 bg-hover border border-default rounded-xl">
-                      <div className="flex-1 min-w-0 pr-2">
-                        <div className="font-semibold text-main text-sm truncate">{item.name}</div>
-                        <div className="text-xs text-secondary">Rs. {item.price} {isUrdu ? '/ فی دانہ' : 'each'}</div>
-                      </div>
-                      <div className="flex items-center space-x-1.5">
+                  (activeTab?.cart || []).map((item) => (
+                    <div key={item.item} className="p-3 bg-hover border border-default rounded-xl space-y-2">
+                      {/* Top Line: Item Name & Delete Button */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="font-bold text-main text-sm leading-snug line-clamp-2 break-words flex-1 min-w-0" title={item.name}>
+                          {item.name}
+                        </div>
                         <button
-                          onClick={() => updateQuantity(item.item, item.quantity - 1)}
-                          className="w-6 h-6 bg-card border border-default rounded-md hover:bg-hover text-main font-bold flex items-center justify-center text-xs"
-                        >
-                          -
-                        </button>
-                        <span className="w-6 text-center font-bold text-main text-xs">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.item, item.quantity + 1)}
-                          className="w-6 h-6 bg-card border border-default rounded-md hover:bg-hover text-main font-bold flex items-center justify-center text-xs"
-                        >
-                          +
-                        </button>
-                        <button
+                          type="button"
                           onClick={() => removeFromCart(item.item)}
-                          className="ml-1.5 text-rose-500 hover:text-rose-700 p-1"
+                          className="text-rose-500 hover:text-rose-700 hover:bg-rose-500/10 p-1 rounded-lg transition shrink-0 cursor-pointer"
                           title="Remove item"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1007,7 +1142,39 @@ const POS = () => {
                           </svg>
                         </button>
                       </div>
-                      <div className="ml-2 font-bold text-main text-sm text-right tabular-nums">Rs. {item.total.toFixed(2)}</div>
+
+                      {/* Bottom Line: Stepper + Unit Rate on Left, Line Total on Right */}
+                      <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-dashed border-default/60">
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {/* Quantity Controls */}
+                          <div className="flex items-center bg-card border border-default rounded-lg p-0.5 shadow-2xs">
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.item, item.quantity - 1)}
+                              className="w-5 h-5 sm:w-6 sm:h-6 rounded-md hover:bg-hover text-main font-bold flex items-center justify-center text-xs transition cursor-pointer"
+                            >
+                              -
+                            </button>
+                            <span className="w-6 text-center font-bold text-main text-xs font-mono">{item.quantity}</span>
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.item, item.quantity + 1)}
+                              className="w-5 h-5 sm:w-6 sm:h-6 rounded-md hover:bg-hover text-main font-bold flex items-center justify-center text-xs transition cursor-pointer"
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          <span className="text-[11px] text-secondary font-mono">
+                            @ {Number(item.price).toLocaleString()}
+                          </span>
+                        </div>
+
+                        {/* Line Item Total */}
+                        <div className="font-bold text-main text-sm text-right font-mono tabular-nums shrink-0">
+                          Rs. {Number(item.total).toLocaleString()}
+                        </div>
+                      </div>
                     </div>
                   ))
                 )}
@@ -1022,7 +1189,7 @@ const POS = () => {
                 <input
                   type="number"
                   dir="ltr"
-                  value={activeTab.discount === 0 ? '' : activeTab.discount}
+                  value={activeTab?.discount === 0 ? '' : (activeTab?.discount ?? '')}
                   onChange={(e) => updateTabData({ discount: parseFloat(e.target.value) || 0 })}
                   min="0"
                   step="0.01"
@@ -1032,27 +1199,27 @@ const POS = () => {
               </div>
 
               {/* Apply Customer Credit */}
-              {activeTab.customer && getAvailableCredit() > 0 && (
+              {activeTab?.customer && getAvailableCredit() > 0 && (
                 <div className="mb-4">
                   <label className="flex items-center justify-between cursor-pointer p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={activeTab.applyCreditEnabled}
+                        checked={Boolean(activeTab?.applyCreditEnabled)}
                         onChange={(e) => updateTabData({ applyCreditEnabled: e.target.checked })}
                         className="w-4 h-4 text-emerald-600 border-default rounded focus:ring-emerald-500"
                       />
                       <span className="text-xs sm:text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-                        Apply Customer Credit (Rs. {getAvailableCredit().toFixed(2)})
+                        Apply Customer Credit (Rs. {(Number(getAvailableCredit()) || 0).toFixed(2)})
                       </span>
                     </div>
                     {isUrdu && <span className="text-xs font-urdu text-emerald-700 dark:text-emerald-400">کریڈٹ استعمال کریں</span>}
                   </label>
-                  {activeTab.applyCreditEnabled && (
+                  {Boolean(activeTab?.applyCreditEnabled) && (
                     <div className="mt-2 p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-xs text-emerald-700 dark:text-emerald-300">
                       {isUrdu 
-                        ? `Rs. ${getCreditApplied().toFixed(2)} will be deducted from customer credit (کریڈٹ کٹوتی ہوگی)`
-                        : `Rs. ${getCreditApplied().toFixed(2)} will be applied from customer credit`
+                        ? `Rs. ${(Number(getCreditApplied()) || 0).toFixed(2)} will be deducted from customer credit (کریڈٹ کٹوتی ہوگی)`
+                        : `Rs. ${(Number(getCreditApplied()) || 0).toFixed(2)} will be applied from customer credit`
                       }
                     </div>
                   )}
@@ -1066,7 +1233,7 @@ const POS = () => {
                     <span className="text-secondary">Subtotal:</span>
                     {isUrdu && <span className="text-xs font-urdu text-muted">(سب ٹوٹل)</span>}
                   </div>
-                  <span className="font-semibold text-main tabular-nums">Rs. {subtotal.toFixed(2)}</span>
+                  <span className="font-semibold text-main tabular-nums">Rs. {(Number(subtotal) || 0).toFixed(2)}</span>
                 </div>
 
                 <div className="flex items-center justify-between text-xs sm:text-sm">
@@ -1074,19 +1241,19 @@ const POS = () => {
                     <span className="text-secondary">Discount:</span>
                     {isUrdu && <span className="text-xs font-urdu text-muted">(رعایت)</span>}
                   </div>
-                  <span className="font-semibold text-main tabular-nums">-Rs. {activeTab.discount.toFixed(2)}</span>
+                  <span className="font-semibold text-main tabular-nums">-Rs. {(Number(activeTab?.discount) || 0).toFixed(2)}</span>
                 </div>
 
                 {/* Previous Due Handling */}
-                {activeTab.customer && (activeTab.customer.dues || 0) > 0 && (
+                {activeTab?.customer && (Number(activeTab.customer?.dues) || 0) > 0 && (
                   <div className="space-y-2 pt-1 border-t border-dashed border-default">
-                    {activeTab.previousDueApplied > 0 ? (
+                    {(Number(activeTab?.previousDueApplied) || 0) > 0 ? (
                       <div className="flex items-center justify-between text-xs sm:text-sm">
                         <div className="flex items-center gap-1.5">
                           <span className="text-amber-600 font-medium">Previous Due Added:</span>
                           {isUrdu && <span className="text-xs font-urdu text-amber-500">(سابقہ ادھار شامل)</span>}
                         </div>
-                        <span className="font-bold text-amber-600 tabular-nums">+Rs. {activeTab.previousDueApplied.toFixed(2)}</span>
+                        <span className="font-bold text-amber-600 tabular-nums">+Rs. {(Number(activeTab.previousDueApplied) || 0).toFixed(2)}</span>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between text-xs sm:text-sm">
@@ -1094,11 +1261,11 @@ const POS = () => {
                           <span className="text-secondary">Outstanding Previous Due:</span>
                           {isUrdu && <span className="text-xs font-urdu text-muted">(سابقہ بقایا)</span>}
                         </div>
-                        <span className="font-semibold text-main tabular-nums">Rs. {(activeTab.customer.dues || 0).toFixed(2)}</span>
+                        <span className="font-semibold text-main tabular-nums">Rs. {(Number(activeTab.customer.dues) || 0).toFixed(2)}</span>
                       </div>
                     )}
 
-                    {activeTab.previousDueApplied > 0 ? (
+                    {(Number(activeTab?.previousDueApplied) || 0) > 0 ? (
                       <button
                         onClick={() => updateTabData({ previousDueApplied: 0 })}
                         className="w-full px-3 py-1.5 text-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded-lg font-medium transition"
@@ -1107,7 +1274,7 @@ const POS = () => {
                       </button>
                     ) : (
                       <button
-                        onClick={() => updateTabData({ previousDueApplied: Math.max(0, activeTab.customer.dues || 0) })}
+                        onClick={() => updateTabData({ previousDueApplied: Math.max(0, activeTab?.customer?.dues || 0) })}
                         className="w-full px-3 py-1.5 text-xs bg-violet-500/10 hover:bg-violet-500/20 text-violet-700 dark:text-violet-300 rounded-lg font-semibold transition"
                       >
                         {isUrdu ? '+ Add Previous Due (+ سابقہ ادھار بل میں شامل کریں)' : '+ Add Previous Due to Bill'}
@@ -1122,27 +1289,27 @@ const POS = () => {
                     {isUrdu && <span className="text-xs font-urdu text-secondary font-normal">(کل رقم)</span>}
                   </div>
                   <span className="text-violet-600 dark:text-violet-400 tabular-nums">
-                    Rs. {(subtotal - activeTab.discount + (parseFloat(activeTab.previousDueApplied) || 0)).toFixed(2)}
+                    Rs. {(Number(subtotal) - (Number(activeTab?.discount) || 0) + (parseFloat(activeTab?.previousDueApplied) || 0)).toFixed(2)}
                   </span>
                 </div>
 
-                {activeTab.applyCreditEnabled && getCreditApplied() > 0 && (
+                {Boolean(activeTab?.applyCreditEnabled) && getCreditApplied() > 0 && (
                   <div className="flex items-center justify-between text-xs sm:text-sm text-emerald-600">
                     <div className="flex items-center gap-1.5">
                       <span>Credit Applied:</span>
                       {isUrdu && <span className="font-urdu">(کریڈٹ کٹوتی)</span>}
                     </div>
-                    <span className="font-bold tabular-nums">-Rs. {getCreditApplied().toFixed(2)}</span>
+                    <span className="font-bold tabular-nums">-Rs. {(Number(getCreditApplied()) || 0).toFixed(2)}</span>
                   </div>
                 )}
 
-                {activeTab.applyCreditEnabled && getCreditApplied() > 0 && (
+                {Boolean(activeTab?.applyCreditEnabled) && getCreditApplied() > 0 && (
                   <div className="flex items-center justify-between text-base font-bold text-violet-600 dark:text-violet-400 border-t border-default pt-2">
                     <div className="flex items-center gap-1.5">
                       <span>Amount to Pay:</span>
                       {isUrdu && <span className="text-xs font-urdu text-secondary font-normal">(قابل ادائیگی)</span>}
                     </div>
-                    <span className="tabular-nums">Rs. {total.toFixed(2)}</span>
+                    <span className="tabular-nums">Rs. {(Number(total) || 0).toFixed(2)}</span>
                   </div>
                 )}
               </div>
@@ -1154,7 +1321,7 @@ const POS = () => {
                   {isUrdu && <span className="text-xs font-urdu text-secondary">ادائیگی کا طریقہ</span>}
                 </div>
                 <select
-                  value={activeTab.paymentMethod}
+                  value={activeTab?.paymentMethod || 'cash'}
                   onChange={(e) => updateTabData({ paymentMethod: e.target.value })}
                   className="w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-left transition shadow-xs"
                 >
@@ -1162,19 +1329,19 @@ const POS = () => {
                   <option value="upi">{isUrdu ? 'Online / UPI / ڈیجیٹل' : 'Online / UPI'}</option>
                   <option value="card">{isUrdu ? 'Card / کارڈ' : 'Card'}</option>
                   <option value="bank_transfer">{isUrdu ? 'Bank Transfer / بینک ٹرانسفر' : 'Bank Transfer'}</option>
-                  {activeTab.customer && <option value="due">{isUrdu ? 'Credit / Due (ادھار کھاتہ)' : 'Credit / Due (Udhaar)'}</option>}
+                  {activeTab?.customer && <option value="due">{isUrdu ? 'Credit / Due (ادھار کھاتہ)' : 'Credit / Due (Udhaar)'}</option>}
                 </select>
               </div>
 
               {/* Bank Account Selection */}
-              {activeTab.paymentMethod === 'bank_transfer' && (
+              {activeTab?.paymentMethod === 'bank_transfer' && (
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-xs sm:text-sm font-semibold text-main">Select Bank Account</label>
                     {isUrdu && <span className="text-xs font-urdu text-secondary">بینک کھاتہ منتخب کریں</span>}
                   </div>
                   <select
-                    value={activeTab.bankAccount}
+                    value={activeTab?.bankAccount || ''}
                     onChange={(e) => updateTabData({ bankAccount: e.target.value })}
                     className="w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-left transition shadow-xs"
                     required
@@ -1189,50 +1356,27 @@ const POS = () => {
                 </div>
               )}
 
-              {/* Paid Amount & Quick Note Selector */}
+              {/* Paid Amount / Cash Tendered */}
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-xs sm:text-sm font-semibold text-main">Amount Paid / Received (Rs.)</label>
                   {isUrdu && <span className="text-xs font-urdu text-secondary">وصول شدہ رقم (روپے)</span>}
                 </div>
 
-                {/* Quick Currency Tender Buttons (For illiterate / fast retail shopkeepers) */}
-                <div className="flex flex-wrap gap-1.5 mb-2">
-                  <button
-                    type="button"
-                    onClick={() => updateTabData({ paidAmount: total > 0 ? total.toString() : '' })}
-                    className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-violet-500/10 hover:bg-violet-500/20 text-violet-700 dark:text-violet-300 border border-violet-500/20 transition cursor-pointer"
-                  >
-                    {isUrdu ? `پورا بل (Rs. ${total.toFixed(0)})` : `Exact (Rs. ${total.toFixed(0)})`}
-                  </button>
-
-                  {[5000, 1000, 500, 100].map((noteVal) => (
-                    <button
-                      key={noteVal}
-                      type="button"
-                      onClick={() => updateTabData({ paidAmount: noteVal.toString() })}
-                      className="px-2 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 transition cursor-pointer flex items-center gap-1 font-mono"
-                    >
-                      <span>Rs. {noteVal.toLocaleString()}</span>
-                      <span className="text-[9px] opacity-75">{isUrdu ? 'نوٹ' : 'Note'}</span>
-                    </button>
-                  ))}
-                </div>
-
                 <input
                   type="number"
                   dir="ltr"
-                  value={activeTab.paidAmount}
+                  value={activeTab?.paidAmount ?? ''}
                   onChange={(e) => updateTabData({ paidAmount: e.target.value })}
                   min="0"
                   step="0.01"
-                  className="w-full px-3.5 py-2 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 font-mono text-left transition shadow-xs font-bold text-base"
-                  placeholder="0.00"
+                  className="w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 font-mono text-left transition shadow-xs font-bold text-base"
+                  placeholder="e.g. 25000"
                 />
               </div>
 
               {/* Balance / Change Banner */}
-              {activeTab.paidAmount && (
+              {activeTab?.paidAmount !== '' && activeTab?.paidAmount !== undefined && activeTab?.paidAmount !== null && (
                 <div className={`mb-3 p-3.5 rounded-xl border transition-all ${
                   balance >= 0
                     ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-300'
@@ -1260,24 +1404,14 @@ const POS = () => {
                     <span className={`text-xl font-bold font-mono tabular-nums ${
                       balance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                     }`}>
-                      Rs. {Math.abs(balance).toFixed(2)}
+                      Rs. {Math.abs(Number(balance) || 0).toFixed(2)}
                     </span>
                   </div>
                 </div>
               )}
 
-              {/* Pakistani Currency Denomination Breakdown of Change */}
-              {activeTab.paidAmount && balance > 0 && (
-                <DenominationBreakdown
-                  amount={balance}
-                  label="Change Denomination Breakdown"
-                  urduLabel="بقایا واپسی کے نوٹ (گاہک کو دیں)"
-                  className="mb-4"
-                />
-              )}
-
               {/* Walk-in Customer Warning */}
-              {!activeTab.customer && paid < total && (
+              {!activeTab?.customer && paid < total && (
                 <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
                   <p className="text-xs text-amber-700 dark:text-amber-300 font-medium">
                     {isUrdu 
@@ -1291,7 +1425,7 @@ const POS = () => {
               {/* Checkout Button */}
               <button
                 onClick={handleCheckout}
-                disabled={activeTab.cart.length === 0 || isLoading}
+                disabled={(activeTab?.cart || []).length === 0 || isLoading}
                 className="w-full py-3.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg hover:shadow-violet-500/25 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isLoading ? (
@@ -1305,21 +1439,21 @@ const POS = () => {
               <div className="grid grid-cols-3 gap-2 mt-3">
                 <button
                   onClick={holdCurrentOrder}
-                  disabled={activeTab.cart.length === 0}
+                  disabled={(activeTab?.cart || []).length === 0}
                   className="py-2 px-2 border border-amber-500/40 hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-xl disabled:opacity-40 text-xs font-semibold transition"
                 >
                   {isUrdu ? 'Hold / ہولڈ' : 'Hold'}
                 </button>
                 <button
                   onClick={() => setShowSplitPayment(true)}
-                  disabled={activeTab.cart.length === 0}
+                  disabled={(activeTab?.cart || []).length === 0}
                   className="py-2 px-2 border border-violet-500/40 hover:bg-violet-500/10 text-violet-600 dark:text-violet-400 rounded-xl disabled:opacity-40 text-xs font-semibold transition"
                 >
                   {isUrdu ? 'Split / تقسیم' : 'Split Pay'}
                 </button>
                 <button
                   onClick={printReceipt}
-                  disabled={activeTab.cart.length === 0}
+                  disabled={(activeTab?.cart || []).length === 0}
                   className="py-2 px-2 border border-default hover:bg-hover text-main rounded-xl disabled:opacity-40 text-xs font-semibold transition"
                 >
                   {isUrdu ? 'Print / پرنٹ' : 'Print'}
@@ -1327,7 +1461,7 @@ const POS = () => {
               </div>
 
               {/* Clear Cart */}
-              {activeTab.cart.length > 0 && (
+              {(activeTab?.cart || []).length > 0 && (
                 <button
                   onClick={() => updateTabData({ cart: [] })}
                   className="w-full mt-2.5 py-2 border border-default hover:bg-hover text-secondary hover:text-rose-500 rounded-xl text-xs font-medium transition"
@@ -1726,19 +1860,19 @@ const POS = () => {
                 <div className="bg-hover p-4 rounded-xl border border-default space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-secondary">{isUrdu ? 'Customer (گاہک):' : 'Customer:'}</span>
-                    <span className="font-semibold text-main">{activeTab.customer?.name}</span>
+                    <span className="font-semibold text-main">{activeTab?.customer?.name || 'Walk-in'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-secondary">{isUrdu ? 'Total Amount (کل رقم):' : 'Total Amount:'}</span>
-                    <span className="font-bold text-main">Rs. {total.toFixed(2)}</span>
+                    <span className="font-bold text-main">Rs. {(Number(total) || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-secondary">{isUrdu ? 'Amount Paid (وصول شدہ):' : 'Amount Paid:'}</span>
-                    <span className="text-main font-semibold">Rs. {paid.toFixed(2)}</span>
+                    <span className="text-main font-semibold">Rs. {(Number(paid) || 0).toFixed(2)}</span>
                   </div>
                   <div className="border-t border-default pt-2 flex justify-between">
                     <span className="font-bold text-rose-600 dark:text-rose-400">{isUrdu ? 'Balance Due / Udhaar (باقی ادھار):' : 'Balance Due / Udhaar:'}</span>
-                    <span className="font-bold text-rose-600 dark:text-rose-400 text-base">Rs. {(total - paid).toFixed(2)}</span>
+                    <span className="font-bold text-rose-600 dark:text-rose-400 text-base">Rs. {(Number(total) - Number(paid)).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -1781,19 +1915,19 @@ const POS = () => {
                 <div className="bg-hover p-4 rounded-xl border border-default space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-secondary">{isUrdu ? 'Customer (گاہک):' : 'Customer:'}</span>
-                    <span className="font-semibold text-main">{activeTab.customer?.name}</span>
+                    <span className="font-semibold text-main">{activeTab?.customer?.name || 'Walk-in'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-secondary">{isUrdu ? 'Total Amount (کل رقم):' : 'Total Amount:'}</span>
-                    <span className="font-bold text-main">Rs. {total.toFixed(2)}</span>
+                    <span className="font-bold text-main">Rs. {(Number(total) || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-secondary">{isUrdu ? 'Amount Paid (وصول شدہ):' : 'Amount Paid:'}</span>
-                    <span className="text-main font-semibold">Rs. {paid.toFixed(2)}</span>
+                    <span className="text-main font-semibold">Rs. {(Number(paid) || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-secondary">{isUrdu ? 'Change Required (بقایا رقم):' : 'Change Required:'}</span>
-                    <span className="font-bold text-violet-600 dark:text-violet-400">Rs. {(paid - total).toFixed(2)}</span>
+                    <span className="font-bold text-violet-600 dark:text-violet-400">Rs. {(Number(paid) - Number(total)).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -1813,6 +1947,114 @@ const POS = () => {
                   className="flex-1 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold shadow-xs transition"
                 >
                   {isUrdu ? 'Proceed / جاری رکھیں' : 'Proceed'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Post-Sale Completion & Change Denomination Modal */}
+        {completedSale && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-in fade-in" dir="ltr">
+            <div className="bg-card rounded-3xl p-5 sm:p-6 max-w-xl w-full border border-default shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto text-left">
+              {/* Header */}
+              <div className="text-center space-y-2">
+                <div className="w-14 h-14 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto ring-8 ring-emerald-500/5">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-main">
+                  {isUrdu ? 'بل کامیابی سے مکمل ہو گیا!' : 'Sale Completed Successfully!'}
+                </h3>
+                <div className="flex items-center justify-center gap-2 text-xs text-secondary font-mono">
+                  <span>{isUrdu ? 'انوائس نمبر:' : 'Invoice #:'}</span>
+                  <span className="font-bold text-main px-2 py-0.5 bg-hover rounded-md border border-default">
+                    {completedSale?.invoiceNumber || completedSale?.id}
+                  </span>
+                  {completedSale?.customerName && (
+                    <span className="text-secondary">({completedSale.customerName})</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Financial Quick Summary */}
+              <div className="grid grid-cols-3 gap-2 p-3.5 bg-muted/40 rounded-2xl border border-default text-center">
+                <div className="p-1">
+                  <span className="text-[11px] text-secondary block">{isUrdu ? 'کل بل' : 'Bill Total'}</span>
+                  <span className="font-mono font-bold text-sm sm:text-base text-main">
+                    Rs. {Number(completedSale?.totalAmount || 0).toLocaleString()}
+                  </span>
+                </div>
+                <div className="border-x border-default/50 p-1">
+                  <span className="text-[11px] text-secondary block">{isUrdu ? 'وصول شدہ' : 'Received'}</span>
+                  <span className="font-mono font-bold text-sm sm:text-base text-emerald-600 dark:text-emerald-400">
+                    Rs. {Number(completedSale?.paidAmount || 0).toLocaleString()}
+                  </span>
+                </div>
+                <div className="p-1">
+                  <span className="text-[11px] text-secondary block">{isUrdu ? 'بقایا واپسی' : 'Change Due'}</span>
+                  <span className="font-mono font-bold text-sm sm:text-base text-violet-600 dark:text-violet-400">
+                    Rs. {Number(completedSale?.changeReturned || 0).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              {/* Banknote Denomination Breakdown Guide */}
+              {(Number(completedSale?.changeReturned) || 0) > 0 ? (
+                <div className="pt-1">
+                  <DenominationBreakdown
+                    amount={Number(completedSale?.changeReturned) || 0}
+                    label="Hand Over These Notes to Customer"
+                    urduLabel="گاہک کو یہ اصل نوٹ واپس ادا کریں"
+                  />
+                </div>
+              ) : (
+                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center space-y-1">
+                  <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                    {isUrdu ? 'مکمل رقم وصول ہو چکی ہے۔ کوئی بقایا نوٹ واپس نہیں کرنا۔' : 'Exact amount paid. No return change notes required.'}
+                  </p>
+                </div>
+              )}
+
+              {/* Actions Footer */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const invoiceId = completedSale?.id;
+                    setCompletedSale(null);
+                    if (invoiceId) navigate(`/pos/invoice/${invoiceId}`);
+                  }}
+                  className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-default bg-card hover:bg-hover text-main text-xs font-bold transition shadow-xs cursor-pointer"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <span>{isUrdu ? 'بل دیکھیں' : 'View Invoice'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => printSaleReceipt(completedSale)}
+                  className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                  </svg>
+                  <span>{isUrdu ? 'رسید پرنٹ کریں' : 'Print Slip'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCompletedSale(null)}
+                  className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>{isUrdu ? 'نیا بل (اگلا گاہک)' : 'New Sale'}</span>
                 </button>
               </div>
             </div>

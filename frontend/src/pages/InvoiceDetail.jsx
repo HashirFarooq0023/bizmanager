@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getInvoiceById, reset, clearInvoice } from '../redux/slices/posSlice';
 import Layout from '../components/Layout';
-import DenominationBreakdown from '../components/DenominationBreakdown';
 
 const InvoiceDetail = () => {
   const { id } = useParams();
@@ -327,19 +326,10 @@ const InvoiceDetail = () => {
                       </div>
                     )}
                     {changeReturned > 0 && (
-                      <>
-                        <div className="flex justify-between py-2 border-b">
-                          <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Change Returned:</span>
-                          <span className="font-bold text-green-600">Rs. {fmt(changeReturned)}</span>
-                        </div>
-                        <div className="py-2">
-                          <DenominationBreakdown
-                            amount={changeReturned}
-                            label="Change Note Breakdown"
-                            urduLabel="بقایا واپسی کے نوٹوں کی تفصیل"
-                          />
-                        </div>
-                      </>
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Change Returned:</span>
+                        <span className="font-bold text-green-600">Rs. {fmt(changeReturned)}</span>
+                      </div>
                     )}
                   </>
                 );

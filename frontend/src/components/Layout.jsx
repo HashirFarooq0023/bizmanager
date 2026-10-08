@@ -79,10 +79,10 @@ const Layout = ({ children }) => {
           isRtl
             ? isCollapsed
               ? 'lg:mr-16'
-              : 'lg:mr-60'
+              : 'lg:mr-64'
             : isCollapsed
             ? 'lg:ml-16'
-            : 'lg:ml-60'
+            : 'lg:ml-64'
         }`}
       >
         <SubscriptionBanner />

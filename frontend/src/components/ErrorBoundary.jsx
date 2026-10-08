@@ -19,8 +19,22 @@ class ErrorBoundary extends Component {
     window.location.href = '/dashboard';
   };
 
+  handleClearPosCache = () => {
+    try {
+      localStorage.removeItem('posTabs');
+      localStorage.removeItem('posActiveTab');
+      localStorage.removeItem('posHoldOrders');
+    } catch (e) {
+      console.error('Error clearing pos storage:', e);
+    }
+    this.setState({ hasError: false, error: null });
+    window.location.href = '/pos';
+  };
+
   render() {
     if (this.state.hasError) {
+      const isPosPath = window.location.pathname.includes('/pos');
+
       return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-zinc-950 p-4 text-zinc-900 dark:text-zinc-100">
           <div className="max-w-md w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 shadow-xl text-center">
@@ -33,7 +47,7 @@ class ErrorBoundary extends Component {
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
               An unexpected error occurred while rendering this page. You can reload or return to the dashboard.
             </p>
-            <div className="flex gap-3 justify-center">
+            <div className="flex flex-col sm:flex-row gap-2.5 justify-center">
               <button
                 type="button"
                 onClick={() => window.location.reload()}
@@ -41,6 +55,15 @@ class ErrorBoundary extends Component {
               >
                 Reload Page
               </button>
+              {isPosPath && (
+                <button
+                  type="button"
+                  onClick={this.handleClearPosCache}
+                  className="px-4 py-2 text-sm font-semibold rounded-lg border border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors"
+                >
+                  Reset POS
+                </button>
+              )}
               <button
                 type="button"
                 onClick={this.handleReset}

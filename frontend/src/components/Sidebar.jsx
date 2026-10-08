@@ -351,7 +351,7 @@ const Sidebar = ({
       <aside
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className={`print:hidden fixed z-50 bg-white dark:bg-[#09090b] text-zinc-800 dark:text-zinc-100 flex flex-col shadow-sm dark:shadow-2xl transition-all duration-200 ease-in-out ${
+        className={`print:hidden fixed z-50 bg-white dark:bg-[#09090b] text-zinc-800 dark:text-zinc-100 flex flex-col shadow-sm dark:shadow-2xl transition-all duration-200 ease-in-out overflow-x-hidden ${
           isImpersonated ? 'top-10 bottom-0' : 'inset-y-0'
         } ${
           isRtl
@@ -363,19 +363,19 @@ const Sidebar = ({
             : isRtl
             ? 'translate-x-full'
             : '-translate-x-full'
-        } lg:translate-x-0 ${isEffectivelyExpanded ? 'w-60' : 'w-16'}`}
+        } lg:translate-x-0 ${isEffectivelyExpanded ? 'w-64' : 'w-16'}`}
       >
         {/* Header Branding */}
-        <div className="p-3 border-b border-slate-200 dark:border-zinc-800/80 flex items-center justify-between min-h-[60px]">
+        <div className="px-3 py-2.5 border-b border-slate-200 dark:border-zinc-800/80 flex items-center justify-between min-h-[60px] overflow-hidden">
           {isEffectivelyExpanded ? (
             <>
-              <Link to="/dashboard" className="flex items-center">
+              <Link to="/dashboard" className="flex items-center min-w-0">
                 <Logo size="lg" hoverSlide={true} />
               </Link>
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-md p-1.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800 focus:outline-none lg:hidden cursor-pointer"
+                className="rounded-md p-1.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800 focus:outline-none lg:hidden cursor-pointer shrink-0"
                 aria-label="Close navigation menu"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -392,54 +392,54 @@ const Sidebar = ({
 
         {/* Language & Mode Control Bar (ONLY rendered when expanded) */}
         {isEffectivelyExpanded && (
-          <div className="px-3 py-2 border-b border-slate-200 dark:border-zinc-800/80 bg-slate-50/70 dark:bg-zinc-900/60 flex items-center justify-between gap-1 text-xs">
+          <div className="px-2.5 py-2 border-b border-slate-200 dark:border-zinc-800/80 bg-slate-50/70 dark:bg-zinc-900/60 flex items-center justify-between gap-1 text-xs overflow-hidden">
             {/* Language Switcher Button */}
             <button
               type="button"
               onClick={() => changeLanguage(language === 'ur' ? 'en' : 'ur')}
-              className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-700 font-bold transition-all text-xs cursor-pointer"
+              className="inline-flex items-center gap-1 px-1.5 py-1 rounded-lg border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-700 font-bold transition-all text-xs cursor-pointer shrink-0"
               title="Switch Language / زبان تبدیل کریں"
             >
-              <FiGlobe className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
-              <span>{language === 'ur' ? 'EN' : 'اردو'}</span>
+              <FiGlobe className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
+              <span className="text-[11px]">{language === 'ur' ? 'EN' : 'اردو'}</span>
             </button>
 
             {/* Sleek Mode Toggle Switch */}
-            <div className="flex items-center p-0.5 bg-slate-200/80 dark:bg-zinc-800 rounded-lg border border-slate-300/60 dark:border-zinc-700/60 text-xs">
+            <div className="flex items-center p-0.5 bg-slate-200/80 dark:bg-zinc-800 rounded-lg border border-slate-300/60 dark:border-zinc-700/60 text-xs shrink-0">
               <button
                 type="button"
                 onClick={() => mode !== 'asan' && toggleMode()}
-                className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1 px-1.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
                   isAsan
                     ? 'bg-emerald-600 text-white shadow-xs'
                     : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
                 }`}
                 title="Asan Mode / آسان موڈ"
               >
-                <FiSmile className="w-3 h-3" />
+                <FiSmile className="w-3 h-3 shrink-0" />
                 <span>{language === 'ur' ? 'آسان' : 'Asan'}</span>
               </button>
               <button
                 type="button"
                 onClick={() => mode !== 'pro' && toggleMode()}
-                className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1 px-1.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
                   isPro
                     ? 'bg-violet-600 text-white shadow-xs'
                     : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
                 }`}
                 title="Pro Mode / پرو موڈ"
               >
-                <FiZap className="w-3 h-3" />
+                <FiZap className="w-3 h-3 shrink-0" />
                 <span>{language === 'ur' ? 'پرو' : 'Pro'}</span>
               </button>
             </div>
 
             {/* Theme & Collapse Controls (Desktop) */}
-            <div className="hidden lg:flex items-center gap-1">
+            <div className="hidden lg:flex items-center gap-0.5 shrink-0">
               <button
                 type="button"
                 onClick={toggleTheme}
-                className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                className="p-1 rounded-md text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer shrink-0"
                 title={theme === 'light' ? 'Switch to Dark mode' : 'Switch to Light mode'}
               >
                 {theme === 'light' ? (
@@ -451,7 +451,7 @@ const Sidebar = ({
               <button
                 type="button"
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                className="p-1 rounded-md text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-800 transition-colors cursor-pointer shrink-0"
                 title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               >
                 <svg className={`w-3.5 h-3.5 ${isRtl ? 'scale-x-[-1]' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -469,7 +469,9 @@ const Sidebar = ({
         {/* Navigation List */}
         <nav
           ref={navRef}
-          className="flex-1 overflow-y-auto px-2 py-3 space-y-1 select-none scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800"
+          className={`flex-1 overflow-y-auto overflow-x-hidden ${
+            isEffectivelyExpanded ? 'sidebar-scrollbar px-2' : 'sidebar-scrollbar-collapsed px-1.5'
+          } py-3 space-y-1 select-none`}
         >
           {currentMenuItems.map((item) => {
             const hasSubmenu = Boolean(item.submenu && item.submenu.length > 0);
@@ -483,13 +485,16 @@ const Sidebar = ({
                     <button
                       type="button"
                       onClick={() => toggleSubmenu(item.name)}
-                      className={`w-full min-h-[44px] flex items-center justify-between px-3 py-2 text-sm font-semibold rounded-xl transition-all border-s-2 cursor-pointer ${
+                      className={`w-full min-h-[44px] flex items-center ${
+                        isEffectivelyExpanded ? 'justify-between px-3' : 'justify-center px-0'
+                      } py-2 text-sm font-semibold rounded-xl transition-all border-s-2 cursor-pointer ${
                         isItemActive
                           ? 'border-violet-600 dark:border-violet-400 bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-200 font-bold shadow-xs'
                           : 'border-transparent text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/80'
                       }`}
+                      title={item.name}
                     >
-                      <div className="flex items-center gap-3 min-w-0">
+                      <div className={`flex items-center ${isEffectivelyExpanded ? 'gap-3 min-w-0' : 'justify-center'}`}>
                         {item.icon}
                         {isEffectivelyExpanded && (
                           <span className="truncate">{item.name}</span>
@@ -497,7 +502,7 @@ const Sidebar = ({
                       </div>
                       {isEffectivelyExpanded && (
                         <FiChevronDown
-                          className={`w-4 h-4 text-zinc-400 dark:text-zinc-400 transition-transform duration-200 ${
+                          className={`w-4 h-4 text-zinc-400 dark:text-zinc-400 transition-transform duration-200 shrink-0 ${
                             isExpanded ? 'rotate-180 text-violet-600 dark:text-violet-400' : ''
                           }`}
                         />
@@ -583,7 +588,9 @@ const Sidebar = ({
                       if (window.innerWidth < 1024) onClose();
                     }}
                     className={({ isActive }) =>
-                      `min-h-[46px] flex items-center justify-between px-3 py-2 rounded-xl transition-all font-semibold text-sm border-s-2 ${
+                      `min-h-[46px] flex items-center ${
+                        isEffectivelyExpanded ? 'justify-between px-3' : 'justify-center px-0'
+                      } py-2 rounded-xl transition-all font-semibold text-sm border-s-2 ${
                         isActive
                           ? 'border-violet-600 dark:border-violet-400 bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-200 font-bold shadow-xs'
                           : item.highlight
@@ -593,14 +600,14 @@ const Sidebar = ({
                     }
                     title={item.name}
                   >
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className={`flex items-center ${isEffectivelyExpanded ? 'gap-3 min-w-0' : 'justify-center'}`}>
                       {item.icon}
                       {isEffectivelyExpanded && (
                         <span className="truncate">{item.name}</span>
                       )}
                     </div>
                     {isEffectivelyExpanded && item.badge && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white shrink-0">
                         {item.badge}
                       </span>
                     )}
