@@ -39,16 +39,22 @@ const InvoiceDetail = () => {
       switch (method) {
         case 'cash':
           return 'Cash';
+        case 'easypaisa':
+          return 'EasyPaisa';
+        case 'jazzcash':
+          return 'JazzCash';
+        case 'raast':
+          return 'Raast';
         case 'upi':
-          return 'UPI';
+          return 'Online / Digital';
         case 'card':
-          return 'Card';
+          return 'Card / POS';
         case 'due':
-          return 'Due';
+          return 'Due (Udhaar)';
         case 'split':
           return 'Split';
         case 'bank_transfer':
-          return 'Bank Transfer';
+          return 'Bank Transfer (IBFT)';
         case 'cheque':
           return 'Cheque';
         case 'credit':
@@ -121,7 +127,7 @@ const InvoiceDetail = () => {
     );
   }
 
-  const fmt = (value) => Number(value || 0).toFixed(2);
+  const fmt = (value) => Number(value || 0).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const items = Array.isArray(invoice.items) ? invoice.items : [];
 
   return (
@@ -369,7 +375,7 @@ const InvoiceDetail = () => {
                     <div className="flex justify-between py-2">
                       <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))] font-medium">Balance Due:</span>
                       <span className="font-bold text-red-600 dark:text-[rgb(var(--color-text-secondary))]">
-                        Rs. {balanceDue.toFixed(2)}
+                        Rs. {fmt(balanceDue)}
                       </span>
                     </div>
                   );
@@ -383,11 +389,29 @@ const InvoiceDetail = () => {
                 }
               })()}
               {invoice.customer && invoice.customer.dues !== undefined && (
-                <div className={`flex justify-between py-2 mt-2 pt-2 border-t ${invoice.customer.dues < 0 ? 'bg-green-50' : invoice.customer.dues > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
-                  <span className="text-sm font-medium text-gray-700">
+                <div className={`flex justify-between py-2 px-3 mt-2 rounded-lg border ${
+                  invoice.customer.dues < 0
+                    ? 'bg-green-50 dark:bg-green-950/40 border-green-200 dark:border-green-800/50'
+                    : invoice.customer.dues > 0
+                      ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800/50'
+                      : 'bg-gray-50 dark:bg-zinc-800/60 border-gray-200 dark:border-zinc-700/50'
+                }`}>
+                  <span className={`text-sm font-medium ${
+                    invoice.customer.dues < 0
+                      ? 'text-green-800 dark:text-green-300'
+                      : invoice.customer.dues > 0
+                        ? 'text-red-800 dark:text-red-300'
+                        : 'text-gray-700 dark:text-zinc-300'
+                  }`}>
                     {invoice.customer.dues < 0 ? 'Available Credit Balance:' : invoice.customer.dues > 0 ? 'Customer Outstanding Due:' : 'Account Balance:'}
                   </span>
-                  <span className={`text-sm font-bold ${invoice.customer.dues < 0 ? 'text-green-700' : invoice.customer.dues > 0 ? 'text-red-700' : 'text-gray-700 dark:text-[rgb(var(--color-text))]'}`}>
+                  <span className={`text-sm font-bold ${
+                    invoice.customer.dues < 0
+                      ? 'text-green-700 dark:text-green-400'
+                      : invoice.customer.dues > 0
+                        ? 'text-red-700 dark:text-red-400'
+                        : 'text-gray-900 dark:text-zinc-100'
+                  }`}>
                     Rs. {fmt(Math.abs(invoice.customer.dues))}
                   </span>
                 </div>

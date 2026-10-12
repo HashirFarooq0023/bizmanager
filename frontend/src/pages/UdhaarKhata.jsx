@@ -23,7 +23,7 @@ import {
 
 const UdhaarKhata = () => {
   const { t } = useTranslation(['udhaar', 'common', 'nav']);
-  const { isRtl } = useLanguage();
+  const { isRtl, isUrdu } = useLanguage();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -342,7 +342,7 @@ const UdhaarKhata = () => {
                             title="Send WhatsApp Reminder"
                           >
                             <FiMessageCircle className="w-3.5 h-3.5" />
-                            <span>واٹس ایپ</span>
+                            <span>{isUrdu ? 'واٹس ایپ' : 'WhatsApp'}</span>
                           </a>
                         ) : (
                           <button
@@ -350,7 +350,7 @@ const UdhaarKhata = () => {
                             className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-zinc-400 text-xs font-semibold cursor-not-allowed"
                           >
                             <FiMessageCircle className="w-3.5 h-3.5" />
-                            <span>واٹس ایپ</span>
+                            <span>{isUrdu ? 'واٹس ایپ' : 'WhatsApp'}</span>
                           </button>
                         )}
 
@@ -462,7 +462,7 @@ const UdhaarKhata = () => {
                             title="Contact via WhatsApp"
                           >
                             <FiMessageCircle className="w-3.5 h-3.5" />
-                            <span>واٹس ایپ</span>
+                            <span>{isUrdu ? 'واٹس ایپ' : 'WhatsApp'}</span>
                           </a>
                         ) : (
                           <button
@@ -470,7 +470,7 @@ const UdhaarKhata = () => {
                             className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-zinc-400 text-xs font-semibold cursor-not-allowed"
                           >
                             <FiMessageCircle className="w-3.5 h-3.5" />
-                            <span>واٹس ایپ</span>
+                            <span>{isUrdu ? 'واٹس ایپ' : 'WhatsApp'}</span>
                           </button>
                         )}
 

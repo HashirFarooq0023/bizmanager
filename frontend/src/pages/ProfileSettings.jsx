@@ -120,9 +120,14 @@ const ProfileSettings = () => {
           title="Profile & Business Settings"
           description="Manage your account profile, store information, and billing contact details."
           actions={
-            <Button variant="secondary" size="sm" onClick={() => navigate('/dashboard')}>
-              Back to Dashboard
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => navigate('/billing')}>
+                Subscription & Billing
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => navigate('/dashboard')}>
+                Back to Dashboard
+              </Button>
+            </div>
           }
         />
 

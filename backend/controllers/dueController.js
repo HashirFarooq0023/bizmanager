@@ -1,7 +1,11 @@
-﻿import mongoose from "mongoose";
+import mongoose from "mongoose";
 import DueAdjustment from "../models/DueAdjustment.js";
 import Customer from "../models/Customer.js";
 import Transaction from "../models/Transaction.js";
+import Invoice from "../models/Invoice.js";
+import CashbankTransaction from "../models/CashbankTransaction.js";
+import BankAccount from "../models/BankAccount.js";
+import PaymentIn from "../models/PaymentIn.js";
 import { info, error } from "../utils/logger.js";
 
 /**
@@ -10,7 +14,7 @@ import { info, error } from "../utils/logger.js";
  */
 export const createDueAdjustment = async (req, res) => {
     try {
-        const { customerId, adjustmentAmount, adjustmentMethod, notes = "" } = req.body;
+        const { customerId, adjustmentAmount, adjustmentMethod, bankAccountId, notes = "" } = req.body;
 
         // Validate input
         if (!customerId || !adjustmentAmount || !adjustmentMethod) {
@@ -69,10 +73,47 @@ export const createDueAdjustment = async (req, res) => {
             });
         }
 
+        // 1. Allocate adjustment amount across customer's unpaid/partial invoices (FIFO)
+        let remainingToAllocate = adjustmentAmount;
+        const openInvoices = await Invoice.find({
+            customer: customerId,
+            createdBy: req.user._id,
+            paymentStatus: { $in: ["unpaid", "partial"] }
+        }).sort({ createdAt: 1 });
+
+        const allocatedInvoicesList = [];
+        let firstRelatedInvoice = null;
+
+        for (const inv of openInvoices) {
+            if (remainingToAllocate <= 0) break;
+            const currentPaid = inv.paidAmount || 0;
+            const creditApp = inv.creditApplied || 0;
+            const openDue = Math.max(0, inv.totalAmount - currentPaid - creditApp);
+
+            if (openDue > 0) {
+                const allocation = Math.min(openDue, remainingToAllocate);
+                inv.paidAmount = currentPaid + allocation;
+                inv.paymentStatus = (inv.paidAmount + creditApp >= inv.totalAmount) ? "paid" : "partial";
+                await inv.save();
+
+                allocatedInvoicesList.push({
+                    invoice: inv._id,
+                    allocatedAmount: allocation,
+                    invoiceBalanceBefore: openDue,
+                });
+
+                if (!firstRelatedInvoice) {
+                    firstRelatedInvoice = inv._id;
+                }
+
+                remainingToAllocate -= allocation;
+            }
+        }
+
         // Create due adjustment record
         const dueAdjustment = await DueAdjustment.create({
             customer: customerId,
-            relatedInvoice: null,
+            relatedInvoice: firstRelatedInvoice,
             adjustmentAmount,
             adjustmentMethod,
             previousDue,
@@ -91,10 +132,63 @@ export const createDueAdjustment = async (req, res) => {
             type: "due_adjustment",
             customer: customerId,
             dueAdjustment: dueAdjustment._id,
+            invoice: firstRelatedInvoice,
             amount: adjustmentAmount,
             paymentMethod: adjustmentMethod,
             description: `Due adjustment of Rs. ${adjustmentAmount} via ${adjustmentMethod}${notes ? ` - ${notes}` : ""}`,
         });
+
+        // 2. Update Cash / Bank Account
+        if (adjustmentMethod === "cash") {
+            await CashbankTransaction.create({
+                type: "in",
+                amount: adjustmentAmount,
+                fromAccount: "customer_payment",
+                toAccount: "cash",
+                description: `Due payment received from ${customer.name} (${notes || "Udhaar adjustment"})`,
+                date: new Date(),
+                userId: req.user._id,
+            });
+        } else if (adjustmentMethod === "bank" && bankAccountId) {
+            const bankAcc = await BankAccount.findOne({ _id: bankAccountId, userId: req.user._id });
+            if (bankAcc) {
+                const cashbankTxn = await CashbankTransaction.create({
+                    type: "in",
+                    amount: adjustmentAmount,
+                    fromAccount: "customer_payment",
+                    toAccount: bankAccountId,
+                    description: `Due payment received from ${customer.name} to ${bankAcc.bankName}`,
+                    date: new Date(),
+                    userId: req.user._id,
+                });
+                await BankAccount.updateOne(
+                    { _id: bankAccountId, userId: req.user._id },
+                    { $inc: { currentBalance: adjustmentAmount }, $push: { transactions: cashbankTxn._id } }
+                );
+            }
+        }
+
+        // 3. Create PaymentIn record
+        try {
+            const receiptNumber = `RCP-DUE-${Date.now().toString().slice(-6)}`;
+            await PaymentIn.create({
+                receiptNumber,
+                customer: customerId,
+                paymentDate: new Date(),
+                totalAmount: adjustmentAmount,
+                paymentMethods: [{
+                    method: adjustmentMethod === "bank" ? "bank_transfer" : "cash",
+                    amount: adjustmentAmount,
+                    bankAccount: bankAccountId || undefined,
+                }],
+                allocatedInvoices: allocatedInvoicesList,
+                depositAccount: adjustmentMethod === "bank" && bankAccountId ? bankAccountId : "cash",
+                notes: notes || `Udhaar payment collected from ${customer.name}`,
+                createdBy: req.user._id,
+            });
+        } catch (payInErr) {
+            console.warn("PaymentIn creation non-fatal error:", payInErr.message);
+        }
 
         info(
             `Due adjustment created by ${req.user.name}: Rs. ${adjustmentAmount} for customer ${customer.name}`

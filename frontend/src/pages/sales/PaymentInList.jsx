@@ -9,12 +9,8 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
-
 const PaymentInList = () => {
     const navigate = useNavigate();
-    const user = JSON.parse(localStorage.getItem('user'));
-    const token = user?.token;
 
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -29,9 +25,7 @@ const PaymentInList = () => {
     const fetchPayments = async () => {
         try {
             setLoading(true);
-            const response = await api.get(`${API_URL}/api/payment-in`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await api.get('/api/payment-in');
             setPayments(response.data);
         } catch (error) {
             console.error('Error fetching payments:', error);

@@ -149,6 +149,7 @@ const BankAccounts = () => {
 
     const safeAccounts = Array.isArray(accounts) ? accounts : [];
     const totalBalance = safeAccounts.reduce((sum, acc) => sum + (acc.currentBalance || 0), 0);
+    const totalTransactions = safeAccounts.reduce((sum, acc) => sum + (Array.isArray(acc.transactions) ? acc.transactions.length : 0), 0);
 
     return (
         <Layout>
@@ -170,7 +171,7 @@ const BankAccounts = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <StatsCard title={isUrdu ? "Total Balance / کل بیلنس" : "Total Balance"} value={`Rs. ${totalBalance.toLocaleString()}`} icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} iconBgColor="bg-green-100 dark:bg-green-900/30" iconColor="text-green-600 dark:text-green-400" />
                     <StatsCard title={isUrdu ? "Active Accounts / فعال کھاتے" : "Active Accounts"} value={safeAccounts.length} icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>} iconBgColor="bg-blue-100 dark:bg-blue-900/30" iconColor="text-blue-600 dark:text-blue-400" />
-                    <StatsCard title={isUrdu ? "Transactions / ٹرانزیکشنز" : "This Month Transactions"} value="156" icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>} iconBgColor="bg-purple-100 dark:bg-purple-900/30" iconColor="text-purple-600 dark:text-purple-400" />
+                    <StatsCard title={isUrdu ? "Transactions / ٹرانزیکشنز" : "Total Transactions"} value={totalTransactions} icon={<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>} iconBgColor="bg-purple-100 dark:bg-purple-900/30" iconColor="text-purple-600 dark:text-purple-400" />
                 </div>
 
                 {showAddAccount && (

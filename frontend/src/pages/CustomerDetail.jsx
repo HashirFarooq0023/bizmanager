@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -8,6 +8,7 @@ import {
   reset,
 } from "../redux/slices/customerSlice";
 import Layout from "../components/Layout";
+import Modal from "../components/Modal";
 
 const CustomerDetail = () => {
   const { id } = useParams();
@@ -16,6 +17,8 @@ const CustomerDetail = () => {
   const { customer, transactions, isLoading, isError, message } = useSelector(
     (state) => state.customers
   );
+  const user = useSelector((state) => state.auth?.user);
+  const [receiptTxn, setReceiptTxn] = useState(null);
 
   useEffect(() => {
     dispatch(getCustomerById(id));
@@ -26,22 +29,32 @@ const CustomerDetail = () => {
     };
   }, [dispatch, id]);
 
+  const formatTransactionType = (type, amount) => {
+    if (type === "due" && amount < 0) return "Due (Return / Refund)";
+    if (type === "due_adjustment") return "Due Settlement / Payment";
+    if (type === "sale") return "Invoice / Sale";
+    if (type === "payment") return "Payment Received";
+    if (type === "refund") return "Refund";
+    return (type || 'Payment').replace(/_/g, ' ');
+  };
+
   const getTransactionTypeColor = (type, amount) => {
     switch (type) {
       case "sale":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 dark:bg-green-950/50 dark:text-green-300";
       case "purchase":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-300";
       case "payment":
-        return "bg-purple-100 text-purple-800";
+      case "due_adjustment":
+        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300";
       case "due":
-        if (amount > 0) return "bg-red-100 text-red-800";
-        if (amount < 0) return "bg-yellow-100 text-yellow-800";
-        return "bg-red-100 text-red-800";
+        if (amount > 0) return "bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-300";
+        if (amount < 0) return "bg-yellow-100 text-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-300";
+        return "bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-300";
       case "refund":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-300";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 dark:bg-zinc-800 dark:text-zinc-300";
     }
   };
 
@@ -424,6 +437,9 @@ const CustomerDetail = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Description
                     </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-[rgb(var(--color-table-row))] divide-y divide-gray-200 dark:divide-[rgb(var(--color-border))]">
@@ -436,14 +452,12 @@ const CustomerDetail = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
-                            className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full capitalize ${getTransactionTypeColor(
+                            className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getTransactionTypeColor(
                               transaction?.type,
-                              amountVal.toFixed(2)
+                              amountVal
                             )}`}
                           >
-                            {transaction?.type === "due" && amountVal < 0
-                              ? "due (return)"
-                              : (transaction?.type || 'payment')}
+                            {formatTransactionType(transaction?.type, amountVal)}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900  dark:text-[rgb(var(--color-text))]">
@@ -460,6 +474,28 @@ const CustomerDetail = () => {
                         <td className="px-6 py-4 text-sm text-gray-500">
                           {transaction?.description || "-"}
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                          <div className="inline-flex items-center gap-2 justify-end">
+                            <button
+                              type="button"
+                              onClick={() => setReceiptTxn(transaction)}
+                              className="px-2.5 py-1 text-xs font-medium rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/60 transition cursor-pointer"
+                              title="View & Print Payment Receipt"
+                            >
+                              Receipt
+                            </button>
+                            {transaction?.invoice?._id && (
+                              <button
+                                type="button"
+                                onClick={() => navigate(`/pos/invoices/${transaction.invoice._id}`)}
+                                className="px-2.5 py-1 text-xs font-medium rounded-md bg-gray-50 hover:bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 border border-gray-200 dark:border-zinc-700 transition cursor-pointer"
+                                title="View Linked Invoice"
+                              >
+                                Invoice
+                              </button>
+                            )}
+                          </div>
+                        </td>
                       </tr>
                     );
                   })}
@@ -468,6 +504,91 @@ const CustomerDetail = () => {
             </div>
           )}
         </div>
+
+        {/* Payment Receipt Modal */}
+        {receiptTxn && (
+          <Modal
+            isOpen={Boolean(receiptTxn)}
+            onClose={() => setReceiptTxn(null)}
+            title="Payment Receipt / رسید واؤچر"
+            size="md"
+            footer={
+              <div className="flex justify-end gap-3 w-full">
+                <button
+                  type="button"
+                  onClick={() => setReceiptTxn(null)}
+                  className="px-4 py-2 text-sm border rounded-lg text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-4 py-2 text-sm bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-semibold flex items-center gap-1.5"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                  </svg>
+                  Print Receipt
+                </button>
+              </div>
+            }
+          >
+            <div className="p-5 border rounded-xl bg-slate-50 dark:bg-zinc-800/40 space-y-4">
+              <div className="text-center pb-3 border-b dark:border-zinc-700">
+                <h4 className="text-xl font-bold text-gray-900 dark:text-zinc-100">{user?.shopName || 'Business Receipt'}</h4>
+                {user?.shopAddress && (
+                  <p className="text-xs text-gray-500 dark:text-zinc-400">{user.shopAddress}</p>
+                )}
+                <p className="text-xs font-semibold text-violet-600 dark:text-violet-400 mt-1">Payment Acknowledgement Receipt</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-gray-500 dark:text-zinc-400 block text-xs">Customer Name:</span>
+                  <span className="font-semibold text-gray-900 dark:text-zinc-100">{customer?.name}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500 dark:text-zinc-400 block text-xs">Customer Phone:</span>
+                  <span className="font-semibold text-gray-900 dark:text-zinc-100">{customer?.phone || '—'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500 dark:text-zinc-400 block text-xs">Transaction Date:</span>
+                  <span className="font-semibold text-gray-900 dark:text-zinc-100">
+                    {receiptTxn.createdAt ? new Date(receiptTxn.createdAt).toLocaleString('en-PK') : '—'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-500 dark:text-zinc-400 block text-xs">Payment Method:</span>
+                  <span className="font-semibold uppercase text-gray-900 dark:text-zinc-100">{receiptTxn.paymentMethod || 'Cash'}</span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-gray-500 dark:text-zinc-400 block text-xs">Transaction Type:</span>
+                  <span className="font-semibold text-gray-900 dark:text-zinc-100">{formatTransactionType(receiptTxn.type, receiptTxn.amount)}</span>
+                </div>
+                {receiptTxn.description && (
+                  <div className="col-span-2">
+                    <span className="text-gray-500 dark:text-zinc-400 block text-xs">Description:</span>
+                    <span className="text-gray-700 dark:text-zinc-300">{receiptTxn.description}</span>
+                  </div>
+                )}
+              </div>
+              <div className="pt-3 border-t dark:border-zinc-700 flex justify-between items-center">
+                <div>
+                  <span className="text-xs text-gray-500 dark:text-zinc-400 block">Remaining Customer Due:</span>
+                  <span className="text-sm font-semibold text-gray-700 dark:text-zinc-300">
+                    Rs. {Math.abs(customer?.dues || 0).toLocaleString('en-PK', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs text-gray-500 dark:text-zinc-400 block">Amount Paid:</span>
+                  <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                    Rs. {Math.abs(Number(receiptTxn.amount || 0)).toLocaleString('en-PK', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Modal>
+        )}
       </div>
     </Layout>
   );

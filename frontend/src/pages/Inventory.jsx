@@ -265,7 +265,7 @@ const Inventory = () => {
                   {filteredItems.map((item) => {
                     const cost = item.costPrice || 0;
                     const selling = item.sellingPrice || 0;
-                    const profitMargin = cost > 0 ? (((selling - cost) / cost) * 100).toFixed(1) : "0.0";
+                    const profitMargin = selling > 0 ? (((selling - cost) / selling) * 100).toFixed(1) : "0.0";
                     const availableStock = (item.stockQty || 0) - (item.reservedStock || 0);
                     const limit = item.lowStockLimit !== undefined ? item.lowStockLimit : 5;
                     const isOutOfStock = availableStock <= 0;

@@ -202,10 +202,11 @@ const AddItem = () => {
                     name="costPrice"
                     value={costPrice}
                     onChange={onChange}
+                    onWheel={(e) => e.target.blur()}
                     required
                     step="0.01"
                     min="0"
-                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
+                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main no-spinner"
                     placeholder="0.00"
                   />
                   <p className="mt-1 text-xs text-muted">
@@ -230,10 +231,11 @@ const AddItem = () => {
                     name="sellingPrice"
                     value={sellingPrice}
                     onChange={onChange}
+                    onWheel={(e) => e.target.blur()}
                     required
                     step="0.01"
                     min="0"
-                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
+                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main no-spinner"
                     placeholder="0.00"
                   />
                   <p className="mt-1 text-xs text-muted">
@@ -242,17 +244,33 @@ const AddItem = () => {
                 </div>
 
                 {/* Profit Margin Display */}
-                {costPrice && sellingPrice && (
-                  <div className="md:col-span-2 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                    <p className="text-sm text-secondary">
-                      <span className="font-medium">{isUrdu ? 'Profit Margin / منافع کی شرح:' : 'Profit Margin:'}</span>{' '}
-                      <span className="text-green-600 dark:text-green-400 font-bold">
-                        {((sellingPrice - costPrice) / costPrice * 100).toFixed(1)}%
-                      </span>
-                      {' '}(Rs. {(sellingPrice - costPrice).toFixed(2)} {isUrdu ? 'profit per unit / منافع فی یونٹ' : 'profit per unit'})
-                    </p>
-                  </div>
-                )}
+                {costPrice && sellingPrice && (() => {
+                  const numCost = parseFloat(costPrice) || 0;
+                  const numSelling = parseFloat(sellingPrice) || 0;
+                  const profitDiff = numSelling - numCost;
+                  const isNegative = profitDiff < 0;
+                  const marginPercent = numCost > 0 ? ((profitDiff / numCost) * 100).toFixed(1) : '0.0';
+
+                  return (
+                    <div className={`md:col-span-2 p-4 rounded-lg border transition-colors ${
+                      isNegative
+                        ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                        : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                    }`}>
+                      <p className="text-sm text-secondary">
+                        <span className="font-medium">{isUrdu ? 'Profit Margin / منافع کی شرح:' : 'Profit Margin:'}</span>{' '}
+                        <span className={`font-bold ${
+                          isNegative
+                            ? 'text-red-600 dark:text-red-400'
+                            : 'text-blue-600 dark:text-blue-400'
+                        }`}>
+                          {marginPercent}%
+                        </span>
+                        {' '}(Rs. {profitDiff.toFixed(2)} {isUrdu ? 'profit per unit / منافع فی یونٹ' : 'profit per unit'})
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
@@ -279,8 +297,9 @@ const AddItem = () => {
                     name="stockQty"
                     value={stockQty}
                     onChange={onChange}
+                    onWheel={(e) => e.target.blur()}
                     min="0"
-                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
+                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main no-spinner"
                     placeholder="0"
                   />
                 </div>
@@ -302,8 +321,9 @@ const AddItem = () => {
                     name="lowStockLimit"
                     value={lowStockLimit}
                     onChange={onChange}
+                    onWheel={(e) => e.target.blur()}
                     min="0"
-                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main"
+                    className="w-full px-4 py-3 border border-default rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-main no-spinner"
                     placeholder="5"
                   />
                   <p className="mt-1 text-xs text-muted">

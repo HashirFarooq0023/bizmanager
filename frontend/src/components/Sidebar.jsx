@@ -243,6 +243,7 @@ const Sidebar = ({
           submenu: [
             { name: t('nav:businessSetup'), path: '/utilities/business-setup' },
             { name: t('nav:profileSettings'), path: '/profile-settings' },
+            { name: 'Subscription & Billing', path: '/billing' },
           ],
         },
         {

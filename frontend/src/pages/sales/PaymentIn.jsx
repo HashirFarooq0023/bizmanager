@@ -6,14 +6,8 @@ import Layout from "../../components/Layout";
 import FormInput from "../../components/FormInput";
 import CustomerSelectionModal from "../../components/CustomerSelectionModal";
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
-
 const PaymentIn = () => {
   const navigate = useNavigate();
-
-  // Get token from user object in localStorage
-  const user = JSON.parse(localStorage.getItem("user"));
-  const token = user?.token;
 
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -98,9 +92,7 @@ const PaymentIn = () => {
 
   const fetchBankAccounts = async () => {
     try {
-      const response = await api.get(`${API_URL}/api/cashbank/accounts`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get('/api/cashbank/accounts');
       setBankAccounts(response.data);
     } catch (error) {
       console.error("Error fetching bank accounts:", error);
@@ -109,12 +101,7 @@ const PaymentIn = () => {
 
   const fetchCustomerInfo = async (customerId) => {
     try {
-      const response = await api.get(
-        `${API_URL}/api/payment-in/customer/${customerId}/info`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await api.get(`/api/payment-in/customer/${customerId}/info`);
       setCustomerInfo(response.data);
     } catch (error) {
       console.error("Error fetching customer info:", error);
@@ -262,9 +249,7 @@ const PaymentIn = () => {
 
     try {
       setLoading(true);
-      const response = await api.post(`${API_URL}/api/payment-in`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.post('/api/payment-in', payload);
 
       toast.success("Payment recorded successfully!");
 

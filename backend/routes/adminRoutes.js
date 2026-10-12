@@ -9,6 +9,16 @@ import {
   getSubscriptionMetrics,
   adminResetPassword,
 } from "../controllers/adminController.js";
+import {
+  getAllPlansAdmin,
+  createPlanAdmin,
+  updatePlanAdmin,
+  deletePlanAdmin,
+} from "../controllers/subscriptionPlanController.js";
+import {
+  getSubscriptionTransactionsAdmin,
+  getAssanPayBalanceAdmin,
+} from "../controllers/subscriptionPaymentController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 import { requireSuperAdmin } from "../middlewares/adminMiddleware.js";
 
@@ -28,7 +38,17 @@ router.put("/users/:id/status", toggleUserStatus);
 router.post("/users/:id/reset-password", adminResetPassword);
 router.delete("/users/:id", deleteUser);
 
-// Subscription Management Routes
+// User Subscription Management Routes (Terminate, Extend, Add Trial, Override)
 router.put("/users/:id/subscription", updateUserSubscription);
+
+// Subscription Dynamic Plans Management Routes (Rates, Tenures, Trials, Limits)
+router.get("/subscription-plans", getAllPlansAdmin);
+router.post("/subscription-plans", createPlanAdmin);
+router.put("/subscription-plans/:id", updatePlanAdmin);
+router.delete("/subscription-plans/:id", deletePlanAdmin);
+
+// Assan Pay Gateway Transactions & Live Balance
+router.get("/subscriptions/transactions", getSubscriptionTransactionsAdmin);
+router.get("/subscriptions/balance", getAssanPayBalanceAdmin);
 
 export default router;

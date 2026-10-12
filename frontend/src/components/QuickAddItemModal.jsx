@@ -192,7 +192,8 @@ const QuickAddItemModal = ({ isOpen, onClose, onItemCreated, prefilledBarcode = 
                                 dir="ltr"
                                 value={formData.costPrice}
                                 onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
-                                className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 rounded-lg focus:ring-2 focus:ring-violet-500 font-mono text-left"
+                                onWheel={(e) => e.target.blur()}
+                                className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 rounded-lg focus:ring-2 focus:ring-violet-500 font-mono text-left no-spinner"
                                 placeholder="0.00"
                                 min="0"
                                 step="0.01"
@@ -216,7 +217,8 @@ const QuickAddItemModal = ({ isOpen, onClose, onItemCreated, prefilledBarcode = 
                                 dir="ltr"
                                 value={formData.sellingPrice}
                                 onChange={(e) => setFormData({ ...formData, sellingPrice: e.target.value })}
-                                className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 rounded-lg focus:ring-2 focus:ring-violet-500 font-mono text-left"
+                                onWheel={(e) => e.target.blur()}
+                                className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 rounded-lg focus:ring-2 focus:ring-violet-500 font-mono text-left no-spinner"
                                 placeholder="0.00"
                                 min="0"
                                 step="0.01"

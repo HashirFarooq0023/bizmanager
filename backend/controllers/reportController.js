@@ -284,11 +284,25 @@ export const getDashboardStats = async (req, res) => {
     // Total expenses = Expense model + Cash outflows
     const totalExpenses = expenseModelTotal + cashExpenses;
 
-    // Gross Profit = Revenue - COGS (approximated as: Purchase Amount - Purchase Returns + Sales Returns)
-    // This is a simplified calculation. In reality, COGS should track actual cost of items sold.
-    const approximateCOGS = totalPurchaseAmount - purchaseReturnsAmount + salesReturnsAmount;
-    // Operating Profit = Revenue - Expenses (not using COGS as it's inaccurate)
-    const operatingProfit = totalRevenue - totalExpenses;
+    // Calculate actual COGS from sold invoice items
+    const itemCostMap = {};
+    allItems.forEach(it => {
+      itemCostMap[it._id.toString()] = it.purchasePrice || it.purchaseRate || it.costPrice || 0;
+    });
+
+    let totalCOGS = 0;
+    allInvoices.forEach(inv => {
+      (inv.items || []).forEach(it => {
+        const pId = typeof it.item === 'object' ? it.item?._id?.toString() : it.item?.toString();
+        const cost = (pId && itemCostMap[pId]) || it.purchasePrice || (it.price ? it.price * 0.7 : 0);
+        totalCOGS += cost * (it.quantity || 1);
+      });
+    });
+
+    // Gross Profit = Revenue - COGS
+    const grossProfit = Math.max(0, totalRevenue - totalCOGS);
+    // Net / Operating Profit = Revenue - COGS - Expenses
+    const operatingProfit = totalRevenue - totalCOGS - totalExpenses;
     const profitMargin = totalRevenue > 0 ? ((operatingProfit / totalRevenue) * 100) : 0;
 
 
@@ -455,6 +469,8 @@ export const getDashboardStats = async (req, res) => {
       purchaseReturnsAmount,
 
       // Profit metrics
+      totalCOGS,
+      grossProfit,
       totalExpenses,
       operatingProfit,
       profitMargin,

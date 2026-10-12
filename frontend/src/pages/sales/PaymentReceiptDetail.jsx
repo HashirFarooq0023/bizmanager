@@ -1,17 +1,12 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from '../../services/api';
 import { toast } from "react-toastify";
 import Layout from "../../components/Layout";
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
-
 const PaymentReceiptDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const user = JSON.parse(localStorage.getItem("user"));
-  const token = user?.token;
 
   const [payment, setPayment] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,9 +18,7 @@ const PaymentReceiptDetail = () => {
   const fetchPaymentDetail = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`${API_URL}/api/payment-in/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get(`/api/payment-in/${id}`);
       setPayment(response.data);
     } catch (error) {
       console.error("Error fetching payment:", error);

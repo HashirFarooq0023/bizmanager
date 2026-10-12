@@ -79,14 +79,23 @@ const userSchema = new mongoose.Schema(
     subscription: {
       plan: {
         type: String,
-        enum: ["trial", "starter", "pro", "enterprise", "lifetime"],
         default: "trial",
+        index: true,
       },
       status: {
         type: String,
-        enum: ["trial", "active", "expired", "grace_period", "cancelled", "suspended"],
+        enum: ["trial", "active", "expired", "grace_period", "cancelled", "suspended", "terminated"],
         default: "trial",
         index: true,
+      },
+      billingCycle: {
+        type: String,
+        enum: ["monthly", "quarterly", "semi_annual", "yearly", "lifetime", "trial", "custom"],
+        default: "monthly",
+      },
+      autoRenew: {
+        type: Boolean,
+        default: true,
       },
       startDate: {
         type: Date,
@@ -106,6 +115,10 @@ const userSchema = new mongoose.Schema(
           return new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
         },
       },
+      gracePeriodEndsAt: {
+        type: Date,
+        default: null,
+      },
       isLifetime: {
         type: Boolean,
         default: false,
@@ -117,6 +130,11 @@ const userSchema = new mongoose.Schema(
       assignedBy: {
         type: String,
         default: "system",
+      },
+      lastPaymentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "SubscriptionPayment",
+        default: null,
       },
       notes: {
         type: String,

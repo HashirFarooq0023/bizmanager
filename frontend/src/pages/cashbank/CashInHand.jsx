@@ -148,7 +148,7 @@ const CashInHand = () => {
     // Dynamic categories based on transaction type
     const categories = formData.type === 'in'
         ? [
-            { group: 'Income Sources', items: ['Sales', 'Customer Payment', 'Service Fee', 'Loan Received', 'Investment', 'Other Income'] },
+            { group: 'Income Sources', items: ['Opening Float / Cash Drawer (ابتدائی کیش)', 'Sales', 'Customer Payment', 'Service Fee', 'Loan Received', 'Investment', 'Other Income'] },
             { group: 'Bank Accounts', items: safeAccounts.map(a => ({ value: a._id, label: `Bank: ${a.bankName}` })) }
         ]
         : [
@@ -164,13 +164,29 @@ const CashInHand = () => {
                 description={t('cashbank:cashInHandDesc', 'Manage your physical cash transactions and real-time liquidity')}
                 actions={[
                     <button
+                        key="opening-float"
+                        onClick={() => {
+                            dispatch(reset());
+                            setFormData({
+                                ...formData,
+                                type: 'in',
+                                otherAccount: 'Opening Float / Cash Drawer (ابتدائی کیش)',
+                                description: 'Opening Cash Drawer Float'
+                            });
+                            setShowAddTransaction(true);
+                        }}
+                        className="px-5 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition transform hover:scale-105 font-medium flex items-center gap-1.5 cursor-pointer shadow-xs"
+                    >
+                        <span>💵</span> {isUrdu ? 'اوپننگ فلوٹ' : 'Opening Float'}
+                    </button>,
+                    <button
                         key="cash-in"
                         onClick={() => {
                             dispatch(reset());
                             setFormData({ ...formData, type: 'in', otherAccount: '' });
                             setShowAddTransaction(true);
                         }}
-                        className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition transform hover:scale-105"
+                        className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition transform hover:scale-105 cursor-pointer"
                     >
                         {t('cashbank:btnCashIn', '+ Cash In')}
                     </button>,
@@ -181,14 +197,14 @@ const CashInHand = () => {
                             setFormData({ ...formData, type: 'out', otherAccount: '' });
                             setShowAddTransaction(true);
                         }}
-                        className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition transform hover:scale-105"
+                        className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition transform hover:scale-105 cursor-pointer"
                     >
                         {t('cashbank:btnCashOut', '- Cash Out')}
                     </button>,
                     <button
                         key="ledger"
                         onClick={() => navigate('/cashbank/ledger/cash')}
-                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition transform hover:scale-105"
+                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition transform hover:scale-105 cursor-pointer"
                     >
                         {t('cashbank:btnDetailedLedger', 'Detailed Ledger')}
                     </button>

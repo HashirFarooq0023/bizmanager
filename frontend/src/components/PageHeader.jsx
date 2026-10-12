@@ -1,10 +1,15 @@
 const PageHeader = ({
     title,
     description,
+    subtitle,
     actions = null,
+    action = null,
     backButton = null,
     breadcrumbs = null
 }) => {
+    const headerActions = actions || action;
+    const headerDescription = description || subtitle;
+
     return (
         <div className="mb-6">
             {backButton && (
@@ -39,11 +44,11 @@ const PageHeader = ({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">{title}</h1>
-                    {description && <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">{description}</p>}
+                    {headerDescription && <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">{headerDescription}</p>}
                 </div>
-                {actions && (
+                {headerActions && (
                     <div className="flex flex-wrap items-center gap-2.5 sm:self-center">
-                        {actions}
+                        {headerActions}
                     </div>
                 )}
             </div>

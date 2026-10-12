@@ -622,6 +622,15 @@ export const approvePurchaseOrder = async (req, res) => {
             });
         }
 
+        // Check for self-approval governance exception
+        const isSelfApproval = purchaseOrder.createdBy && purchaseOrder.createdBy.toString() === req.user._id.toString();
+        const governanceAuditNote = isSelfApproval 
+            ? `[Governance Audit: Self-approved by creator (${req.user.name || req.user.email}) under owner exception]` 
+            : "";
+        const finalComments = comments 
+            ? (governanceAuditNote ? `${comments} | ${governanceAuditNote}` : comments)
+            : governanceAuditNote;
+
         // Update status
         purchaseOrder.status = "Approved";
         purchaseOrder.approvedBy = req.user._id;
@@ -632,9 +641,9 @@ export const approvePurchaseOrder = async (req, res) => {
         purchaseOrder.approvalHistory.push({
             approver: req.user._id,
             approverName: req.user.name || req.user.email,
-            action: "approved",
+            action: isSelfApproval ? "approved (creator self-approval exception)" : "approved",
             level: purchaseOrder.requiredApprovalLevel,
-            comments: comments || "",
+            comments: finalComments,
         });
 
         // Reserve inventory
@@ -647,11 +656,13 @@ export const approvePurchaseOrder = async (req, res) => {
         }
 
         purchaseOrder.auditLog.push({
-            action: "approved",
+            action: isSelfApproval ? "self-approved (governance exception)" : "approved",
             performedBy: req.user._id,
             performedByName: req.user.name || req.user.email,
-            details: `Approved by ${req.user.name || req.user.email}`,
-            changes: { comments },
+            details: isSelfApproval 
+                ? `Approved by creator ${req.user.name || req.user.email} (Segregation of Duties Exception)`
+                : `Approved by ${req.user.name || req.user.email}`,
+            changes: { comments: finalComments, isSelfApproval },
         });
 
         await purchaseOrder.save();

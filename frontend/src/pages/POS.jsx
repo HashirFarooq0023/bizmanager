@@ -28,6 +28,8 @@ const POS = () => {
     customer: null,
     cart: [],
     discount: 0,
+    discountType: 'fixed', // 'fixed' or 'percentage'
+    discountValue: '',
     paymentMethod: 'cash',
     bankAccount: '',
     paidAmount: '',
@@ -49,6 +51,8 @@ const POS = () => {
           return parsed.map(tab => ({
             ...defaultTab,
             ...tab,
+            discountType: tab?.discountType || 'fixed',
+            discountValue: tab?.discountValue !== undefined ? tab.discountValue : (tab?.discount ? String(tab.discount) : ''),
             cart: Array.isArray(tab?.cart) ? tab.cart : []
           }));
         }
@@ -361,9 +365,53 @@ const POS = () => {
     return activeTab.cart.reduce((sum, item) => sum + (Number(item?.total) || 0), 0);
   };
 
+  const getDiscountAmount = () => {
+    const subtotal = calculateSubtotal();
+    const type = activeTab?.discountType || 'fixed';
+    const rawVal = activeTab?.discountValue !== undefined && activeTab?.discountValue !== ''
+      ? activeTab.discountValue
+      : (activeTab?.discount || 0);
+    const val = parseFloat(rawVal) || 0;
+    if (val <= 0) return 0;
+    if (type === 'percentage') {
+      return (subtotal * val) / 100;
+    }
+    return Math.min(subtotal, val);
+  };
+
+  const handleDiscountTypeChange = (newType) => {
+    const rawVal = activeTab?.discountValue !== undefined && activeTab?.discountValue !== ''
+      ? activeTab.discountValue
+      : (activeTab?.discount ? String(activeTab.discount) : '');
+    const val = parseFloat(rawVal) || 0;
+    const subtotal = calculateSubtotal();
+    const computedDiscount = newType === 'percentage'
+      ? (subtotal * val) / 100
+      : Math.min(subtotal, val);
+
+    updateTabData({
+      discountType: newType,
+      discount: computedDiscount
+    });
+  };
+
+  const handleDiscountValueChange = (val) => {
+    const numVal = parseFloat(val) || 0;
+    const type = activeTab?.discountType || 'fixed';
+    const subtotal = calculateSubtotal();
+    const computedDiscount = type === 'percentage'
+      ? (subtotal * numVal) / 100
+      : Math.min(subtotal, numVal);
+
+    updateTabData({
+      discountValue: val,
+      discount: computedDiscount
+    });
+  };
+
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
-    const discount = Number(activeTab?.discount) || 0;
+    const discount = getDiscountAmount();
     const afterDiscount = Math.max(0, subtotal - discount);
 
     // Calculate credit to apply
@@ -384,7 +432,7 @@ const POS = () => {
   const getCreditApplied = () => {
     if (!activeTab?.applyCreditEnabled) return 0;
     const subtotal = calculateSubtotal();
-    const discount = Number(activeTab?.discount) || 0;
+    const discount = getDiscountAmount();
     const afterDiscount = Math.max(0, subtotal - discount);
     const availableCredit = getAvailableCredit();
     return Math.min(availableCredit, afterDiscount);
@@ -445,6 +493,9 @@ const POS = () => {
       id: Date.now(),
       timestamp: new Date().toISOString(),
       ...activeTab,
+      discount: getDiscountAmount(),
+      discountType: activeTab?.discountType || 'fixed',
+      discountValue: activeTab?.discountValue ?? (activeTab?.discount || ''),
       customerName: activeTab?.customer?.name || 'Walk-in',
     };
 
@@ -455,6 +506,8 @@ const POS = () => {
       customer: null,
       cart: [],
       discount: 0,
+      discountType: 'fixed',
+      discountValue: '',
       paymentMethod: 'cash',
       paidAmount: '',
       changeReturned: '',
@@ -480,6 +533,8 @@ const POS = () => {
       customer: holdOrder.customer || null,
       cart: Array.isArray(holdOrder.cart) ? holdOrder.cart : [],
       discount: Number(holdOrder.discount) || 0,
+      discountType: holdOrder.discountType || 'fixed',
+      discountValue: holdOrder.discountValue !== undefined ? holdOrder.discountValue : (holdOrder.discount || ''),
       paymentMethod: holdOrder.paymentMethod || 'cash',
       bankAccount: holdOrder.bankAccount || '',
       paidAmount: holdOrder.paidAmount || '',
@@ -596,8 +651,8 @@ const POS = () => {
             <td class="right">Rs. ${(Number(subtotal) || 0).toFixed(2)}</td>
           </tr>
           <tr>
-            <td>${t('pos:discount')}</td>
-            <td class="right">-Rs. ${(Number(activeTab.discount) || 0).toFixed(2)}</td>
+            <td>${t('pos:discount')}${activeTab?.discountType === 'percentage' && activeTab?.discountValue ? ` (${activeTab.discountValue}%)` : ''}</td>
+            <td class="right">-Rs. ${(getDiscountAmount()).toFixed(2)}</td>
           </tr>
           ${(Number(activeTab.previousDueApplied) || 0) > 0 ? `
             <tr>
@@ -766,7 +821,7 @@ const POS = () => {
     setShowOverpaymentConfirm(false);
 
     // Validate bank account selection
-    if (activeTab.paymentMethod === 'bank_transfer' && !activeTab.bankAccount) {
+    if (activeTab.paymentMethod === 'bank_transfer' && accounts.length > 0 && !activeTab.bankAccount) {
       toast.error('Please select a bank account for bank transfer payment');
       return;
     }
@@ -798,12 +853,12 @@ const POS = () => {
         price: item.price,
         total: item.quantity * item.price,
       })),
-      discount: parseFloat(activeTab.discount) || 0,
+      discount: Number(getDiscountAmount().toFixed(2)),
       paidAmount: paid,
       creditApplied,
       previousDueAmount: parseFloat(activeTab.previousDueApplied) || 0,
       paymentMethod: activeTab.paymentMethod || 'cash',
-      bankAccount: activeTab.paymentMethod === 'bank_transfer' ? activeTab.bankAccount : null,
+      bankAccount: ['bank_transfer', 'easypaisa', 'jazzcash', 'raast', 'card', 'cheque'].includes(activeTab.paymentMethod) ? (activeTab.bankAccount || null) : null,
       changeReturned,
       splitPaymentDetails: activeTab.splitPaymentDetails || [],
     };
@@ -1183,19 +1238,65 @@ const POS = () => {
               {/* Discount */}
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs sm:text-sm font-semibold text-main">Discount (Rs.)</label>
-                  {isUrdu && <span className="text-xs font-urdu text-secondary">رعایت (روپے)</span>}
+                  <div className="flex items-center gap-1.5">
+                    <label className="text-xs sm:text-sm font-semibold text-main">
+                      {activeTab?.discountType === 'percentage' ? 'Discount (%)' : 'Discount (Rs.)'}
+                    </label>
+                    {isUrdu && (
+                      <span className="text-xs font-urdu text-secondary">
+                        {activeTab?.discountType === 'percentage' ? 'رعایت (فیصد)' : 'رعایت (روپے)'}
+                      </span>
+                    )}
+                  </div>
+                  {/* Rs. / % toggle selector */}
+                  <div className="inline-flex items-center bg-muted/60 p-0.5 rounded-lg border border-default">
+                    <button
+                      type="button"
+                      onClick={() => handleDiscountTypeChange('fixed')}
+                      className={`px-2.5 py-0.5 text-xs font-bold rounded-md transition cursor-pointer ${
+                        (activeTab?.discountType || 'fixed') === 'fixed'
+                          ? 'bg-violet-600 text-white shadow-xs'
+                          : 'text-secondary hover:text-main'
+                      }`}
+                    >
+                      Rs.
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDiscountTypeChange('percentage')}
+                      className={`px-2.5 py-0.5 text-xs font-bold rounded-md transition cursor-pointer ${
+                        activeTab?.discountType === 'percentage'
+                          ? 'bg-violet-600 text-white shadow-xs'
+                          : 'text-secondary hover:text-main'
+                      }`}
+                    >
+                      %
+                    </button>
+                  </div>
                 </div>
-                <input
-                  type="number"
-                  dir="ltr"
-                  value={activeTab?.discount === 0 ? '' : (activeTab?.discount ?? '')}
-                  onChange={(e) => updateTabData({ discount: parseFloat(e.target.value) || 0 })}
-                  min="0"
-                  step="0.01"
-                  className="w-full px-3.5 py-2 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 font-mono text-left shadow-xs transition"
-                  placeholder="0.00"
-                />
+                <div className="relative">
+                  <input
+                    type="number"
+                    dir="ltr"
+                    value={activeTab?.discountValue !== undefined ? activeTab.discountValue : (activeTab?.discount === 0 ? '' : (activeTab?.discount ?? ''))}
+                    onChange={(e) => handleDiscountValueChange(e.target.value)}
+                    onWheel={(e) => e.target.blur()}
+                    min="0"
+                    max={activeTab?.discountType === 'percentage' ? 100 : undefined}
+                    step="any"
+                    className="no-spinner w-full px-3.5 py-2 pe-24 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 font-mono text-left shadow-xs transition"
+                    placeholder={activeTab?.discountType === 'percentage' ? '0.00 %' : '0.00'}
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-xs font-semibold text-secondary">
+                    {activeTab?.discountType === 'percentage' ? (
+                      <span className="text-violet-600 dark:text-violet-400 font-mono font-bold">
+                        {activeTab?.discountValue ? `(-Rs. ${getDiscountAmount().toFixed(0)})` : '%'}
+                      </span>
+                    ) : (
+                      <span className="font-mono text-muted">Rs.</span>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Apply Customer Credit */}
@@ -1238,10 +1339,12 @@ const POS = () => {
 
                 <div className="flex items-center justify-between text-xs sm:text-sm">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-secondary">Discount:</span>
+                    <span className="text-secondary">
+                      Discount{activeTab?.discountType === 'percentage' && activeTab?.discountValue ? ` (${activeTab.discountValue}%):` : ':'}
+                    </span>
                     {isUrdu && <span className="text-xs font-urdu text-muted">(رعایت)</span>}
                   </div>
-                  <span className="font-semibold text-main tabular-nums">-Rs. {(Number(activeTab?.discount) || 0).toFixed(2)}</span>
+                  <span className="font-semibold text-main tabular-nums">-Rs. {getDiscountAmount().toFixed(2)}</span>
                 </div>
 
                 {/* Previous Due Handling */}
@@ -1289,7 +1392,7 @@ const POS = () => {
                     {isUrdu && <span className="text-xs font-urdu text-secondary font-normal">(کل رقم)</span>}
                   </div>
                   <span className="text-violet-600 dark:text-violet-400 tabular-nums">
-                    Rs. {(Number(subtotal) - (Number(activeTab?.discount) || 0) + (parseFloat(activeTab?.previousDueApplied) || 0)).toFixed(2)}
+                    Rs. {(Number(subtotal) - getDiscountAmount() + (parseFloat(activeTab?.previousDueApplied) || 0)).toFixed(2)}
                   </span>
                 </div>
 
@@ -1323,30 +1426,34 @@ const POS = () => {
                 <select
                   value={activeTab?.paymentMethod || 'cash'}
                   onChange={(e) => updateTabData({ paymentMethod: e.target.value })}
-                  className="w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-left transition shadow-xs"
+                  className="w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-left transition shadow-xs cursor-pointer font-medium"
                 >
                   <option value="cash">{isUrdu ? 'Cash / نقد' : 'Cash'}</option>
-                  <option value="upi">{isUrdu ? 'Online / UPI / ڈیجیٹل' : 'Online / UPI'}</option>
-                  <option value="card">{isUrdu ? 'Card / کارڈ' : 'Card'}</option>
-                  <option value="bank_transfer">{isUrdu ? 'Bank Transfer / بینک ٹرانسفر' : 'Bank Transfer'}</option>
+                  <option value="easypaisa">{isUrdu ? 'EasyPaisa / ایزی پیسہ' : 'EasyPaisa'}</option>
+                  <option value="jazzcash">{isUrdu ? 'JazzCash / جاز کیش' : 'JazzCash'}</option>
+                  <option value="raast">{isUrdu ? 'Raast / راست' : 'Raast'}</option>
+                  <option value="card">{isUrdu ? 'Card / POS / کارڈ' : 'Card / POS'}</option>
+                  <option value="bank_transfer">{isUrdu ? 'Bank Transfer (IBFT) / بینک ٹرانسفر' : 'Bank Transfer (IBFT)'}</option>
+                  <option value="cheque">{isUrdu ? 'Cheque / بینک چیک' : 'Cheque'}</option>
                   {activeTab?.customer && <option value="due">{isUrdu ? 'Credit / Due (ادھار کھاتہ)' : 'Credit / Due (Udhaar)'}</option>}
                 </select>
               </div>
 
-              {/* Bank Account Selection */}
-              {activeTab?.paymentMethod === 'bank_transfer' && (
+              {/* Bank Account Selection (for Bank Transfer, Cards, or Digital Accounts) */}
+              {['bank_transfer', 'easypaisa', 'jazzcash', 'raast', 'card', 'cheque'].includes(activeTab?.paymentMethod) && accounts.length > 0 && (
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs sm:text-sm font-semibold text-main">Select Bank Account</label>
+                    <label className="text-xs sm:text-sm font-semibold text-main">
+                      {activeTab?.paymentMethod === 'bank_transfer' ? 'Select Bank Account' : 'Deposit / Linked Account (Optional)'}
+                    </label>
                     {isUrdu && <span className="text-xs font-urdu text-secondary">بینک کھاتہ منتخب کریں</span>}
                   </div>
                   <select
                     value={activeTab?.bankAccount || ''}
                     onChange={(e) => updateTabData({ bankAccount: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-left transition shadow-xs"
-                    required
+                    className="w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-left transition shadow-xs cursor-pointer"
                   >
-                    <option value="">{isUrdu ? 'Choose Account (کھاتہ منتخب کریں)' : 'Choose Account'}</option>
+                    <option value="">{activeTab?.paymentMethod === 'bank_transfer' ? (isUrdu ? 'Choose Account (کھاتہ منتخب کریں)' : 'Choose Account') : (isUrdu ? 'Choose Account (اختیاری)' : 'Choose Account (Optional)')}</option>
                     {accounts.map(account => (
                       <option key={account._id} value={account._id}>
                         {account.bankName} - {account.accountType} (Rs. {account.currentBalance})
@@ -1368,9 +1475,10 @@ const POS = () => {
                   dir="ltr"
                   value={activeTab?.paidAmount ?? ''}
                   onChange={(e) => updateTabData({ paidAmount: e.target.value })}
+                  onWheel={(e) => e.target.blur()}
                   min="0"
-                  step="0.01"
-                  className="w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 font-mono text-left transition shadow-xs font-bold text-base"
+                  step="any"
+                  className="no-spinner w-full px-3.5 py-2.5 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 focus:border-violet-500 font-mono text-left transition shadow-xs font-bold text-base"
                   placeholder="e.g. 25000"
                 />
               </div>
@@ -1736,12 +1844,15 @@ const POS = () => {
                     <select
                       value={payment.method}
                       onChange={(e) => updateSplitPayment(index, 'method', e.target.value)}
-                      className="w-[125px] sm:w-[150px] shrink-0 px-3 py-2 border border-default rounded-xl bg-input text-main text-xs sm:text-sm focus:ring-2 focus:ring-violet-500 font-medium"
+                      className="w-[130px] sm:w-[160px] shrink-0 px-3 py-2 border border-default rounded-xl bg-input text-main text-xs sm:text-sm focus:ring-2 focus:ring-violet-500 font-medium cursor-pointer"
                     >
                       <option value="cash">{isUrdu ? 'Cash (نقد)' : 'Cash'}</option>
-                      <option value="upi">{isUrdu ? 'Online / UPI' : 'Online / UPI'}</option>
-                      <option value="card">{isUrdu ? 'Card (کارڈ)' : 'Card'}</option>
-                      <option value="bank_transfer">{isUrdu ? 'Bank Transfer' : 'Bank Transfer'}</option>
+                      <option value="easypaisa">{isUrdu ? 'EasyPaisa (ایزی پیسہ)' : 'EasyPaisa'}</option>
+                      <option value="jazzcash">{isUrdu ? 'JazzCash (جاز کیش)' : 'JazzCash'}</option>
+                      <option value="raast">{isUrdu ? 'Raast (راست)' : 'Raast'}</option>
+                      <option value="card">{isUrdu ? 'Card / POS (کارڈ)' : 'Card / POS'}</option>
+                      <option value="bank_transfer">{isUrdu ? 'Bank Transfer (بینک)' : 'Bank Transfer'}</option>
+                      <option value="cheque">{isUrdu ? 'Cheque (چیک)' : 'Cheque'}</option>
                     </select>
                     <div className="flex-1 min-w-0">
                       <input
@@ -1749,8 +1860,11 @@ const POS = () => {
                         dir="ltr"
                         value={payment.amount}
                         onChange={(e) => updateSplitPayment(index, 'amount', e.target.value)}
+                        onWheel={(e) => e.target.blur()}
+                        min="0"
+                        step="any"
                         placeholder="0.00"
-                        className="w-full px-3 py-2 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 font-mono text-left text-xs sm:text-sm shadow-xs"
+                        className="no-spinner w-full px-3 py-2 border border-default rounded-xl bg-input text-main placeholder-muted focus:ring-2 focus:ring-violet-500 font-mono text-left text-xs sm:text-sm shadow-xs"
                       />
                     </div>
                     {splitPayments.length > 1 && (

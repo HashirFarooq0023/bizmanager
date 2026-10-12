@@ -46,7 +46,7 @@ const PaymentModal = ({ isOpen, onClose, onSubmit, documentType, totalAmount, pa
         }
     }, [isOpen, totalAmount, paidAmount]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const bankMethods = ['bank', 'upi', 'card', 'cheque'];
@@ -59,13 +59,20 @@ const PaymentModal = ({ isOpen, onClose, onSubmit, documentType, totalAmount, pa
 
         const paymentData = {
             amount: formData.amount,
+            paidAmount: formData.amount,
             paymentMethod: formData.paymentMethod,
             bankAccount: formData.bankAccount || null,
             reference: formData.reference || '',
             notes: formData.notes || ''
         };
 
-        onSubmit(paymentData);
+        try {
+            await onSubmit(paymentData);
+        } catch (err) {
+            console.error('Payment submit error:', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const remainingAmount = totalAmount - paidAmount;
@@ -251,7 +258,6 @@ const PaymentModal = ({ isOpen, onClose, onSubmit, documentType, totalAmount, pa
                         type="button"
                         onClick={onClose}
                         className="flex-1 px-4 py-2.5 border border-slate-300 dark:border-zinc-700 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 font-semibold text-slate-700 dark:text-zinc-300 transition cursor-pointer"
-                        disabled={loading}
                     >
                         {isUrdu ? 'Cancel / منسوخ کریں' : 'Cancel'}
                     </button>

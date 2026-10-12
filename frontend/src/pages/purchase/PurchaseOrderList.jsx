@@ -131,9 +131,8 @@ const PurchaseOrderList = () => {
             <div className="space-y-6">
                 <PageHeader
                     title="Purchase Orders"
-                    subtitle="Create, manage, and track supplier purchase orders"
-                    backPath="/purchase-orders/new"
-                    action={
+                    description="Create, manage, and track supplier purchase orders"
+                    actions={
                         <Button
                             variant="primary"
                             onClick={() => navigate("/purchase-orders/new")}
@@ -181,7 +180,7 @@ const PurchaseOrderList = () => {
 
                     <StatsCard
                         title="Pending Approval"
-                        value={purchaseOrders.filter(po => po.status === 'Draft' || po.status === 'Pending Approval').length}
+                        value={purchaseOrders.filter(po => po.status === 'Pending Approval').length}
                         color="amber"
                         icon={
                             <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

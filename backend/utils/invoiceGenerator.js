@@ -6,8 +6,14 @@ const formatPaymentMethodLabel = (method) => {
   switch (method) {
     case "cash":
       return "Cash";
+    case "easypaisa":
+      return "EasyPaisa";
+    case "jazzcash":
+      return "JazzCash";
+    case "raast":
+      return "Raast";
     case "upi":
-      return "UPI";
+      return "EasyPaisa / JazzCash";
     case "card":
       return "Card";
     case "due":
@@ -407,12 +413,24 @@ export const generateInvoicePDF = async (invoiceData) => {
   doc.text("This is a computer-generated invoice.", pageWidth / 2, footerY + (shopAddress ? 21 : 11), { align: "center" });
 
   // Save PDF
-  const invoicesDir = path.join("invoices");
-  if (!fs.existsSync(invoicesDir)) fs.mkdirSync(invoicesDir);
+  try {
+    const invoicesDir = path.join("invoices");
+    if (!fs.existsSync(invoicesDir)) fs.mkdirSync(invoicesDir, { recursive: true });
 
-  const filePath = path.join(invoicesDir, `${invoiceData.invoiceNo}.pdf`);
-  const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
-  fs.writeFileSync(filePath, pdfBuffer);
+    const filePath = path.join(invoicesDir, `${invoiceData.invoiceNo}.pdf`);
+    const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
+    fs.writeFileSync(filePath, pdfBuffer);
 
-  return filePath;
+    return filePath;
+  } catch (fsErr) {
+    console.warn("Could not write to local invoices directory, falling back to temp directory:", fsErr.message);
+    const tmpDir = path.join(process.env.TEMP || "/tmp", "invoices");
+    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+
+    const filePath = path.join(tmpDir, `${invoiceData.invoiceNo}.pdf`);
+    const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
+    fs.writeFileSync(filePath, pdfBuffer);
+
+    return filePath;
+  }
 };

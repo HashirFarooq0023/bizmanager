@@ -118,8 +118,15 @@ app.use(requestId);
 // Request timeout protection (30 seconds)
 app.use(requestTimeout(30000));
 
-// Body parsing
-app.use(express.json({ limit: "10mb" }));
+// Body parsing with rawBody capture for webhook HMAC signature verification
+app.use(
+    express.json({
+        limit: "10mb",
+        verify: (req, res, buf) => {
+            req.rawBody = buf.toString("utf8");
+        },
+    })
+);
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Cookie parsing with signed cookie support (safe fallback ensures signed cookies never throw)

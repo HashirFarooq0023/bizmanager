@@ -15,6 +15,14 @@ import api from "../../services/api";
 import QuickAddItemModal from "../../components/QuickAddItemModal";
 import Layout from "../../components/Layout";
 
+const getLocalDateString = () => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
 const PurchaseOrderForm = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
@@ -28,7 +36,7 @@ const PurchaseOrderForm = () => {
     const { items = [] } = useSelector((state) => state.inventory);
 
     const [formData, setFormData] = useState({
-        poDate: new Date().toISOString().split("T")[0],
+        poDate: getLocalDateString(),
         expectedDeliveryDate: "",
         supplier: "",
         warehouse: "",
@@ -872,22 +880,21 @@ const PurchaseOrderForm = () => {
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Bill Discount:</span>
-                                        <span className="font-medium text-red-600 dark:text-red-400">-Rs. {formData.billDiscount}</span>
+                                        <span className="font-medium text-red-600 dark:text-red-400">-Rs. {(parseFloat(formData.billDiscount) || 0).toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">Additional Charges:</span>
                                         <span className="font-medium text-gray-900 dark:text-[rgb(var(--color-text))]">
-                                            Rs. 
-                                            {(
-                                                parseFloat(formData.shippingCharges) +
-                                                parseFloat(formData.packingCharges) +
-                                                parseFloat(formData.otherCharges)
+                                            Rs. {(
+                                                (parseFloat(formData.shippingCharges) || 0) +
+                                                (parseFloat(formData.packingCharges) || 0) +
+                                                (parseFloat(formData.otherCharges) || 0)
                                             ).toFixed(2)}
                                         </span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600 dark:text-[rgb(var(--color-text-secondary))]">TDS:</span>
-                                        <span className="font-medium text-red-600 dark:text-red-400">-Rs. {formData.tdsAmount}</span>
+                                        <span className="font-medium text-red-600 dark:text-red-400">-Rs. {(parseFloat(formData.tdsAmount) || 0).toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-lg font-bold border-t border-gray-200 dark:border-[rgb(var(--color-border))] pt-2">
                                         <span className="text-gray-900 dark:text-[rgb(var(--color-text))]">Total Amount:</span>

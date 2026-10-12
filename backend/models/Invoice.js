@@ -86,13 +86,13 @@ const invoiceSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ["cash", "upi", "card", "due", "split", "bank_transfer", "cheque", "credit"],
+      enum: ["cash", "upi", "card", "due", "split", "bank_transfer", "cheque", "credit", "easypaisa", "jazzcash", "raast"],
       default: "cash",
     },
     // Stores the actual paid method when split with credit (e.g., upi/card/cash)
     paidViaMethod: {
       type: String,
-      enum: ["cash", "upi", "card", "due", "split", "bank_transfer", "cheque", "credit"],
+      enum: ["cash", "upi", "card", "due", "split", "bank_transfer", "cheque", "credit", "easypaisa", "jazzcash", "raast"],
       default: null,
     },
     // For split payments: array of {method, amount} to track all methods used
@@ -100,7 +100,7 @@ const invoiceSchema = new mongoose.Schema(
       {
         method: {
           type: String,
-          enum: ["cash", "upi", "card", "due", "split", "bank_transfer", "cheque"],
+          enum: ["cash", "upi", "card", "due", "split", "bank_transfer", "cheque", "easypaisa", "jazzcash", "raast"],
           required: true,
         },
         amount: {

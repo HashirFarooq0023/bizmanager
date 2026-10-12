@@ -22,8 +22,10 @@ import Impersonate from './pages/Impersonate';
 import ImpersonationBanner from './components/ImpersonationBanner';
 import ErrorBoundary from './components/ErrorBoundary';
 
-// Subscription Paywall Page
+// Subscription Pages
 const SubscriptionExpired = lazy(() => import('./pages/SubscriptionExpired'));
+const Billing = lazy(() => import('./pages/Billing'));
+const PaymentCallback = lazy(() => import('./pages/subscription/PaymentCallback'));
 
 // Code-Split Protected & Heavy ERP Modules (Performance Optimization)
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -236,6 +238,30 @@ function App() {
                   <Route
                     path="/subscription-expired"
                     element={<SubscriptionExpired />}
+                  />
+                  <Route
+                    path="/billing"
+                    element={
+                      <ProtectedRoute>
+                        <Billing />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/subscription/success"
+                    element={<PaymentCallback type="success" />}
+                  />
+                  <Route
+                    path="/subscription/failed"
+                    element={<PaymentCallback type="failed" />}
+                  />
+                  <Route
+                    path="/subscription/pending"
+                    element={<PaymentCallback type="pending" />}
+                  />
+                  <Route
+                    path="/subscription/callback"
+                    element={<PaymentCallback />}
                   />
 
                   {/* Protected Routes */}

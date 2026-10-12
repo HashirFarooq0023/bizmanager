@@ -345,7 +345,7 @@ export const deleteUser = async (req, res) => {
 };
 
 /**
- * @desc Grant / Extend / Override user subscription
+ * @desc Grant / Extend / Override / Terminate user subscription
  * @route PUT /api/admin/users/:id/subscription
  * @access SuperAdmin
  */
@@ -355,9 +355,11 @@ export const updateUserSubscription = async (req, res) => {
     const {
       plan,
       status = "active",
+      action, // 'terminate' | 'add_trial' | 'extend' | 'lifetime'
       durationDays,
       customExpiresAt,
       isLifetime = false,
+      billingCycle = "monthly",
       note = "",
     } = req.body;
 
@@ -367,9 +369,102 @@ export const updateUserSubscription = async (req, res) => {
     }
 
     const now = new Date();
+
+    // 1. Immediate Subscription Termination Kill-Switch
+    if (action === "terminate" || status === "terminated" || status === "cancelled") {
+      user.subscription = user.subscription || {};
+      user.subscription.status = "terminated";
+      user.subscription.expiresAt = now;
+      user.subscription.isLifetime = false;
+      user.subscription.notes = note || `Terminated by SuperAdmin (${req.user.email})`;
+
+      // Revoke all device sessions immediately
+      user.activeDeviceId = null;
+      user.activeDeviceIds = [];
+      user.activeSessionCount = 0;
+      user.activeSessionCreatedAt = null;
+
+      // Revoke all refresh tokens
+      await RefreshToken.updateMany(
+        { user: user._id, isRevoked: false },
+        { isRevoked: true, revokedAt: now }
+      );
+
+      // Log to history
+      user.subscription.history = user.subscription.history || [];
+      user.subscription.history.push({
+        plan: user.subscription.plan || "pro",
+        status: "terminated",
+        startDate: user.subscription.startDate || now,
+        expiresAt: now,
+        changedBy: req.user.email,
+        changedAt: now,
+        note: note || `Subscription terminated immediately by SuperAdmin`,
+      });
+
+      await user.save();
+
+      await logUserActivity(user._id, "SUBSCRIPTION_TERMINATED", {
+        adminEmail: req.user.email,
+        reason: note || "Terminated by SuperAdmin",
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: `Subscription for ${user.name} has been immediately terminated and active sessions revoked.`,
+        subscription: user.subscription,
+      });
+    }
+
+    // 2. Add / Extend Free Trial
+    if (action === "add_trial" || status === "trial") {
+      const trialDays = durationDays ? parseInt(durationDays) : 14;
+      const currentExpiry = user.subscription?.expiresAt ? new Date(user.subscription.expiresAt) : now;
+      const baseDate = currentExpiry > now ? currentExpiry : now;
+      const trialExpiresAt = customExpiresAt ? new Date(customExpiresAt) : new Date(baseDate.getTime() + trialDays * 24 * 60 * 60 * 1000);
+
+      user.subscription = user.subscription || {};
+      user.subscription.plan = plan || "trial";
+      user.subscription.status = "trial";
+      user.subscription.billingCycle = "trial";
+      user.subscription.startDate = user.subscription.startDate || now;
+      user.subscription.trialEndsAt = trialExpiresAt;
+      user.subscription.expiresAt = trialExpiresAt;
+      user.subscription.isLifetime = false;
+      user.subscription.lastRenewedAt = now;
+      user.subscription.assignedBy = req.user.email;
+      user.subscription.notes = note || `Trial extended +${trialDays} days by SuperAdmin`;
+
+      user.subscription.history = user.subscription.history || [];
+      user.subscription.history.push({
+        plan: plan || "trial",
+        status: "trial",
+        startDate: user.subscription.startDate || now,
+        expiresAt: trialExpiresAt,
+        changedBy: req.user.email,
+        changedAt: now,
+        note: note || `Free trial granted for ${trialDays} days`,
+      });
+
+      await user.save();
+
+      await logUserActivity(user._id, "TRIAL_EXTENDED", {
+        adminEmail: req.user.email,
+        trialDays,
+        expiresAt: trialExpiresAt,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: `Free trial of ${trialDays} days activated for ${user.name} (Expires: ${trialExpiresAt.toLocaleDateString()}).`,
+        subscription: user.subscription,
+      });
+    }
+
+    // 3. Paid Plan Grant / Extension / Lifetime
     let newExpiresAt;
 
-    if (isLifetime) {
+    if (isLifetime || action === "lifetime" || plan === "lifetime") {
       newExpiresAt = new Date(now.getTime() + 100 * 365 * 24 * 60 * 60 * 1000); // 100 years
     } else if (customExpiresAt) {
       newExpiresAt = new Date(customExpiresAt);
@@ -408,6 +503,7 @@ export const updateUserSubscription = async (req, res) => {
     // Update subscription object
     user.subscription.plan = targetPlan;
     user.subscription.status = targetStatus;
+    user.subscription.billingCycle = isLifetime ? "lifetime" : billingCycle;
     user.subscription.expiresAt = newExpiresAt;
     user.subscription.isLifetime = Boolean(isLifetime);
     user.subscription.lastRenewedAt = now;

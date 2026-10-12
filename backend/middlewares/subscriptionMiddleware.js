@@ -29,13 +29,23 @@ export const requireActiveSubscription = async (req, res, next) => {
       });
     }
 
-    // 3. Check Lifetime Access
-    if (user.subscription && user.subscription.isLifetime) {
-      return next();
-    }
-
     const now = new Date();
     const sub = user.subscription;
+
+    // 2.1 Check if subscription was explicitly terminated or cancelled by SuperAdmin
+    if (sub && (sub.status === "terminated" || sub.status === "cancelled")) {
+      return res.status(403).json({
+        success: false,
+        subscriptionTerminated: true,
+        status: sub.status,
+        message: "Your subscription license has been terminated by administration. Please contact MegaTrix support or renew your plan.",
+      });
+    }
+
+    // 3. Check Lifetime Access
+    if (sub && sub.isLifetime) {
+      return next();
+    }
 
     // If no subscription object exists, initialize default 14-day trial
     if (!sub || !sub.expiresAt) {
@@ -55,8 +65,13 @@ export const requireActiveSubscription = async (req, res, next) => {
 
     const expiresAt = new Date(sub.expiresAt);
 
-    // 4. Check if subscription is expired (JIT validation against server clock)
+    // 4. Check if subscription is expired (JIT validation against server clock + grace period)
     if (now > expiresAt) {
+      // Check if user is within an active grace period
+      if (sub.gracePeriodEndsAt && new Date(sub.gracePeriodEndsAt) > now) {
+        return next(); // Allow temporary access during grace period
+      }
+
       // Transition DB status to 'expired' asynchronously if not already set
       if (sub.status !== "expired") {
         User.findByIdAndUpdate(user._id, {

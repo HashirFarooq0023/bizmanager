@@ -21,9 +21,19 @@ verifyEmailTransport().catch(err => {
 });
 
 // =======================
-// DB
+// DB & Subsystems
 // =======================
-connectDB();
+connectDB().then(async () => {
+  try {
+    const { seedInitialPlans } = await import("./controllers/subscriptionPlanController.js");
+    await seedInitialPlans();
+
+    const { initSubscriptionScheduler } = await import("./services/subscriptionScheduler.js");
+    initSubscriptionScheduler();
+  } catch (initErr) {
+    error("Subsystem initialization error:", initErr);
+  }
+});
 
 // =======================
 // Server
